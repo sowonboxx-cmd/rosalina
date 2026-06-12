@@ -107,13 +107,13 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
     <div class="section-title">1. Maison &amp; Dates</div>
     <div class="maison-selector">
       <div class="maison-btn active" id="btn-rosa-lina" onclick="selectMaison('rosa-lina')">
-        <div class="mb-name">🏡 Rosa + Lina</div><div class="mb-cap">Jusqu'à 45 personnes</div>
+        <div class="mb-name">Rosa + Lina</div><div class="mb-cap">Jusqu'à 38 personnes</div>
       </div>
       <div class="maison-btn" id="btn-rosa" onclick="selectMaison('rosa')">
-        <div class="mb-name">🏠 Maison Rosa</div><div class="mb-cap">Jusqu'à 30 personnes</div>
+        <div class="mb-name">Maison Rosa</div><div class="mb-cap">Jusqu'à 24 personnes</div>
       </div>
       <div class="maison-btn" id="btn-lina" onclick="selectMaison('lina')">
-        <div class="mb-name">🏡 Maison Lina</div><div class="mb-cap">Jusqu'à 15 personnes</div>
+        <div class="mb-name">Maison Lina</div><div class="mb-cap">Jusqu'à 14 personnes</div>
       </div>
     </div>
     <div class="field-grid" style="margin-bottom:16px">
@@ -121,7 +121,7 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
         <label>📅 Date d'entrée</label>
         <div class="date-field-wrap" id="wrap-entree">
           <div class="date-input-btn" id="btn-entree" onclick="event.stopPropagation();toggleCal('entree')">
-            <span style="font-size:.95rem;flex-shrink:0">📅</span>
+            <span style="font-size:.95rem;flex-shrink:0"></span>
             <span class="date-text placeholder" id="txt-entree">Sélectionner une date</span>
             <span class="clear-btn" id="clr-entree" onclick="clearDate('entree',event)" style="display:none">✕</span>
           </div>
@@ -133,7 +133,7 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
         <label>📅 Date de sortie</label>
         <div class="date-field-wrap" id="wrap-sortie">
           <div class="date-input-btn" id="btn-sortie" onclick="event.stopPropagation();toggleCal('sortie')">
-            <span style="font-size:.95rem;flex-shrink:0">📅</span>
+            <span style="font-size:.95rem;flex-shrink:0"></span>
             <span class="date-text placeholder" id="txt-sortie">Sélectionner une date</span>
             <span class="clear-btn" id="clr-sortie" onclick="clearDate('sortie',event)" style="display:none">✕</span>
           </div>
@@ -143,11 +143,11 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
       </div>
     </div>
     <div class="field-grid four">
-      <div class="field"><label>📆 Jours</label><input type="text" id="nb-jours" readonly placeholder="auto"></div>
-      <div class="field"><label>🌙 Nuitées</label><input type="text" id="nuitees" readonly placeholder="auto"></div>
-      <div class="field"><label>👤 Adultes</label><select id="nb-adultes" onchange="calcAll()"><option value="">— —</option></select></div>
+      <div class="field"><label>Jours</label><input type="text" id="nb-jours" readonly placeholder="auto"></div>
+      <div class="field"><label>Nuitées</label><input type="text" id="nuitees" readonly placeholder="auto"></div>
+      <div class="field"><label>Adultes</label><select id="nb-adultes" onchange="calcAll()"><option value="">— —</option></select></div>
       <div class="field">
-        <label>🧒 Enfants <span style="color:#aaa;font-weight:400">(optionnel)</span></label>
+        <label>Enfants</label>
         <select id="nb-enfants" onchange="calcAll()">
           <option value="0">0</option><option value="1">1</option><option value="2">2</option>
           <option value="3">3</option><option value="4">4</option><option value="5">5</option>
@@ -198,7 +198,7 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
       </tr>
       <tr>
         <td class="ft-label">
-          Ménage <span class="auto-badge">pré-rempli</span>
+          Ménage <span class="auto-badge"></span>
           <label class="offert-row"><input type="checkbox" id="menage-offert" onchange="calcAll()"><span>Offert (0 €)</span></label>
         </td>
         <td class="ft-input"><input type="number" id="menage" min="0" oninput="calcAll()"><span class="euro">€</span></td>
@@ -217,11 +217,11 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
         </td>
       </tr>
       <tr class="row-auto">
-        <td class="ft-label">Arrhes (50%) — calculé auto</td>
+        <td class="ft-label">Arrhes (50%)</td>
         <td class="ft-value" id="arrhes-display">0 €</td>
       </tr>
       <tr class="row-auto">
-        <td class="ft-label">Solde (50%) — calculé auto</td>
+        <td class="ft-label">Solde (50%)</td>
         <td class="ft-value" id="solde-display">0 €</td>
       </tr>
       <tr class="row-total">
@@ -466,7 +466,7 @@ function calcAll(){
   document.getElementById('taxe-hint').textContent=
     taxeOffert?'✓ Taxe de séjour offerte':
     (adultes>0&&nuits>0?`${adultes} adulte${adultes>1?'s':''} × ${nuits} nuit${nuits>1?'s':''} × 1,65 € = ${fmt(taxeAuto)}`:
-    'Complétez dates + adultes pour le calcul auto');
+    '');
 
   const menageOffert=document.getElementById('menage-offert').checked;
   const menageInput=document.getElementById('menage');
