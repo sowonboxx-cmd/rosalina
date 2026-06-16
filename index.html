@@ -924,29 +924,11 @@ async function saveToNotion() {
   showStatus('loading', '⏳ Sauvegarde dans Notion en cours…');
 
   try {
-    // Essai 1 : allorigins
-    let res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://api.notion.com/v1/pages')}`, {
+    const res = await fetch('https://notion-proxy.sowonboxx.workers.dev', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${NOTION_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': '2022-06-28',
-      },
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: NOTION_TOKEN, payload: payload })
     });
-
-    // Essai 2 si le premier échoue : corsproxy.io
-    if (!res.ok && res.status === 0) {
-      res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://api.notion.com/v1/pages')}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${NOTION_TOKEN}`,
-          'Content-Type': 'application/json',
-          'Notion-Version': '2022-06-28',
-        },
-        body: JSON.stringify(payload)
-      });
-    }
 
     const data = await res.json();
 
