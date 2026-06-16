@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domaine Rosalina — Générateur de Devis</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0 0 80px}
+.screen-header{background:#2C3D2C;padding:28px 40px;display:flex;align-items:center;justify-content:space-between}
+.screen-header h1{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:300;color:#fff;letter-spacing:.03em}
+.screen-header p{font-size:.72rem;color:rgba(255,255,255,.5);letter-spacing:.15em;text-transform:uppercase;margin-top:4px}
+.header-logo{font-family:'Cormorant Garamond',serif;font-size:2.2rem;color:#C8956C;font-weight:300}
+.form-body{max-width:880px;margin:36px auto;padding:0 20px;display:flex;flex-direction:column;gap:28px}
+.section-card{background:#fff;border-radius:12px;padding:28px 32px;box-shadow:0 4px 24px rgba(0,0,0,.07)}
+.section-title{font-size:.64rem;letter-spacing:.28em;text-transform:uppercase;color:#C8956C;margin-bottom:22px;display:flex;align-items:center;gap:12px}
+.section-title::after{content:'';flex:1;height:1px;background:#eee}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field-grid.four{grid-template-columns:1fr 1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.72rem;font-weight:500;color:#444;letter-spacing:.04em}
+.field input,.field select{border:1.5px solid #E0D8CE;border-radius:8px;padding:10px 14px;font-family:'Jost',sans-serif;font-size:.9rem;color:#1A1A1A;background:#FAFAF8;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;cursor:pointer}
+.field input:focus,.field select:focus{border-color:#C8956C;box-shadow:0 0 0 3px rgba(200,149,108,.12);background:#fff}
+.field input[readonly]{background:#F0EDE6;color:#2C3D2C;font-weight:600;cursor:default}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.field .hint{font-size:.67rem;color:#aaa}
+.field .auto-badge{font-size:.63rem;background:#EDF5EC;color:#3D5438;padding:2px 8px;border-radius:10px;display:inline-block;font-weight:500}
+.cp-status{font-size:.67rem;margin-top:2px}
+.cp-status.loading{color:#aaa}
+.cp-status.ok{color:#3D5438}
+.cp-status.err{color:#C8956C}
+.maison-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.maison-btn{border:2px solid #E0D8CE;border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;background:#FAFAF8}
+.maison-btn:hover{border-color:#C8956C;background:#FFF8F2}
+.maison-btn.active{border-color:#C8956C;background:#FFF8F2;box-shadow:0 0 0 3px rgba(200,149,108,.15)}
+.maison-btn .mb-name{font-weight:600;font-size:.88rem;color:#2C3D2C}
+.maison-btn .mb-cap{font-size:.72rem;color:#888;margin-top:3px}
+.date-field-wrap{position:relative}
+.date-input-btn{border:1.5px solid #E0D8CE;border-radius:8px;padding:10px 14px;font-family:'Jost',sans-serif;font-size:.9rem;color:#1A1A1A;background:#FAFAF8;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;min-height:42px}
+.date-input-btn:hover,.date-input-btn.open{border-color:#C8956C;box-shadow:0 0 0 3px rgba(200,149,108,.12);background:#fff}
+.date-input-btn .date-text{flex:1;font-size:.9rem}
+.date-input-btn .date-text.placeholder{color:#aaa}
+.date-input-btn .clear-btn{color:#ccc;font-size:.85rem;cursor:pointer;padding:2px 4px;border-radius:4px;transition:color .15s;flex-shrink:0}
+.date-input-btn .clear-btn:hover{color:#C8956C}
+.cal-popup{position:absolute;top:calc(100% + 8px);left:0;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.18);padding:20px;width:300px;display:none}
+.cal-popup.open{display:block}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cal-nav{background:none;border:none;cursor:pointer;padding:6px 12px;border-radius:8px;font-size:1.2rem;color:#555;transition:background .15s;line-height:1;font-weight:300}
+.cal-nav:hover{background:#F5EFE8;color:#2C3D2C}
+.cal-month-label{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:400;color:#1A1A1A;letter-spacing:.02em}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+.cal-dow{font-size:.6rem;font-weight:600;text-align:center;color:#bbb;padding:4px 0 8px;letter-spacing:.05em;text-transform:uppercase}
+.cal-day{height:36px;display:flex;align-items:center;justify-content:center;font-size:.82rem;border-radius:50%;cursor:pointer;transition:all .12s;color:#1A1A1A}
+.cal-day:hover:not(.disabled):not(.empty){background:#F5EFE8}
+.cal-day.today{font-weight:700;color:#C8956C}
+.cal-day.selected{background:#2C3D2C!important;color:#fff!important;font-weight:600;border-radius:50%}
+.cal-day.in-range{background:#EDF5EC;color:#2C3D2C;border-radius:0}
+.cal-day.range-start{background:#2C3D2C!important;color:#fff!important;font-weight:600;border-radius:50% 0 0 50%}
+.cal-day.range-end{background:#2C3D2C!important;color:#fff!important;font-weight:600;border-radius:0 50% 50% 0}
+.cal-day.range-start.range-end{border-radius:50%!important}
+.cal-day.disabled{color:#ddd;cursor:default;pointer-events:none}
+.cal-day.empty{pointer-events:none}
+.cal-year-btns{display:flex;gap:6px;margin-top:14px;padding-top:12px;border-top:1px solid #f0ece6}
+.cal-year-btn{flex:1;padding:6px 4px;border:1.5px solid #E0D8CE;border-radius:8px;background:#FAFAF8;font-family:'Jost',sans-serif;font-size:.78rem;color:#555;cursor:pointer;transition:all .15s;text-align:center}
+.cal-year-btn:hover{border-color:#C8956C;color:#C8956C;background:#FFF8F2}
+.cal-year-btn.active{border-color:#2C3D2C;background:#2C3D2C;color:#fff}
+.offert-row{display:flex;align-items:center;gap:8px;margin-top:6px;cursor:pointer;user-select:none}
+.offert-row input[type=checkbox]{width:16px;height:16px;accent-color:#3D5438;cursor:pointer;flex-shrink:0}
+.offert-row span{font-size:.72rem;color:#3D5438;font-weight:500}
+.finance-table{width:100%;border-collapse:collapse;font-size:.88rem}
+.finance-table td{padding:13px 16px;border-bottom:1px solid #F0ECE6;vertical-align:middle}
+.finance-table tr:last-child td{border-bottom:none}
+.finance-table .ft-label{color:#444}
+.finance-table .ft-value{text-align:right;font-weight:600;color:#2C3D2C;white-space:nowrap}
+.finance-table .ft-input{text-align:right}
+.finance-table .ft-input input{text-align:right;width:130px;border:1.5px solid #E0D8CE;border-radius:6px;padding:7px 12px;font-family:'Jost',sans-serif;font-size:.88rem;background:#FAFAF8;outline:none;transition:border-color .2s}
+.finance-table .ft-input input:focus{border-color:#C8956C;background:#fff}
+.finance-table .ft-input input[readonly]{background:#F0EDE6;color:#2C3D2C;font-weight:600;cursor:default}
+.euro{color:#888;font-size:.8rem;margin-left:3px}
+.row-auto td{background:#F9F7F4}
+.row-auto .ft-label{color:#888;font-size:.83rem}
+.row-total td{font-weight:700;font-size:1rem;color:#2C3D2C;border-top:2px solid #2C3D2C;border-bottom:2px solid #2C3D2C;padding:14px 16px}
+.row-reduc td{background:#F2FFF2}
+.row-caution td{background:#F9F7F4;color:#666;font-size:.83rem}
+.reduc-wrap{display:flex;align-items:center;gap:7px;justify-content:flex-end;flex-wrap:wrap}
+.reduc-wrap input{text-align:right;width:90px;border:1.5px solid #E0D8CE;border-radius:6px;padding:7px 10px;font-family:'Jost',sans-serif;font-size:.88rem;background:#FAFAF8;outline:none;transition:border-color .2s}
+.reduc-wrap input:focus{border-color:#3D5438;background:#fff}
+.reduc-sep{color:#ccc;font-size:.8rem}
+.btn-generate{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:18px;background:#2C3D2C;color:#fff;border:none;border-radius:12px;font-family:'Jost',sans-serif;font-size:1rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .15s;box-shadow:0 4px 20px rgba(44,61,44,.25)}
+.btn-generate:hover{background:#3D5438;transform:translateY(-2px)}
+.btn-generate svg{width:20px;height:20px;fill:#C8956C}
+.btn-notion{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:16px;background:#fff;color:#1A1A1A;border:2px solid #1A1A1A;border-radius:12px;font-family:'Jost',sans-serif;font-size:1rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:-12px}
+.btn-notion:hover{background:#1A1A1A;color:#fff;transform:translateY(-2px)}
+.btn-notion svg{width:20px;height:20px;flex-shrink:0}
+.btn-notion:disabled{opacity:.5;cursor:wait;transform:none}
+.notion-status{padding:14px 20px;border-radius:10px;font-size:.82rem;font-weight:500;text-align:center}
+.notion-status.loading{background:#F0EDE6;color:#2C3D2C}
+.notion-status.success{background:#EDF5EC;color:#2C3D2C;border:1px solid #6A8C65}
+.notion-status.error{background:#FFF0F0;color:#C0392B;border:1px solid #e88}
+.preview-note{text-align:center;font-size:.72rem;color:#aaa;margin-top:-12px}
+</style>
+</head>
+<body>
+
+<div class="screen-header">
+  <div><h1>Générateur de Devis</h1><p>Domaine Rosalina · Honfleur, Normandie</p></div>
+  <div class="header-logo">R</div>
+</div>
+
+<div class="form-body">
+
+  <!-- 0. NOTION CONFIG -->
+  <div class="section-card" id="notion-config-card">
+    <div class="section-title">🔗 Connexion Notion</div>
+    <div class="field-grid">
+      <div class="field" style="grid-column:1/-1">
+        <label>Token d'intégration Notion <span style="color:#aaa;font-weight:400">(sauvegardé localement, jamais partagé)</span></label>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input type="password" id="notion-token-input" placeholder="ntn_..." style="flex:1"
+            oninput="saveNotionToken(this.value)">
+          <button onclick="toggleTokenVisibility()" style="padding:10px 14px;border:1.5px solid #E0D8CE;border-radius:8px;background:#FAFAF8;cursor:pointer;font-size:.85rem;white-space:nowrap" id="token-eye">👁 Voir</button>
+        </div>
+        <span class="hint" id="token-status"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. MAISON & DATES -->
+  <div class="section-card">
+    <div class="section-title">1. Maison &amp; Dates</div>
+    <div class="maison-selector">
+      <div class="maison-btn active" id="btn-rosa-lina" onclick="selectMaison('rosa-lina')">
+        <div class="mb-name">Rosa + Lina</div><div class="mb-cap">Jusqu'à 38 personnes</div>
+      </div>
+      <div class="maison-btn" id="btn-rosa" onclick="selectMaison('rosa')">
+        <div class="mb-name">Rosa</div><div class="mb-cap">Jusqu'à 24 personnes</div>
+      </div>
+      <div class="maison-btn" id="btn-lina" onclick="selectMaison('lina')">
+        <div class="mb-name">Lina</div><div class="mb-cap">Jusqu'à 14 personnes</div>
+      </div>
+    </div>
+    <div class="field-grid" style="margin-bottom:16px">
+      <div class="field">
+        <label>Date d'entrée</label>
+        <div class="date-field-wrap" id="wrap-entree">
+          <div class="date-input-btn" id="btn-entree" onclick="event.stopPropagation();toggleCal('entree')">
+            <span style="font-size:.95rem;flex-shrink:0"></span>
+            <span class="date-text placeholder" id="txt-entree">Sélectionner</span>
+            <span class="clear-btn" id="clr-entree" onclick="clearDate('entree',event)" style="display:none">✕</span>
+          </div>
+          <div class="cal-popup" id="cal-entree" onclick="event.stopPropagation()"></div>
+        </div>
+        <span class="hint">Entrée à 16h00</span>
+      </div>
+      <div class="field">
+        <label>Date de sortie</label>
+        <div class="date-field-wrap" id="wrap-sortie">
+          <div class="date-input-btn" id="btn-sortie" onclick="event.stopPropagation();toggleCal('sortie')">
+            <span style="font-size:.95rem;flex-shrink:0"></span>
+            <span class="date-text placeholder" id="txt-sortie">Sélectionner</span>
+            <span class="clear-btn" id="clr-sortie" onclick="clearDate('sortie',event)" style="display:none">✕</span>
+          </div>
+          <div class="cal-popup" id="cal-sortie" onclick="event.stopPropagation()"></div>
+        </div>
+        <span class="hint">Sortie à 11h00</span>
+      </div>
+    </div>
+    <div class="field-grid four">
+      <div class="field"><label>Jours</label><input type="text" id="nb-jours" readonly placeholder="auto"></div>
+      <div class="field"><label>Nuitées</label><input type="text" id="nuitees" readonly placeholder="auto"></div>
+      <div class="field"><label>Adultes</label><select id="nb-adultes" onchange="calcAll()"><option value="">— —</option></select></div>
+      <div class="field">
+        <label>Enfants</label>
+        <select id="nb-enfants" onchange="calcAll()">
+          <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+          <option value="6">6</option><option value="7">7</option><option value="8">8</option>
+          <option value="9">9</option><option value="10">10</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. PRENEUR -->
+  <div class="section-card">
+    <div class="section-title">2. Informations du preneur (client)</div>
+    <div class="field-grid">
+      <div class="field"><label>Prénom</label><input type="text" id="prenom" placeholder="ex : Clément"></div>
+      <div class="field"><label>Nom</label><input type="text" id="nom" placeholder="ex : Merrien"></div>
+      <div class="field" style="grid-column:1/-1">
+        <label>Association / Entreprise <span style="color:#aaa;font-weight:400">(optionnel)</span></label>
+        <input type="text" id="asso" placeholder="ex : SC Briard Football">
+      </div>
+      <div class="field" style="grid-column:1/-1"><label>Adresse</label><input type="text" id="adresse" placeholder="ex : 65 bis avenue Victor Hugo"></div>
+      <div class="field">
+        <label>Code postal</label>
+        <input type="text" id="cp" placeholder="ex : 77170" maxlength="5" oninput="lookupCP(this.value)">
+        <span class="cp-status" id="cp-status"></span>
+      </div>
+      <div class="field"><label>Ville</label><input type="text" id="ville" placeholder="remplie automatiquement"></div>
+      <div class="field"><label>Téléphone</label><input type="tel" id="tel" placeholder="ex : 06 12 34 56 78"></div>
+      <div class="field"><label>Email</label><input type="email" id="email" placeholder="ex : contact@exemple.fr"></div>
+    </div>
+  </div>
+
+  <!-- 3. TARIFICATION -->
+  <div class="section-card">
+    <div class="section-title">3. Tarification</div>
+    <table class="finance-table">
+      <tr>
+        <td class="ft-label"><strong>Prix du séjour</strong></td>
+        <td class="ft-input"><input type="number" id="prix-sejour" min="0" placeholder="0" oninput="calcAll()"><span class="euro">€</span></td>
+      </tr>
+      <tr>
+        <td class="ft-label">
+          Taxe de séjour
+          <div id="taxe-hint" style="font-size:.7rem;color:#888;margin-top:2px"></div>
+          <label class="offert-row"><input type="checkbox" id="taxe-offert" onchange="calcAll()"><span>Offert (0 €)</span></label>
+        </td>
+        <td class="ft-input"><input type="number" id="taxe" readonly><span class="euro">€</span></td>
+      </tr>
+      <tr>
+        <td class="ft-label">
+          Ménage <span class="auto-badge"></span>
+          <label class="offert-row"><input type="checkbox" id="menage-offert" onchange="calcAll()"><span>Offert (0 €)</span></label>
+        </td>
+        <td class="ft-input"><input type="number" id="menage" min="0" oninput="calcAll()"><span class="euro">€</span></td>
+      </tr>
+      <tr class="row-reduc">
+        <td class="ft-label">
+          Réduction <span style="color:#aaa;font-weight:400;font-size:.8rem">(optionnel)</span>
+          <div id="reduc-hint" style="font-size:.7rem;color:#3D5438;margin-top:2px"></div>
+        </td>
+        <td class="ft-input">
+          <div class="reduc-wrap">
+            <input type="number" id="reduc-montant" min="0" placeholder="0" oninput="onReducMontant()"><span class="euro">€</span>
+            <span class="reduc-sep">ou</span>
+            <input type="number" id="reduc-pct" min="0" max="100" step="0.1" placeholder="0" oninput="onReducPct()"><span class="euro">%</span>
+          </div>
+        </td>
+      </tr>
+      <tr class="row-auto">
+        <td class="ft-label">Arrhes (50%)</td>
+        <td class="ft-value" id="arrhes-display">0 €</td>
+      </tr>
+      <tr class="row-auto">
+        <td class="ft-label">Solde (50%)</td>
+        <td class="ft-value" id="solde-display">0 €</td>
+      </tr>
+      <tr class="row-total">
+        <td class="ft-label">TOTAL</td>
+        <td class="ft-value" id="total-display">0 €</td>
+      </tr>
+      <tr class="row-caution">
+        <td class="ft-label">Caution remboursable <span class="auto-badge">pré-remplie</span></td>
+        <td class="ft-input"><input type="number" id="caution" min="0" oninput="calcAll()"><span class="euro">€</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <button class="btn-generate" onclick="generatePDF()">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
+    Générer le devis PDF
+  </button>
+  <button class="btn-notion" onclick="saveToNotion()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Sauvegarder dans Notion
+  </button>
+  <div id="notion-status" class="notion-status" style="display:none"></div>
+  <p class="preview-note">Le devis s'ouvrira dans un nouvel onglet — faites Fichier → Enregistrer en PDF</p>
+
+</div>
+
+<script>
+// ══ CONFIG ══
+const MAISONS = {
+  'rosa-lina':{ label:'Rosa + Lina', detail:'45 voyageurs, 15 chambres, 12 salles d\'eau', maxA:45, caution:1500, menage:300 },
+  'rosa':     { label:'Maison Rosa', detail:'30 voyageurs, 10 chambres, 7 salles d\'eau',  maxA:30, caution:1000, menage:250 },
+  'lina':     { label:'Maison Lina', detail:'15 voyageurs, 5 chambres, 4 salles d\'eau',   maxA:15, caution:600,  menage:150 },
+};
+const TAXE_RATE = 1.65;
+const MOIS_FR   = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const MOIS_LONG = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const JOURS_FR  = ['L','M','M','J','V','S','D'];
+let currentMaison = 'rosa-lina';
+let reducSource = null;
+const CAL = {
+  entree:{ date:null, viewYear:null, viewMonth:null },
+  sortie:{ date:null, viewYear:null, viewMonth:null }
+};
+
+// ══ CALENDRIER ══
+function initCalViews(){
+  const n=new Date();
+  CAL.entree.viewYear=CAL.sortie.viewYear=n.getFullYear();
+  CAL.entree.viewMonth=CAL.sortie.viewMonth=n.getMonth();
+}
+
+function toggleCal(w){
+  const other = w==='entree'?'sortie':'entree';
+  const popup = document.getElementById('cal-'+w);
+  const btn   = document.getElementById('btn-'+w);
+  const isOpen = popup.classList.contains('open');
+  closeAllCals();
+  if(!isOpen){ renderCal(w); popup.classList.add('open'); btn.classList.add('open'); }
+}
+
+function closeAllCals(){
+  ['entree','sortie'].forEach(w=>{
+    document.getElementById('cal-'+w).classList.remove('open');
+    document.getElementById('btn-'+w).classList.remove('open');
+  });
+}
+
+function renderCal(w){
+  const s=CAL[w];
+  const now=new Date(); now.setHours(0,0,0,0);
+  const maxDate=new Date(now.getFullYear()+2,now.getMonth(),now.getDate());
+  const y=s.viewYear, m=s.viewMonth;
+  const firstDay=new Date(y,m,1);
+  const lastDay=new Date(y,m+1,0);
+  let startDow=firstDay.getDay();
+  startDow=(startDow===0)?6:startDow-1;
+  const dE=CAL.entree.date, dS=CAL.sortie.date;
+  const curYear=now.getFullYear();
+
+  let h=`<div class="cal-header">
+    <button class="cal-nav" onclick="navCal('${w}',-1);event.stopPropagation()">&#8249;</button>
+    <span class="cal-month-label">${MOIS_FR[m]} ${y}</span>
+    <button class="cal-nav" onclick="navCal('${w}',1);event.stopPropagation()">&#8250;</button>
+  </div><div class="cal-grid">`;
+  JOURS_FR.forEach(d=>{ h+=`<div class="cal-dow">${d}</div>`; });
+  for(let i=0;i<startDow;i++) h+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=lastDay.getDate();d++){
+    const t=new Date(y,m,d);
+    const isPast=t<now, isFut=t>maxDate, isToday=t.getTime()===now.getTime();
+    let cls='cal-day';
+    if(isPast||isFut){ cls+=' disabled'; }
+    else {
+      if(isToday) cls+=' today';
+      if(dE&&dS){
+        const tv=t.getTime(),ev=dE.getTime(),sv=dS.getTime();
+        if(tv===ev&&tv===sv) cls+=' selected range-start range-end';
+        else if(tv===ev) cls+=' range-start';
+        else if(tv===sv) cls+=' range-end';
+        else if(tv>ev&&tv<sv) cls+=' in-range';
+      } else if(dE&&t.getTime()===dE.getTime()) cls+=' selected';
+      else if(dS&&t.getTime()===dS.getTime()) cls+=' selected';
+    }
+    h+=`<div class="${cls}" onclick="pickDay('${w}',${y},${m},${d});event.stopPropagation()">${d}</div>`;
+  }
+  h+=`</div><div class="cal-year-btns">`;
+  for(let yr=curYear;yr<=curYear+2;yr++){
+    const act=yr===y?' active':'';
+    h+=`<button class="cal-year-btn${act}" onclick="jumpYear('${w}',${yr});event.stopPropagation()">${yr}</button>`;
+  }
+  h+=`</div>`;
+  document.getElementById('cal-'+w).innerHTML=h;
+}
+
+function navCal(w,dir){
+  const s=CAL[w];
+  s.viewMonth+=dir;
+  if(s.viewMonth>11){s.viewMonth=0;s.viewYear++;}
+  if(s.viewMonth<0){s.viewMonth=11;s.viewYear--;}
+  renderCal(w);
+}
+
+function jumpYear(w,yr){ CAL[w].viewYear=yr; renderCal(w); }
+
+function pickDay(w,y,m,d){
+  const picked=new Date(y,m,d);
+  CAL[w].date=picked;
+  if(w==='entree'){
+    if(CAL.sortie.date&&CAL.sortie.date<=picked){ CAL.sortie.date=null; updateDisplay('sortie'); }
+    updateDisplay('entree');
+    closeAllCals();
+    if(!CAL.sortie.date){
+      CAL.sortie.viewYear=y; CAL.sortie.viewMonth=m;
+      setTimeout(()=>toggleCal('sortie'),120);
+    }
+  } else {
+    if(CAL.entree.date&&picked<=CAL.entree.date){
+      CAL.entree.date=picked; CAL.sortie.date=null;
+      updateDisplay('entree'); updateDisplay('sortie');
+      closeAllCals();
+      setTimeout(()=>toggleCal('sortie'),120);
+      return;
+    }
+    updateDisplay('sortie');
+    closeAllCals();
+  }
+  calcAll();
+}
+
+function updateDisplay(w){
+  const d=CAL[w].date;
+  const txt=document.getElementById('txt-'+w);
+  const clr=document.getElementById('clr-'+w);
+  if(d){
+    txt.textContent=String(d.getDate()).padStart(2,'0')+' '+MOIS_LONG[d.getMonth()]+' '+d.getFullYear();
+    txt.classList.remove('placeholder');
+    clr.style.display='inline';
+  } else {
+    txt.textContent='Sélectionner une date';
+    txt.classList.add('placeholder');
+    clr.style.display='none';
+  }
+}
+
+function clearDate(w,e){
+  e.stopPropagation();
+  CAL[w].date=null;
+  updateDisplay(w);
+  calcAll();
+}
+
+function fmtDateFR(d){
+  if(!d) return '—';
+  return String(d.getDate()).padStart(2,'0')+' '+MOIS_LONG[d.getMonth()]+' '+d.getFullYear();
+}
+
+document.addEventListener('click',function(e){
+  const inEntree=document.getElementById('wrap-entree').contains(e.target);
+  const inSortie=document.getElementById('wrap-sortie').contains(e.target);
+  if(!inEntree) document.getElementById('cal-entree').classList.remove('open'), document.getElementById('btn-entree').classList.remove('open');
+  if(!inSortie) document.getElementById('cal-sortie').classList.remove('open'), document.getElementById('btn-sortie').classList.remove('open');
+});
+
+// ══ MAISON ══
+function selectMaison(m){
+  currentMaison=m;
+  document.querySelectorAll('.maison-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn-'+m).classList.add('active');
+  document.getElementById('caution').value=MAISONS[m].caution;
+  document.getElementById('menage').value=MAISONS[m].menage;
+  updateAdultesOptions();
+  calcAll();
+}
+
+function updateAdultesOptions(){
+  const sel=document.getElementById('nb-adultes');
+  const max=MAISONS[currentMaison].maxA;
+  const cur=parseInt(sel.value)||0;
+  sel.innerHTML='<option value="">— —</option>';
+  for(let i=1;i<=max;i++){
+    const o=document.createElement('option');
+    o.value=i; o.textContent=i+' adulte'+(i>1?'s':'');
+    if(i===cur) o.selected=true;
+    sel.appendChild(o);
+  }
+}
+
+// ══ RÉDUCTION ══
+function onReducMontant(){ reducSource='montant'; syncReduc(); calcAll(); }
+function onReducPct()    { reducSource='pct';     syncReduc(); calcAll(); }
+function syncReduc(){
+  const base=getBase();
+  const rM=parseFloat(document.getElementById('reduc-montant').value)||0;
+  const rP=parseFloat(document.getElementById('reduc-pct').value)||0;
+  if(reducSource==='montant'){
+    document.getElementById('reduc-pct').value=base>0&&rM>0?(rM/base*100).toFixed(2):'';
+  } else {
+    document.getElementById('reduc-montant').value=rP>0?(base*rP/100).toFixed(2):'';
+  }
+}
+function getBase(){
+  const prix=parseFloat(document.getElementById('prix-sejour').value)||0;
+  const tO=document.getElementById('taxe-offert').checked;
+  const mO=document.getElementById('menage-offert').checked;
+  const taxe=tO?0:(parseFloat(document.getElementById('taxe').value)||0);
+  const menage=mO?0:(parseFloat(document.getElementById('menage').value)||0);
+  return prix+taxe+menage;
+}
+
+// ══ CALCUL ══
+function calcAll(){
+  const dE=CAL.entree.date, dS=CAL.sortie.date;
+  let nuits=0, jours=0;
+  if(dE&&dS&&dS>dE){
+    nuits=Math.round((dS-dE)/86400000);
+    jours=nuits+1;
+    document.getElementById('nb-jours').value=jours+' jour'+(jours>1?'s':'');
+    document.getElementById('nuitees').value=nuits+' nuit'+(nuits>1?'s':'');
+  } else {
+    document.getElementById('nb-jours').value='';
+    document.getElementById('nuitees').value='';
+  }
+
+  const adultes=parseInt(document.getElementById('nb-adultes').value)||0;
+  const taxeAuto=Math.round(TAXE_RATE*nuits*adultes*100)/100;
+  const taxeOffert=document.getElementById('taxe-offert').checked;
+  document.getElementById('taxe').value=taxeOffert?'0.00':taxeAuto.toFixed(2);
+  document.getElementById('taxe-hint').textContent=
+    taxeOffert?'✓ Taxe de séjour offerte':
+    (adultes>0&&nuits>0?`${adultes} adulte${adultes>1?'s':''} × ${nuits} nuit${nuits>1?'s':''} × 1,65 € = ${fmt(taxeAuto)}`:
+    '');
+
+  const menageOffert=document.getElementById('menage-offert').checked;
+  const menageInput=document.getElementById('menage');
+  if(menageOffert){ menageInput.value='0'; }
+  else if(!menageInput.value||menageInput.value==='0'){ menageInput.value=MAISONS[currentMaison].menage; }
+
+  const prix=parseFloat(document.getElementById('prix-sejour').value)||0;
+  const taxe=taxeOffert?0:(parseFloat(document.getElementById('taxe').value)||0);
+  const menage=menageOffert?0:(parseFloat(menageInput.value)||0);
+  const base=prix+taxe+menage;
+
+  let reduc=0;
+  const rM=parseFloat(document.getElementById('reduc-montant').value)||0;
+  const rP=parseFloat(document.getElementById('reduc-pct').value)||0;
+  if(reducSource!=='montant'&&rP>0){
+    reduc=Math.round(base*rP/100*100)/100;
+    document.getElementById('reduc-montant').value=reduc>0?reduc.toFixed(2):'';
+  } else if(rM>0){
+    reduc=rM;
+    if(reducSource!=='pct') document.getElementById('reduc-pct').value=base>0?(rM/base*100).toFixed(2):'';
+  }
+  document.getElementById('reduc-hint').textContent=
+    reduc>0?`− ${fmt(reduc)} (${(base>0?reduc/base*100:0).toFixed(1)}% de remise)`:'';
+
+  const total=Math.max(0,base-reduc);
+  const arrhes=Math.round(total*0.5*100)/100;
+  const solde=total-arrhes;
+  document.getElementById('arrhes-display').textContent=fmt(arrhes);
+  document.getElementById('solde-display').textContent=fmt(solde);
+  document.getElementById('total-display').textContent=fmt(total);
+}
+
+function fmt(n){
+  return Number(n).toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:2})+' €';
+}
+
+// ══ CODE POSTAL → VILLE ══
+let cpTimer=null;
+function lookupCP(val){
+  clearTimeout(cpTimer);
+  const cp=val.replace(/\D/g,'');
+  const st=document.getElementById('cp-status');
+  if(cp.length<5){ st.textContent=''; st.className='cp-status'; return; }
+  st.textContent='Recherche…'; st.className='cp-status loading';
+  cpTimer=setTimeout(()=>{
+    // Utilise l'API geo.api.gouv.fr (plus fiable pour les CP)
+    fetch(`https://geo.api.gouv.fr/communes?codePostal=${cp}&fields=nom&limit=1`)
+      .then(r=>{ if(!r.ok) throw new Error(); return r.json(); })
+      .then(data=>{
+        if(data&&data.length>0){
+          const villeEl=document.getElementById('ville');
+          villeEl.value=data[0].nom;
+          st.textContent='✓ '+data[0].nom;
+          st.className='cp-status ok';
+        } else {
+          st.textContent='Code postal introuvable';
+          st.className='cp-status err';
+        }
+      })
+      .catch(()=>{
+        // Fallback : essaie l'autre API
+        fetch(`https://api-adresse.data.gouv.fr/search/?q=${cp}&type=municipality&limit=1&autocomplete=0`)
+          .then(r=>r.json())
+          .then(data=>{
+            if(data.features&&data.features.length>0){
+              const city=data.features[0].properties.city||data.features[0].properties.label.split(' ')[0];
+              document.getElementById('ville').value=city;
+              st.textContent='✓ '+city; st.className='cp-status ok';
+            } else {
+              st.textContent='Non trouvé — saisir manuellement'; st.className='cp-status err';
+            }
+          })
+          .catch(()=>{ st.textContent='Connexion requise — saisir manuellement'; st.className='cp-status err'; });
+      });
+  },500);
+}
+
+// ══ GÉNÉRER PDF dans nouvel onglet ══
+function generatePDF(){
+  const prenom=document.getElementById('prenom').value.trim();
+  const nom=document.getElementById('nom').value.trim();
+  const asso=document.getElementById('asso').value.trim();
+  const adr=document.getElementById('adresse').value.trim();
+  const cp=document.getElementById('cp').value.trim();
+  const ville=document.getElementById('ville').value.trim();
+  const tel=document.getElementById('tel').value.trim();
+  const email=document.getElementById('email').value.trim();
+  const dE=CAL.entree.date, dS=CAL.sortie.date;
+  const joursVal=document.getElementById('nb-jours').value||'—';
+  const nuitsVal=document.getElementById('nuitees').value||'—';
+  const nA=parseInt(document.getElementById('nb-adultes').value)||0;
+  const enfants=parseInt(document.getElementById('nb-enfants').value)||0;
+  const prix=parseFloat(document.getElementById('prix-sejour').value)||0;
+  const taxeOffert=document.getElementById('taxe-offert').checked;
+  const menageOffert=document.getElementById('menage-offert').checked;
+  const taxe=taxeOffert?0:(parseFloat(document.getElementById('taxe').value)||0);
+  const menage=menageOffert?0:(parseFloat(document.getElementById('menage').value)||0);
+  const caution=parseFloat(document.getElementById('caution').value)||0;
+  const base=prix+taxe+menage;
+  const reducM=parseFloat(document.getElementById('reduc-montant').value)||0;
+  const total=Math.max(0,base-reducM);
+  const arrhes=Math.round(total*0.5*100)/100;
+  const solde=total-arrhes;
+  const nNuits=dE&&dS&&dS>dE?Math.round((dS-dE)/86400000):0;
+  const m=MAISONS[currentMaison];
+
+  // Lignes preneur
+  let preneurHtml=`Nom : ${prenom} ${nom}`;
+  if(asso) preneurHtml+=` (Association : ${asso})`;
+  preneurHtml+=`<br>Adresse : ${adr||'—'}<br>Code Postal et ville : ${cp} ${ville}<br>Téléphone : ${tel||'—'}<br>Email : ${email||'—'}`;
+
+  // Ligne réduction / offerts
+  const parts=[];
+  if(taxeOffert) parts.push('Taxe de séjour offerte');
+  if(menageOffert) parts.push('Ménage offert');
+  let rowReducHtml='';
+  if(reducM>0||parts.length>0){
+    const labelParts=[];
+    if(reducM>0){ const pA=(base>0?reducM/base*100:0).toFixed(1); labelParts.push(`Réduction commerciale (${pA}%)`); }
+    if(parts.length>0) labelParts.push(parts.join(' + '));
+    const valStr=reducM>0?'− '+fmt(reducM):'—';
+    rowReducHtml=`<tr style="background:#F2FFF2"><td style="padding:9pt 12pt;border-bottom:1px solid #EEE9E2;font-size:9pt;color:#2C3D2C;font-weight:600">${labelParts.join(' — ')}</td><td style="padding:9pt 12pt;border-bottom:1px solid #EEE9E2;font-size:9pt;text-align:right;font-weight:600;color:#2C3D2C">${valStr}</td></tr>`;
+  }
+
+  // Taxe detail
+  const taxeDetailStr=(!taxeOffert&&nA>0&&nNuits>0)?`<span style="font-size:7.5pt;color:#888">(${nA} adulte${nA>1?'s':''} × ${nNuits} nuit${nNuits>1?'s':''} × 1,65 €)</span>`:'';
+  const taxeValStr=taxeOffert?'Offert — 0 €':fmt(taxe);
+  const menageValStr=menageOffert?'Offert — 0 €':fmt(menage);
+
+  // Ligne enfants
+  const rowEnfantsHtml=enfants>0?`<tr><td style="padding:9pt 12pt;border-bottom:1px solid #e8e2da;font-size:8.5pt;color:#555">Nombre d'enfants</td><td style="padding:9pt 12pt;border-bottom:1px solid #e8e2da;font-size:8.5pt"><span style="float:right;font-weight:600;background:#F5F0EA;padding:5pt 12pt;border-radius:4pt">${enfants} enfant${enfants>1?'s':''}</span></td></tr>`:'';
+
+  const html=`<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Devis — Domaine Rosalina</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* FORCE COULEURS À L'IMPRESSION */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+body{font-family:'Jost','Helvetica',sans-serif;font-size:8.5pt;color:#1A1A1A;line-height:1.4;background:#fff}
+@media screen{body{padding:16mm;max-width:210mm;margin:0 auto}}
+@media print{body{padding:0}@page{size:A4;margin:0}html{padding:16mm}}
+.no-print{margin-bottom:14pt;padding:10pt 16pt;background:#2C3D2C;border-radius:6pt;display:flex;align-items:center;justify-content:space-between}
+.no-print span{color:rgba(255,255,255,.75);font-size:8pt}
+.no-print button{background:#C8956C;color:#fff;border:none;padding:7pt 18pt;border-radius:5pt;font-family:'Jost',sans-serif;font-size:8.5pt;cursor:pointer;font-weight:600}
+@media print{.no-print{display:none!important}}
+/* HEADER VERT — forcé à l'impression */
+.pdf-header{background:#2C3D2C!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;padding:13pt 16pt;display:flex;align-items:center;justify-content:space-between;margin-bottom:13pt;border-radius:4pt}
+.pdf-header-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:14pt;font-weight:400;color:#fff!important;letter-spacing:.02em}
+.pdf-header-sub{font-size:7.5pt;color:rgba(255,255,255,.6)!important;letter-spacing:.12em;text-transform:uppercase;margin-top:3pt}
+.pdf-logo{width:34pt;height:34pt;object-fit:contain;flex-shrink:0}
+.pdf-logo-fallback{width:34pt;height:34pt;flex-shrink:0}
+/* PARTIES */
+.parties{display:flex;border:1pt solid #D8D0C6;margin-bottom:10pt;border-radius:4pt;overflow:hidden}
+.party{flex:1;padding:9pt 11pt;font-size:8pt;line-height:1.6}
+.party:first-child{border-right:1pt solid #D8D0C6}
+.party-title{font-weight:700;font-size:8.5pt;color:#2C3D2C;margin-bottom:3pt}
+/* MAISON BADGE */
+.maison-block{background:#FAF6F0!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;border:1pt solid #D8D0C6;border-radius:4pt;padding:7pt 11pt;margin-bottom:9pt;display:flex;align-items:center;gap:10pt}
+.maison-pill{background:#C8956C!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important;font-weight:700;font-size:8.5pt;padding:3pt 11pt;border-radius:20pt;white-space:nowrap}
+.maison-detail{font-size:8pt;color:#555}
+/* DATES TABLE */
+table.dates{width:100%;border-collapse:collapse;margin-bottom:9pt;border:1pt solid #D8D0C6;font-size:8pt}
+table.dates td{padding:5pt 9pt;border-bottom:1pt solid #EDE8E0;vertical-align:middle}
+table.dates tr:last-child td{border-bottom:none}
+.dl{color:#888;width:18%;font-size:7pt;letter-spacing:.04em;text-transform:uppercase}
+.dv{font-weight:600;color:#1A1A1A;background:#F0EDE6!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;border-radius:3pt;padding:2pt 7pt;display:inline-block;font-size:8.5pt}
+.dsep{width:5%;border-left:1pt solid #EDE8E0}
+/* FINANCE TABLE */
+table.fin{width:100%;border-collapse:collapse;margin-bottom:7pt;border:1pt solid #D8D0C6}
+/* Header tableau DESCRIPTION — vert foncé */
+table.fin thead tr{background:#2C3D2C!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+table.fin th{padding:6pt 11pt;font-size:8pt;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#fff!important;text-align:left}
+table.fin th:last-child{text-align:right}
+table.fin td{padding:5.5pt 11pt;border-bottom:1pt solid #EDE8E0;font-size:8.5pt;vertical-align:middle}
+table.fin tr:last-child td{border-bottom:none}
+.fv{text-align:right;font-weight:500}
+/* Prix du séjour — vert olive distinct (différent du vert header) */
+.row-prix td{background:#3D5438!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#fff!important;font-weight:700;font-size:9.5pt}
+.row-prix .fv{color:#E8C5A8!important}
+/* Lignes alternées */
+.row-alt td{background:#FAF8F5!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+/* Arrhes / Solde */
+.row-sub td{color:#777;font-size:8pt;background:#F9F7F4!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+/* Total — rose doré */
+.row-total td{font-weight:700;font-size:10.5pt;color:#fff!important;background:#C8956C!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+/* Caution */
+.row-caut td{color:#888;background:#F4F0EA!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;font-size:8pt}
+/* Réduction */
+.row-reduc td{background:#EDF5EC!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#2C3D2C;font-weight:600}
+.notes{font-size:7pt;color:#888;line-height:1.5;margin-bottom:9pt}
+.notes p{margin-bottom:2pt}
+.sigs{display:flex;justify-content:space-between;margin-top:9pt;padding-top:9pt;border-top:1pt solid #D8D0C6}
+.sig{width:45%}
+.sig-name{font-weight:700;font-size:8.5pt;color:#2C3D2C;margin-bottom:20pt}
+.sig-line{border-bottom:1.5pt solid #C8956C;height:24pt;margin-bottom:4pt}
+.sig-lbl{font-size:7pt;color:#aaa}
+.pb{page-break-before:always}
+@media screen{.pb{margin-top:40pt;padding-top:20pt;border-top:3pt solid #2C3D2C}}
+.cgv-title{text-align:center;font-size:12pt;font-weight:700;font-family:'Cormorant Garamond',Georgia,serif;margin-bottom:11pt;color:#2C3D2C}
+.cgv{margin-bottom:7pt;font-size:7.5pt;line-height:1.6;text-align:justify}
+.cgv strong{font-size:8pt;color:#2C3D2C}
+.cgv-foot{margin-top:10pt;padding-top:8pt;border-top:1pt solid #D8D0C6;font-size:7pt;color:#999;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <span>Domaine Rosalina — Devis prêt à enregistrer</span>
+  <button onclick="window.print()">🖨 Enregistrer en PDF</button>
+</div>
+
+<div class="pdf-header">
+  <div>
+    <div class="pdf-header-title">Domaine Rosalina</div>
+    <div class="pdf-header-sub">Location de grands gîtes à Honfleur</div>
+  </div>
+  <img class="pdf-logo" src="https://domainerosalina.com/wp-content/uploads/2025/09/Favicon-rose-copy.png"
+    onerror="this.style.display='none';this.nextElementSibling.style.display='block'" alt="Logo">
+  <svg class="pdf-logo-fallback" style="display:none" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="18" cy="18" r="18" fill="#C8956C"/>
+    <text x="18" y="24" text-anchor="middle" font-family="Georgia,serif" font-size="20" font-weight="300" fill="#fff">R</text>
+  </svg>
+</div>
+
+<div class="parties">
+  <div class="party">
+    <div class="party-title">Le Preneur</div>
+    ${preneurHtml}
+  </div>
+  <div class="party">
+    <div class="party-title">Le Bailleur</div>
+    LMNP Indivision EKOBO<br>14600 Équemauville<br>599 côte d'Équemauville<br>Téléphone : 07 83 87 60 90<br>Email : DomaineRosalina@gmail.com
+  </div>
+</div>
+
+<div class="maison-block">
+  <span class="maison-pill">${m.label}</span>
+  <span class="maison-detail">${m.detail}</span>
+</div>
+
+<table class="dates">
+  <tr>
+    <td class="dl">Entrée à 16h</td><td><span class="dv">${fmtDateFR(dE)}</span></td>
+    <td class="dsep"></td>
+    <td class="dl">Sortie à 11h</td><td><span class="dv">${fmtDateFR(dS)}</span></td>
+  </tr>
+  <tr>
+    <td class="dl">Nuitées</td><td><span class="dv">${nuitsVal}</span></td>
+    <td class="dsep"></td>
+    <td class="dl">Jours</td><td><span class="dv">${joursVal}</span></td>
+  </tr>
+  <tr>
+    <td class="dl">Adultes</td><td><span class="dv">${nA?nA+' adulte'+(nA>1?'s':''):'—'}</span></td>
+    <td class="dsep"></td>
+    <td class="dl">Enfants</td><td><span class="dv">${enfants>0?enfants+' enfant'+(enfants>1?'s':''):'0'}</span></td>
+  </tr>
+</table>
+
+<table class="fin">
+  <thead><tr><th>Description</th><th>Montant</th></tr></thead>
+  <tbody>
+    <tr class="row-prix"><td>Prix du séjour</td><td class="fv">${fmt(prix)}</td></tr>
+    <tr><td>Taxe de séjour${!taxeOffert&&nA>0&&nNuits>0?' <span style="font-size:7pt;color:#aaa">('+nA+' adulte'+(nA>1?'s':'')+' × '+nNuits+' nuit'+(nNuits>1?'s':'')+' × 1,65 €)</span>':''}</td><td class="fv">${taxeValStr}</td></tr>
+    <tr class="row-alt"><td>Ménage</td><td class="fv">${menageValStr}</td></tr>
+    ${rowReducHtml}
+    <tr class="row-sub"><td>Arrhes (50%)</td><td class="fv">${fmt(arrhes)}</td></tr>
+    <tr class="row-sub"><td>Solde (50%)*</td><td class="fv">${fmt(solde)}</td></tr>
+    <tr class="row-total"><td>Total</td><td class="fv">${fmt(total)}</td></tr>
+    <tr class="row-caut"><td>Caution remboursable**</td><td class="fv">${fmt(caution)}</td></tr>
+  </tbody>
+</table>
+
+<div class="notes">
+  <p>*Solde par virement bancaire, « 3 jours minimum avant l'arrivée », ou par chèque bancaire, à la remise des clés.</p>
+  <p>**La caution s'effectue par chèque (remboursable sous 5 jours) ou par empreinte bancaire (vous n'êtes pas débités).</p>
+</div>
+
+<div class="sigs">
+  <div class="sig"><div class="sig-name">Le gérant : Eugène Ekobo</div><div class="sig-line"></div><div class="sig-lbl">Signature du bailleur</div></div>
+  <div class="sig"><div class="sig-name">Le preneur</div><div class="sig-line"></div><div class="sig-lbl">Signature (précédée de « Lu et approuvé »)</div></div>
+</div>
+
+<div class="pb"></div>
+<div class="cgv-title">Conditions générales de locations</div>
+<div class="cgv"><strong>1. Objet du contrat de location</strong> - Les parties déclarent que la présente location n'a pas pour objet des locaux loués à usage d'habitation principale ou usage mixte professionnel et d'habitation principale. En conséquence, elles conviennent que leurs droits et obligations respectifs seront régis par les stipulations du présent contrat, par l'arrêté du 28 décembre 1976 modifié et à défaut par les dispositions du code civil. Les locaux, objet du présent contrat, sont loués meublés à titre saisonnier pour la durée et le nombre de personnes déclarées sur le formulaire de demande.</div>
+<div class="cgv"><strong>2. Désignation du logement</strong> - Adresse du logement : 599, côte d'Équemauville, 14600 Équemauville, France. Tapez « Domaine Rosalina » pour nous trouver sur Waze ou via votre GPS. 2.2. Date de construction : 2012 et 2018, description précise du logement le site.</div>
+<div class="cgv"><strong>3. Prix de location et charges</strong> - Le loyer pour cette période, figure dans le formulaire et couvre l'intégralité de la durée de la location. Il comprend également le paiement des charges locatives et des fournitures d'eau de ville, chauffage, accès Internet, télévision.</div>
+<div class="cgv"><strong>4. Réservation / arrhes</strong> - Pour réserver le logement, le Preneur accepte et valide, après l'avoir lu, le présent contrat accompagné du versement des arrhes qui figurent dans le formulaire de demande. Ce versement sera effectué par virement bancaire.</div>
+<div class="cgv"><strong>5. Règlement du prix</strong> - Le solde, en cas de paiement fractionné et après déduction du montant des arrhes et de l'acompte, sera versé par virement bancaire au tard 48 heures avant l'entrée dans le logement.</div>
+<div class="cgv"><strong>6. Dépôt de garantie</strong> - Il est à verser au plus tard lors de la remise des clés, par chèque ou sous forme d'empreinte bancaire, donc vous n'êtes pas débités. Il est destiné à couvrir les dommages et dégradations du logement, du mobilier et objets garnissant le logement, causés par le Preneur, ainsi que les pertes de clefs ou d'objets Le dépôt de garantie sera restitué au Preneur dans un délai maximum d'un mois après son départ, déduction faite le cas échéant des sommes couvrant les dommages et dégradations du logement, du mobilier et objets garnissant le logement causés par le Preneur, ainsi que les pertes de clefs ou d'objets. Le dépôt de garantie sera restitué sous réserve d'inventaire et d'état des lieux conforme lors de la restitution des clés.</div>
+<div class="cgv"><strong>7. Cession et sous-location</strong> - Le présent contrat de location est conclu intuitu personae au profit du seul preneur identifié en tête du contrat. Toute cession du présent bail, toute sous-location totale ou partielle, toute mise à disposition -même gratuite-, sont rigoureusement interdites. Le Preneur ne pourra laisser la disposition des lieux, même gratuitement et/ou par prêt, à une personne étrangère à son foyer.</div>
+<div class="cgv"><strong>8. État des lieux et inventaires</strong> - L'état des lieux est un inventaire immobilier et du mobilier mis à disposition lors de l'entrée dans le logement. Pour ne pas être contestable, ils sont établis par le bailleur et signés par les deux parties à l'entrée dans le logement. Le preneur a 48 heures pour contester l'état des lieux et l'inventaire réalisés et signés par le bailleur seul. Passé ce délai ils sont réputés acceptés sans réserve par le preneur. Un état des lieux et un inventaire seront établis par les Parties à la fin de la location, chacune en conservant un exemplaire signé. L'absence de contestation par le Bailleur dans les 96 heures suivant la fin de la location vaudra restitution des lieux en bon état et /ou inventaire complet.</div>
+<div class="cgv"><strong>9. Obligations du preneur</strong> - Le Preneur usera paisiblement du logement loué et du mobilier et équipements suivant la destination qui leur a été donnée par le bail et répondra des dégradations et pertes qui pourraient survenir pendant la durée du contrat dans les locaux dont il a la jouissance exclusive. Il entretiendra le logement loué et le rendra en bon état de propreté et de réparations locatives en fin de contrat. Si des objets figurant à l'inventaire sont brisés ou détériorés, le Bailleur pourra réclamer leur valeur de remplacement. Il évitera tout bruit de nature à gêner les voisins notamment ceux émis par les appareils de sono et autres. Il ne pourra exercer aucun recours contre le Bailleur en cas de vol et déprédations dans les lieux loués. Il respectera le nombre de personnes maximum pouvant entrer dans les lieux, conformément au contrat. Le preneur ne pourra s'opposer à la visite des locaux si le Bailleur ou son mandataire en font la demande. À défaut de restitution du logement en état de propreté acceptable, le Preneur s'engage à prendre à ses frais le supplément de nettoyage que le Bailleur sera contraint de réaliser.</div>
+<div class="cgv"><strong>10. Annulation</strong> - Le contrat engage les deux parties de manière irrévocable. Avant la date du début du séjour : Au-dessus ou égal à 45 jours : remboursement intégral. Entre 45 et 30 jours : 50% de l'acompte versé. En-dessous de 30 jours : aucun remboursement. Pour tout autre cas, aucune résiliation n'est possible sauf accord écrit des parties. Si le Preneur renonce à la location, il reste redevable de la totalité du loyer.</div>
+<div class="cgv"><strong>11. Assurances</strong> - Si le preneur a contracté une assurance multirisque afin de se prémunir contre les risques locatifs (dégâts des eaux, incendies...) lors de sa réservation, il devra remettre une copie au bailleur lors de son entrée dans les lieux.</div>
+<div class="cgv"><strong>12. Résiliation de plein droit</strong> - En cas de manquement par le Preneur à l'une des obligations contractuelles, le présent bail sera résilié de plein droit. Cette résiliation prendra effet après un délai de 24 heures après une simple sommation par lettre recommandée ou lettre remise en main propre restée infructueuse.</div>
+<div class="cgv"><strong>13. Élection de domicile</strong> - Pour l'exécution des présentes, le Bailleur et le Preneur font élection de domicile dans leurs domiciles respectifs. Toutefois, en cas de litige, le tribunal du domicile du Bailleur sera seul compétent. Le présent contrat et ses suites sont soumis à la loi française.</div>
+<div class="cgv-foot">LMNP INDI EKOBO - Siren : 933592057<br>DomaineRosalina.com</div>
+
+</body>
+</html>`;
+
+    const blob = new Blob([html], {type: 'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+// ══ TOKEN NOTION ══
+function saveNotionToken(val) {
+  if (val && val.startsWith('ntn_')) {
+    localStorage.setItem('notion_token', val);
+    document.getElementById('token-status').textContent = '✓ Token sauvegardé localement';
+    document.getElementById('token-status').style.color = '#3D5438';
+  } else if (val) {
+    document.getElementById('token-status').textContent = 'Le token doit commencer par ntn_...';
+    document.getElementById('token-status').style.color = '#C8956C';
+  }
+}
+
+function toggleTokenVisibility() {
+  const inp = document.getElementById('notion-token-input');
+  const btn = document.getElementById('token-eye');
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈 Cacher'; }
+  else { inp.type = 'password'; btn.textContent = '👁 Voir'; }
+}
+
+function getNotionToken() {
+  return document.getElementById('notion-token-input')?.value?.trim()
+      || localStorage.getItem('notion_token')
+      || '';
+}
+
+// ══ NOTION INTEGRATION ══
+const NOTION_TOKEN = document.getElementById('notion-token-input')?.value?.trim() || localStorage.getItem('notion_token') || '';
+const NOTION_DB_ID = '249a8c29d0568122a40ccf7180e98935';
+const NOTION_PROXY = 'https://notion-proxy.vercel.app/api/notion'; // proxy CORS
+
+async function saveToNotion() {
+  const NOTION_TOKEN = getNotionToken();
+  const btn = document.querySelector('.btn-notion');
+  const status = document.getElementById('notion-status');
+
+  if (!NOTION_TOKEN || !NOTION_TOKEN.startsWith('ntn_')) {
+    showStatus('error', '⚠️ Entre ton token Notion en haut du formulaire (commence par ntn_...)');
+    return;
+  }
+
+  // Récupérer les valeurs
+  const prenom  = document.getElementById('prenom').value.trim();
+  const nom     = document.getElementById('nom').value.trim();
+  const asso    = document.getElementById('asso').value.trim();
+  const adresse = document.getElementById('adresse').value.trim();
+  const cp      = document.getElementById('cp').value.trim();
+  const ville   = document.getElementById('ville').value.trim();
+  const tel     = document.getElementById('tel').value.trim();
+  const email   = document.getElementById('email').value.trim();
+  const dE      = CAL.entree.date;
+  const dS      = CAL.sortie.date;
+  const nA      = parseInt(document.getElementById('nb-adultes').value) || 0;
+  const enfants = parseInt(document.getElementById('nb-enfants').value) || 0;
+  const prix    = parseFloat(document.getElementById('prix-sejour').value) || 0;
+  const taxeOffert   = document.getElementById('taxe-offert').checked;
+  const menageOffert = document.getElementById('menage-offert').checked;
+  const taxe   = taxeOffert   ? 0 : (parseFloat(document.getElementById('taxe').value)   || 0);
+  const menage = menageOffert ? 0 : (parseFloat(document.getElementById('menage').value) || 0);
+  const reducM = parseFloat(document.getElementById('reduc-montant').value) || 0;
+  const total  = Math.max(0, prix + taxe + menage - reducM);
+  const m      = MAISONS[currentMaison];
+  const nuits  = dE && dS ? Math.round((dS - dE) / 86400000) : 0;
+  const jours  = nuits + 1;
+
+  // Validation basique
+  if (!prenom && !nom) { showStatus('error', '⚠️ Remplis au moins le nom du client avant de sauvegarder.'); return; }
+  if (!dE || !dS)      { showStatus('error', '⚠️ Sélectionne les dates d\'entrée et de sortie.'); return; }
+
+  // Nom complet
+  const nomComplet = [prenom, nom].filter(Boolean).join(' ') + (asso ? ` (${asso})` : '');
+
+  // Préparer le payload Notion
+  const payload = {
+    parent: { database_id: NOTION_DB_ID },
+    properties: {
+      // Nom (title)
+      'Nom': {
+        title: [{ text: { content: nomComplet } }]
+      },
+      // Maison (select)
+      'Maison': {
+        select: { name: m.label }
+      },
+      // Arrivée (date)
+      ...(dE ? { 'Arrivée': { date: { start: isoDate(dE) } } } : {}),
+      // Départ (date)
+      ...(dS ? { 'Départ': { date: { start: isoDate(dS) } } } : {}),
+      // Nbr de jours (number)
+      'Nbr de jours': { number: jours },
+      // Nbr de nuits (number)
+      'Nbr de nuits': { number: nuits },
+      // Organisme
+      ...(asso ? { 'Organisme': { rich_text: [{ text: { content: asso } }] } } : {}),
+      // Adresse
+      ...(adresse ? { 'Adresse': { rich_text: [{ text: { content: adresse } }] } } : {}),
+      // Place (CP + ville)
+      ...((cp||ville) ? { 'Place': { rich_text: [{ text: { content: [cp, ville].filter(Boolean).join(' ') } }] } } : {}),
+      // Email
+      ...(email ? { 'Email': { email: email } } : {}),
+      // Tel
+      ...(tel ? { 'Tel': { phone_number: tel } } : {}),
+      // Adultes
+      ...(nA ? { 'Adultes': { number: nA } } : {}),
+      // Enfants & bébés
+      ...(enfants ? { 'Enfants & bébés': { number: enfants } } : {}),
+      // Prix
+      'Prix': { number: total },
+      // Statut par défaut
+      'Statut': { select: { name: 'Devis envoyé' } },
+    }
+  };
+
+  // Envoyer à Notion via proxy CORS
+  btn.disabled = true;
+  showStatus('loading', '⏳ Sauvegarde dans Notion en cours…');
+
+  try {
+    // Essai 1 : allorigins
+    let res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://api.notion.com/v1/pages')}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${NOTION_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Notion-Version': '2022-06-28',
+      },
+      body: JSON.stringify(payload)
+    });
+
+    // Essai 2 si le premier échoue : corsproxy.io
+    if (!res.ok && res.status === 0) {
+      res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://api.notion.com/v1/pages')}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${NOTION_TOKEN}`,
+          'Content-Type': 'application/json',
+          'Notion-Version': '2022-06-28',
+        },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    const data = await res.json();
+
+    if (res.ok) {
+      showStatus('success', `✅ Sauvegardé dans Notion ! Fiche créée pour ${nomComplet}.`);
+    } else {
+      console.error('Notion error:', data);
+      // Si le DB_ID n'est pas rempli
+      if (NOTION_DB_ID === 'COLLE_TON_ID_DE_BASE_ICI') {
+        showStatus('error', '⚠️ ID de base Notion manquant — remplace COLLE_TON_ID_DE_BASE_ICI dans le code avec ton ID de base.');
+      } else {
+        showStatus('error', `❌ Erreur Notion : ${data.message || 'Vérifie que la base est connectée à l\'intégration.'}`);
+      }
+    }
+  } catch(e) {
+    console.error(e);
+    showStatus('error', '❌ Erreur réseau — vérifie ta connexion internet.');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function showStatus(type, msg) {
+  const el = document.getElementById('notion-status');
+  el.className = `notion-status ${type}`;
+  el.textContent = msg;
+  el.style.display = 'block';
+  if (type === 'success') setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+function isoDate(d) {
+  if (!d) return null;
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+// ══ INIT ══
+initCalViews();
+updateAdultesOptions();
+document.getElementById('caution').value=MAISONS['rosa-lina'].caution;
+document.getElementById('menage').value=MAISONS['rosa-lina'].menage;
+calcAll();
+// Charger le token sauvegardé
+const savedToken = localStorage.getItem('notion_token');
+if (savedToken) {
+  document.getElementById('notion-token-input').value = savedToken;
+  document.getElementById('token-status').textContent = '✓ Token chargé depuis la mémoire locale';
+  document.getElementById('token-status').style.color = '#3D5438';
+}
+</script>
+</body>
+</html>
