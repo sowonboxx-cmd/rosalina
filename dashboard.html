@@ -10,8 +10,10 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
 .header{background:var(--green);padding:0 16px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.header-inner{max-width:800px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
 .header-left{display:flex;align-items:center;gap:10px;}
-.logo-circle{width:32px;height:32px;border-radius:50%;background:var(--rose);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-circle{width:32px;height:32px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;outline:none;border:none;background:transparent;}
+.logo-circle img{width:32px;height:32px;object-fit:cover;display:block;outline:none;border:none;}
 .logo-text{font-family:'Open Sans',sans-serif;font-size:.78rem;font-weight:700;color:#fff;letter-spacing:.14em;text-transform:uppercase;}
 .header-right{display:flex;align-items:center;gap:8px;}
 .btn-devis{background:var(--rose);color:#fff;border:none;border-radius:16px;padding:6px 12px;font-family:'Jost',sans-serif;font-size:.72rem;font-weight:600;cursor:pointer;letter-spacing:.04em;text-decoration:none;display:flex;align-items:center;gap:5px;transition:opacity .2s;}
@@ -19,7 +21,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .theme-btn{background:rgba(255,255,255,.12);border:none;border-radius:50%;width:34px;height:34px;color:#fff;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:background .2s;}
 .subheader{background:var(--card);border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto;scrollbar-width:none;}
 .subheader::-webkit-scrollbar{display:none;}
-.subnav{display:flex;gap:0;white-space:nowrap;}
+.subnav{display:flex;gap:0;white-space:nowrap;max-width:800px;margin:0 auto;}
 .subnav-btn{padding:12px 14px;border:none;background:transparent;color:var(--text);font-family:'Jost',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;opacity:.7;}
 .subnav-btn.active{color:var(--green);border-bottom-color:var(--green);font-weight:700;opacity:1;}
 [data-theme="dark"] .subnav-btn{color:var(--text);}[data-theme="dark"] .subnav-btn.active{color:var(--rose);border-bottom-color:var(--rose);opacity:1;}
@@ -83,9 +85,9 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 [data-theme="dark"] .sb-acompte{background:rgba(74,144,217,.15);color:#7AABF0;}
 [data-theme="dark"] .sb-solde{background:rgba(90,154,90,.15);color:#7ACC7A;}
 [data-theme="dark"] .sb-paiement{background:rgba(150,100,240,.15);color:#B090F0;}
-.caution-tag{display:inline-flex;align-items:center;gap:3px;font-size:.6rem;font-weight:600;padding:3px 8px;border-radius:10px;cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap;}
+.caution-tag{display:inline-flex;align-items:center;gap:3px;font-size:.6rem;font-weight:600;padding:3px 8px;border-radius:10px;cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap;line-height:1.4;}
 .caution-tag.ok{background:rgba(90,154,90,.12);color:#5A9A5A;}
-.caution-tag.empty{background:var(--bg2);color:var(--text3);border:none;}
+.caution-tag.empty{background:var(--bg2);color:var(--text3);border:none;padding:3px 8px;}
 .caution-tag svg{width:11px;height:11px;}
 .empty{text-align:center;padding:50px 20px;color:var(--text3);}
 .empty .icon{font-size:2.5rem;margin-bottom:10px;}
@@ -133,9 +135,10 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 <body data-theme="dark">
 
 <header class="header">
+  <div class="header-inner">
   <div class="header-left">
         <div class="logo-circle">
-      <img src="https://domainerosalina.com/wp-content/uploads/2025/09/Favicon-rose-copy.png" onerror="this.style.display='none'" alt="R" style="width:18px;height:18px;object-fit:contain;filter:invert(1);opacity:.95;">
+      <img src="https://domainerosalina.com/wp-content/uploads/2026/06/logo-rosalina-black.png" onerror="this.style.display='none'" alt="Rosalina" style="width:32px;height:32px;object-fit:cover;">
     </div>
     <span class="logo-text">ROSALINA</span>
   </div>
@@ -145,6 +148,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       Cr&#233;er un devis
     </a>
     <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">&#9728;&#65039;</button>
+  </div>
   </div>
 </header>
 
@@ -322,8 +326,8 @@ function parseClient(page){
     nom:g('Nom','rich'),
     org:g('Organisme','rich'),
     maison:g('Maison','select'),
-    arrivee:g('Arriv\u00e9e','date')||g('Arriv\u00e9e-2','date')||g('Arriv\u00e9e\u00a02','date')||g('Arrivee-2','date'),
-    depart:g('D\u00e9part','date')||g('D\u00e9part-2','date')||g('D\u00e9part\u00a02','date')||g('Depart-2','date'),
+    arrivee:g('Arrivée','date')||g('Arrivée-2','date'),
+    depart:g('Départ','date')||g('Départ-2','date'),
     adultes:g('Adultes','num'),
     enfants:g('Enfants & b\u00e9b\u00e9s','num'),
     adresse:g('Adresse','rich'),
