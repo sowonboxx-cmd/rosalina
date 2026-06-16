@@ -28,9 +28,9 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 /* HEADER */
 .header{background:var(--green);height:56px;display:flex;align-items:center;position:sticky;top:0;z-index:100;padding:0 16px;}
 .header-inner{max-width:800px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
-.header-left{display:flex;align-items:center;gap:8px;}
-.logo-img{width:28px;height:28px;object-fit:contain;display:block;}
-.logo-text{font-family:'Open Sans',sans-serif;font-size:.78rem;font-weight:700;color:#fff;letter-spacing:.14em;text-transform:uppercase;line-height:1;}
+.header-left{display:flex;align-items:center;gap:8px;line-height:1;}
+.logo-img{width:26px;height:26px;object-fit:contain;display:block;flex-shrink:0;}
+.logo-text{font-family:'Open Sans',sans-serif;font-size:.78rem;font-weight:700;color:#fff;letter-spacing:.14em;text-transform:uppercase;line-height:26px;}
 .header-right{display:flex;align-items:center;gap:8px;}
 .btn-devis{background:var(--rose);color:#fff;border:none;border-radius:16px;padding:6px 12px;font-family:'Jost',sans-serif;font-size:.72rem;font-weight:600;cursor:pointer;letter-spacing:.04em;text-decoration:none;display:flex;align-items:center;gap:5px;transition:opacity .2s;white-space:nowrap;}
 .btn-devis:hover{opacity:.85;}
@@ -116,7 +116,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .card-footer{display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap;}
 
 /* STATUT + CAUTION */
-.statut-badge,.caution-tag{display:inline-flex;align-items:center;font-size:.6rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 8px;border-radius:10px;line-height:1.5;white-space:nowrap;}
+.statut-badge,.caution-tag{display:inline-flex;align-items:center;font-size:.6rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:0 8px;border-radius:10px;line-height:20px;height:20px;white-space:nowrap;}
 .caution-tag{cursor:pointer;user-select:none;gap:3px;}
 .caution-tag svg{width:10px;height:10px;}
 .caution-tag.ok{background:rgba(90,154,90,.12);color:#5A9A5A;}
@@ -166,9 +166,9 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .cal-maison-name.lina{color:var(--lina-c);border-color:var(--lina-c);}
 .cal-maison-name.rosalina{color:var(--rosalina-c);border-color:var(--rosalina-c);}
 /* Fix calendar grid gap - uniform grid no extra spacing */
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;}
-.cal-dow{font-size:.52rem;text-align:center;color:var(--text3);padding:2px 0 4px;font-weight:600;}
-.cal-day{height:22px;display:flex;align-items:center;justify-content:center;font-size:.68rem;border-radius:3px;color:var(--text2);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;grid-auto-rows:22px;}
+.cal-dow{font-size:.52rem;text-align:center;color:var(--text3);padding:0;height:18px;display:flex;align-items:center;justify-content:center;font-weight:600;}
+.cal-day{height:22px;min-height:22px;display:flex;align-items:center;justify-content:center;font-size:.68rem;border-radius:3px;color:var(--text2);}
 .cal-day.free{background:#EDF5EC;color:#2C5A2C;}
 [data-theme="dark"] .cal-day.free{background:rgba(90,154,90,.18);color:#7ACC7A;}
 .cal-day.busy{background:#FEEAEA;color:#C0392B;cursor:pointer;font-weight:700;}
@@ -270,10 +270,11 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       </div>
       <!-- YEAR PILLS - single row, only current + n+1 + plus -->
       <div class="year-pills-row">
-        <button class="year-pill active" id="pill-tout" onclick="selectYear('tout',this)">Tout</button>
-        <button class="year-pill" id="pill-upcoming" onclick="selectYear('upcoming',this)">&#192; venir</button>
-        <button class="year-pill dyn-pill" id="pill-cur" onclick="selectYear('',this)"></button>
+        <button class="year-pill" id="pill-tout" onclick="selectYear('tout',this)">Tout</button>
+        <button class="year-pill active" id="pill-upcoming" onclick="selectYear('upcoming',this)">&#192; venir</button>
         <button class="year-pill dyn-pill" id="pill-n1"  onclick="selectYear('',this)"></button>
+        <button class="year-pill dyn-pill" id="pill-cur" onclick="selectYear('',this)"></button>
+        <button class="year-pill dyn-pill" id="pill-n2"  onclick="selectYear('',this)"></button>
         <div class="year-plus-wrap">
           <button class="year-plus" onclick="toggleDD()" id="year-plus-btn">+</button>
           <div class="year-dropdown" id="year-dropdown"></div>
@@ -370,7 +371,7 @@ const STATUTS=[
   {key:'Annul\u00e9',cls:'sb-annule'},
 ];
 const CUR_YEAR=new Date().getFullYear();
-let allClients=[],modalClient=null,sortAsc=true,selectedYear='tout';
+let allClients=[],modalClient=null,sortAsc=true,selectedYear='upcoming';
 let calMonth=new Date().getMonth(),calYear=CUR_YEAR;
 let theme=localStorage.getItem('dash_theme')||'dark';
 
