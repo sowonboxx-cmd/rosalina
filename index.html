@@ -893,8 +893,6 @@ async function saveToNotion() {
       ...(nom ? { 'Nom': { rich_text: [{ text: { content: nom } }] } } : {}),
       // Maison
       'Maison': { select: { name: m.notionLabel } },
-      // Date séjour = plage arrivée → départ
-      ...(dE && dS ? { 'Date s\u00e9jour': { date: { start: isoDate(dE), end: isoDate(dS) } } } : {}),
       // Arrivée / Départ
       ...(dE ? { 'Arriv\u00e9e': { date: { start: isoDate(dE) } } } : {}),
       ...(dS ? { 'D\u00e9part':  { date: { start: isoDate(dS) } } } : {}),
