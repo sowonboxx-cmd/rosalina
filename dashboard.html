@@ -83,9 +83,9 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 [data-theme="dark"] .sb-acompte{background:rgba(74,144,217,.15);color:#7AABF0;}
 [data-theme="dark"] .sb-solde{background:rgba(90,154,90,.15);color:#7ACC7A;}
 [data-theme="dark"] .sb-paiement{background:rgba(150,100,240,.15);color:#B090F0;}
-.caution-tag{display:inline-flex;align-items:center;gap:3px;font-size:.6rem;font-weight:600;padding:3px 9px;border-radius:20px;cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap;}
+.caution-tag{display:inline-flex;align-items:center;gap:3px;font-size:.6rem;font-weight:600;padding:3px 8px;border-radius:10px;cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap;}
 .caution-tag.ok{background:rgba(90,154,90,.12);color:#5A9A5A;}
-.caution-tag.empty{background:transparent;color:var(--text3);border:1px solid var(--border);}
+.caution-tag.empty{background:var(--bg2);color:var(--text3);border:none;}
 .caution-tag svg{width:11px;height:11px;}
 .empty{text-align:center;padding:50px 20px;color:var(--text3);}
 .empty .icon{font-size:2.5rem;margin-bottom:10px;}
@@ -289,7 +289,10 @@ async function loadData(){
       hasMore=data.has_more;
       cursor=data.next_cursor;
     }
-    allClients=allResults.map(parseClient);console.log('Total fiches Notion:',allResults.length,'Clients:',allClients.length);
+    allClients=allResults.map(parseClient);
+    // Debug: affiche les noms des champs de la première fiche
+    if(allResults.length>0) console.log('Champs Notion disponibles:',Object.keys(allResults[0].properties).join(', '));
+    console.log('Total fiches Notion:',allResults.length,'Clients:',allClients.length);
     document.getElementById('setup-card').style.display='none';
     document.getElementById('stats-block').style.display='block';
     updateStats();renderView();buildYearBtns();
@@ -319,8 +322,8 @@ function parseClient(page){
     nom:g('Nom','rich'),
     org:g('Organisme','rich'),
     maison:g('Maison','select'),
-    arrivee:g('Arriv\u00e9e','date')||g('Arriv\u00e9e-2','date')||g('Arrivee-2','date'),
-    depart:g('D\u00e9part','date')||g('D\u00e9part-2','date')||g('Depart-2','date'),
+    arrivee:g('Arriv\u00e9e','date')||g('Arriv\u00e9e-2','date')||g('Arriv\u00e9e\u00a02','date')||g('Arrivee-2','date'),
+    depart:g('D\u00e9part','date')||g('D\u00e9part-2','date')||g('D\u00e9part\u00a02','date')||g('Depart-2','date'),
     adultes:g('Adultes','num'),
     enfants:g('Enfants & b\u00e9b\u00e9s','num'),
     adresse:g('Adresse','rich'),
