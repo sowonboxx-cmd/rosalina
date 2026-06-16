@@ -580,50 +580,29 @@ function lookupCP(val){
   },500);
 }
 
-// ══ DROPBOX UPLOAD ══
+// ══ DROPBOX UPLOAD via Cloudflare Worker ══
 async function uploadToDropbox(htmlContent, filename) {
   const DROPBOX_TOKEN = getDropboxToken();
   if (!DROPBOX_TOKEN) return null;
 
-  // Convertir HTML en Blob
-  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-  const arrayBuffer = await blob.arrayBuffer();
-
   const path = `/Rosalina/Devis/${filename}`;
 
   try {
-    const res = await fetch('https://content.dropboxapi.com/2/files/upload', {
+    const res = await fetch('https://notion-proxy.sowonboxx.workers.dev/dropbox-upload', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${DROPBOX_TOKEN}`,
-        'Dropbox-API-Arg': JSON.stringify({
-          path: path,
-          mode: 'overwrite',
-          autorename: false,
-          mute: false
-        }),
-        'Content-Type': 'application/octet-stream'
-      },
-      body: arrayBuffer
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: DROPBOX_TOKEN,
+        path: path,
+        content: htmlContent
+      })
     });
 
-    if (!res.ok) { console.error('Dropbox upload failed', await res.text()); return null; }
-
-    // Créer un lien de partage
-    const shareRes = await fetch('https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${DROPBOX_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ path: path, settings: { requested_visibility: 'public' } })
-    });
-
-    if (shareRes.ok) {
-      const shareData = await shareRes.json();
-      // Convertir lien dropbox en lien direct
-      return shareData.url.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('?dl=0', '');
+    const data = await res.json();
+    if (data.success && data.url) {
+      return data.url;
     }
+    console.error('Dropbox upload error:', data);
     return null;
   } catch(e) {
     console.error('Dropbox error:', e);
