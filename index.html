@@ -885,17 +885,17 @@ async function saveToNotion() {
   const payload = {
     parent: { database_id: NOTION_DB_ID },
     properties: {
-      // Titre = prénom (champ principal "Nom" dans Notion)
-      'Nom': {
+      // Prénom = champ titre (champ principal d'ouverture de fiche)
+      'Prénom': {
         title: [{ text: { content: prenom || nomComplet } }]
       },
-      // Maison — correspond exactement aux options Notion
-      'Maison': {
-        select: { name: m.notionLabel }
-      },
-      // Date séjour = aujourd'hui
-      'Date séjour': { date: { start: todayISO } },
-      // Arrivée / Départ
+      // Nom en rich_text séparé
+      ...(nom ? { 'Nom': { rich_text: [{ text: { content: nom } }] } } : {}),
+      // Maison
+      'Maison': { select: { name: m.notionLabel } },
+      // Date séjour = plage arrivée → départ (pour le calendrier Notion)
+      ...(dE && dS ? { 'Date séjour': { date: { start: isoDate(dE), end: isoDate(dS) } } } : {}),
+      // Arrivée / Départ séparés
       ...(dE ? { 'Arrivée': { date: { start: isoDate(dE) } } } : {}),
       ...(dS ? { 'Départ':  { date: { start: isoDate(dS) } } } : {}),
       // Nbr de jours / nuits
