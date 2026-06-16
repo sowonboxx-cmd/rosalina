@@ -74,7 +74,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .year-pill.active{border-color:var(--rose);background:var(--rose);color:#fff;}
 .year-pill:hover:not(.active){border-color:var(--text3);color:var(--text);}
 .year-plus-wrap{position:relative;flex-shrink:0;}
-.year-plus{padding:5px 10px;border-radius:14px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-family:'Jost',sans-serif;font-size:.82rem;cursor:pointer;transition:all .15s;}
+.year-plus{padding:5px 6px;border-radius:14px;border:none;background:transparent;color:var(--text2);font-family:'Jost',sans-serif;font-size:.9rem;cursor:pointer;transition:all .15s;font-weight:700;}
 .year-plus:hover{border-color:var(--text3);color:var(--text);}
 .year-dropdown{position:absolute;top:calc(100% + 6px);left:0;background:var(--card);border:1px solid var(--border);border-radius:var(--r2);box-shadow:var(--shadow-lg);z-index:50;min-width:90px;overflow:hidden;display:none;}
 .year-dropdown.open{display:block;}
@@ -116,7 +116,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .card-footer{display:flex;align-items:center;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap;}
 
 /* STATUT + CAUTION */
-.statut-badge,.caution-tag{display:inline-flex;align-items:center;font-size:.6rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:0 8px;border-radius:10px;line-height:20px;height:20px;white-space:nowrap;}
+.statut-badge,.caution-tag{display:inline-flex;align-items:center;font-size:.6rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding-top:0px;padding-bottom:0px;padding-left:8px;padding-right:8px;border-radius:10px;line-height:20px;height:20px;white-space:nowrap;}
 .caution-tag{cursor:pointer;user-select:none;gap:3px;}
 .caution-tag svg{width:10px;height:10px;}
 .caution-tag.ok{background:rgba(90,154,90,.12);color:#5A9A5A;}
@@ -254,7 +254,12 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       <div class="stats-row">
         <div class="stat-card"><div class="stat-lbl">&#192; venir</div><div class="stat-val" id="s-upcoming">&#8212;</div></div>
         <div class="stat-card"><div class="stat-lbl">En cours</div><div class="stat-val" id="s-current">&#8212;</div></div>
-        <div class="stat-card"><div class="stat-lbl" id="s-year-lbl">Ann&#233;e</div><div class="stat-val" id="s-year">&#8212;</div><div class="stat-compare" id="s-compare"></div></div>
+        <div class="stat-card">
+  <div class="stat-lbl">Informations</div>
+  <div style="font-size:.72rem;color:var(--text2);margin-top:4px;">Devis envoy&#233;s : <span id="s-devis-envoye" style="font-weight:700;color:var(--text)">&#8212;</span></div>
+  <div style="font-size:.72rem;color:var(--text2);margin-top:3px;">Devis sign&#233;s : <span id="s-devis-signe" style="font-weight:700;color:var(--text)">&#8212;</span></div>
+  <div style="font-size:.72rem;color:var(--text2);margin-top:3px;">Acomptes : <span id="s-acompte" style="font-weight:700;color:var(--text)">&#8212;</span></div>
+</div>
       </div>
       <div class="revenue-row">
         <div class="rev-card">
@@ -334,6 +339,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
         <div class="modal-section-title">Client</div>
         <div class="modal-row"><span class="lbl">Adresse</span><span class="val" id="m-adr"></span></div>
         <div class="modal-row"><span class="lbl">T&#233;l&#233;phone</span><a class="val" id="m-tel" href="#">&#8212;</a></div>
+        <div class="modal-row"><span class="lbl">Source</span><span class="val" id="m-source">&#8212;</span></div>
         <div class="modal-row"><span class="lbl">Email</span><a class="val" id="m-email" href="#">&#8212;</a></div>
       </div>
       <div class="modal-divider"></div>
@@ -447,6 +453,7 @@ function parseClient(page){
     adresse:g('Adresse','rich'),tel:g('Tel','phone'),email:g('Email','email'),
     prix:g('Prix','num'),statut:g('Statut','multi'),contrat:g('Contrat','url'),
     nuits:g('Nbr de nuits','num'),jours:g('Nbr de jours','num'),
+    source:g('Source','select')||g('Source','rich'),
     caution:g('Caution vers\u00e9e','check'),
   };
 }
@@ -497,6 +504,15 @@ function updateStats(){
   document.getElementById('s-upcoming').textContent=upcoming.length;
   document.getElementById('s-current').textContent=current.length||'\u2014';
 
+  // Info block - count by statut
+  const countStatut=(key)=>allClients.filter(c=>(c.statut||'').toLowerCase().includes(key.toLowerCase())).length;
+  const elDE=document.getElementById('s-devis-envoye');
+  const elDS=document.getElementById('s-devis-signe');
+  const elAC=document.getElementById('s-acompte');
+  if(elDE)elDE.textContent=countStatut('envoy');
+  if(elDS)elDS.textContent=countStatut('sign');
+  if(elAC)elAC.textContent=countStatut('acompte');
+
   let yearClients,yearLabel,lastYrClients=[];
   if(selectedYear==='tout'){
     yearClients=allClients;yearLabel='Tout';
@@ -507,8 +523,7 @@ function updateStats(){
     yearLabel=selectedYear;
     lastYrClients=allClients.filter(c=>c.arrivee?.startsWith(String(parseInt(selectedYear)-1)));
   }
-  document.getElementById('s-year-lbl').textContent=yearLabel;
-  document.getElementById('s-year').textContent=yearClients.length;
+  // Info block already updated above
   const diff=yearClients.length-lastYrClients.length;
   const pct=lastYrClients.length?Math.round(Math.abs(diff)/lastYrClients.length*100):0;
   const cmp=document.getElementById('s-compare');
@@ -720,6 +735,7 @@ function openModal(c){
   document.getElementById('m-adultes').textContent=c.adultes!==''&&c.adultes!==null?c.adultes:'\u2014';
   document.getElementById('m-enfants').textContent=c.enfants||'0';
   document.getElementById('m-adr').textContent=c.adresse||'\u2014';
+  document.getElementById('m-source').textContent=c.source||'\u2014';
   const tel=document.getElementById('m-tel');tel.textContent=c.tel||'\u2014';tel.href=c.tel?'tel:'+c.tel.replace(/\s/g,''):'#';
   const email=document.getElementById('m-email');email.textContent=c.email||'\u2014';email.href=c.email?'mailto:'+c.email:'#';
   document.getElementById('m-prix').textContent=c.prix?fmtPrix(c.prix):'\u2014';
