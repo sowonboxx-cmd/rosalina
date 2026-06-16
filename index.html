@@ -110,18 +110,25 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 
 <div class="form-body">
 
-  <!-- 0. NOTION CONFIG -->
+  <!-- 0. CONNEXIONS -->
   <div class="section-card" id="notion-config-card">
-    <div class="section-title">🔗 Connexion Notion</div>
+    <div class="section-title">🔗 Connexions</div>
     <div class="field-grid">
-      <div class="field" style="grid-column:1/-1">
-        <label>Token d'intégration Notion <span style="color:#aaa;font-weight:400">(sauvegardé localement, jamais partagé)</span></label>
-        <div style="display:flex;gap:10px;align-items:center">
-          <input type="password" id="notion-token-input" placeholder="ntn_..." style="flex:1"
-            oninput="saveNotionToken(this.value)">
-          <button onclick="toggleTokenVisibility()" style="padding:10px 14px;border:1.5px solid #E0D8CE;border-radius:8px;background:#FAFAF8;cursor:pointer;font-size:.85rem;white-space:nowrap" id="token-eye">👁 Voir</button>
+      <div class="field">
+        <label>Token Notion <span style="color:#aaa;font-weight:400">(sauvegardé localement)</span></label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="password" id="notion-token-input" placeholder="ntn_..." style="flex:1" oninput="saveNotionToken(this.value)">
+          <button onclick="toggleTokenVisibility('notion')" style="padding:10px 12px;border:1.5px solid #E0D8CE;border-radius:8px;background:#FAFAF8;cursor:pointer;font-size:.82rem" id="token-eye-notion">👁</button>
         </div>
         <span class="hint" id="token-status"></span>
+      </div>
+      <div class="field">
+        <label>Token Dropbox <span style="color:#aaa;font-weight:400">(pour sauvegarder le PDF)</span></label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="password" id="dropbox-token-input" placeholder="sl.u...." style="flex:1" oninput="saveDropboxToken(this.value)">
+          <button onclick="toggleTokenVisibility('dropbox')" style="padding:10px 12px;border:1.5px solid #E0D8CE;border-radius:8px;background:#FAFAF8;cursor:pointer;font-size:.82rem" id="token-eye-dropbox">👁</button>
+        </div>
+        <span class="hint" id="dropbox-status"></span>
       </div>
     </div>
   </div>
@@ -573,7 +580,58 @@ function lookupCP(val){
   },500);
 }
 
-// ══ GÉNÉRER PDF dans nouvel onglet ══
+// ══ DROPBOX UPLOAD ══
+async function uploadToDropbox(htmlContent, filename) {
+  const DROPBOX_TOKEN = getDropboxToken();
+  if (!DROPBOX_TOKEN) return null;
+
+  // Convertir HTML en Blob
+  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+  const arrayBuffer = await blob.arrayBuffer();
+
+  const path = `/Rosalina/Devis/${filename}`;
+
+  try {
+    const res = await fetch('https://content.dropboxapi.com/2/files/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${DROPBOX_TOKEN}`,
+        'Dropbox-API-Arg': JSON.stringify({
+          path: path,
+          mode: 'overwrite',
+          autorename: false,
+          mute: false
+        }),
+        'Content-Type': 'application/octet-stream'
+      },
+      body: arrayBuffer
+    });
+
+    if (!res.ok) { console.error('Dropbox upload failed', await res.text()); return null; }
+
+    // Créer un lien de partage
+    const shareRes = await fetch('https://api.dropboxapi.com/2/sharing/create_shared_link_with_settings', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${DROPBOX_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ path: path, settings: { requested_visibility: 'public' } })
+    });
+
+    if (shareRes.ok) {
+      const shareData = await shareRes.json();
+      // Convertir lien dropbox en lien direct
+      return shareData.url.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('?dl=0', '');
+    }
+    return null;
+  } catch(e) {
+    console.error('Dropbox error:', e);
+    return null;
+  }
+}
+
+// ══ GÉNÉRER PDF + DROPBOX ══
 function generatePDF(){
   const prenom=document.getElementById('prenom').value.trim();
   const nom=document.getElementById('nom').value.trim();
@@ -804,6 +862,36 @@ table.fin tr:last-child td{border-bottom:none}
     const blob = new Blob([html], {type: 'text/html;charset=utf-8'});
   const url = URL.createObjectURL(blob);
   window.open(url, '_blank');
+
+  // Upload vers Dropbox si token disponible
+  const DROPBOX_TOKEN = getDropboxToken();
+  if (DROPBOX_TOKEN) {
+    const clientName = [prenom, nom].filter(Boolean).join('_').replace(/\s+/g,'_') || 'client';
+    const dateStr = dE ? isoDate(dE) : new Date().toISOString().slice(0,10);
+    const filename = `Devis_${clientName}_${dateStr}.html`;
+    showStatus('loading', '📤 Upload du devis vers Dropbox…');
+    uploadToDropbox(html, filename).then(link => {
+      if (link) {
+        showStatus('success', `✅ Devis sauvegardé sur Dropbox !`);
+        // Sauvegarder le lien dans Notion si token disponible
+        const NOTION_TOKEN = getNotionToken();
+        if (NOTION_TOKEN && window._lastNotionPageId) {
+          fetch('https://notion-proxy.sowonboxx.workers.dev', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              token: NOTION_TOKEN,
+              pageId: window._lastNotionPageId,
+              properties: { 'Contrat': { url: link } }
+            })
+          });
+        }
+      } else {
+        showStatus('loading', '');
+      }
+    });
+  }
+
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
@@ -811,25 +899,28 @@ table.fin tr:last-child td{border-bottom:none}
 function saveNotionToken(val) {
   if (val && val.startsWith('ntn_')) {
     localStorage.setItem('notion_token', val);
-    document.getElementById('token-status').textContent = '✓ Token sauvegardé localement';
+    document.getElementById('token-status').textContent = '✓ Token Notion sauvegardé';
     document.getElementById('token-status').style.color = '#3D5438';
-  } else if (val) {
-    document.getElementById('token-status').textContent = 'Le token doit commencer par ntn_...';
-    document.getElementById('token-status').style.color = '#C8956C';
   }
 }
-
-function toggleTokenVisibility() {
-  const inp = document.getElementById('notion-token-input');
-  const btn = document.getElementById('token-eye');
-  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈 Cacher'; }
-  else { inp.type = 'password'; btn.textContent = '👁 Voir'; }
+function saveDropboxToken(val) {
+  if (val && val.startsWith('sl.')) {
+    localStorage.setItem('dropbox_token', val);
+    document.getElementById('dropbox-status').textContent = '✓ Token Dropbox sauvegardé';
+    document.getElementById('dropbox-status').style.color = '#3D5438';
+  }
 }
-
+function toggleTokenVisibility(which) {
+  const inp = document.getElementById(which+'-token-input');
+  const btn = document.getElementById('token-eye-'+which);
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁'; }
+}
 function getNotionToken() {
-  return document.getElementById('notion-token-input')?.value?.trim()
-      || localStorage.getItem('notion_token')
-      || '';
+  return document.getElementById('notion-token-input')?.value?.trim() || localStorage.getItem('notion_token') || '';
+}
+function getDropboxToken() {
+  return document.getElementById('dropbox-token-input')?.value?.trim() || localStorage.getItem('dropbox_token') || '';
 }
 
 // ══ NOTION INTEGRATION ══
@@ -893,9 +984,14 @@ async function saveToNotion() {
       ...(nom ? { 'Nom': { rich_text: [{ text: { content: nom } }] } } : {}),
       // Maison
       'Maison': { select: { name: m.notionLabel } },
-      // Arrivée / Départ
+      // Arrivée / Départ (champs date calendrier Notion)
       ...(dE ? { 'Arriv\u00e9e': { date: { start: isoDate(dE) } } } : {}),
       ...(dS ? { 'D\u00e9part':  { date: { start: isoDate(dS) } } } : {}),
+      // Date d'entrée / Date de sortie (rich_text pour formules)
+      ...(dE ? { "Date d'entr\u00e9e": { rich_text: [{ text: { content: fmtDateFR(dE) } }] } } : {}),
+      ...(dS ? { 'Date de sortie':      { rich_text: [{ text: { content: fmtDateFR(dS) } }] } } : {}),
+      // Code postal
+      ...(cp ? { 'Code postal': { number: parseInt(cp) || 0 } } : {}),
       // Nbr de jours / nuits
       'Nbr de jours': { number: jours },
       'Nbr de nuits': { number: nuits },
@@ -927,6 +1023,7 @@ async function saveToNotion() {
     const data = await res.json();
 
     if (res.ok) {
+      window._lastNotionPageId = data.id; // Sauvegarder l'ID pour le lien Dropbox
       showStatus('success', `✅ Sauvegardé dans Notion ! Fiche créée pour ${nomComplet}.`);
     } else {
       console.error('Notion error:', data);
@@ -967,12 +1064,18 @@ updateAdultesOptions();
 document.getElementById('caution').value=MAISONS['rosa-lina'].caution;
 document.getElementById('menage').value=MAISONS['rosa-lina'].menage;
 calcAll();
-// Charger le token sauvegardé
+// Charger les tokens sauvegardés
 const savedToken = localStorage.getItem('notion_token');
 if (savedToken) {
   document.getElementById('notion-token-input').value = savedToken;
-  document.getElementById('token-status').textContent = '✓ Token chargé depuis la mémoire locale';
+  document.getElementById('token-status').textContent = '✓ Token Notion chargé';
   document.getElementById('token-status').style.color = '#3D5438';
+}
+const savedDropbox = localStorage.getItem('dropbox_token');
+if (savedDropbox) {
+  document.getElementById('dropbox-token-input').value = savedDropbox;
+  document.getElementById('dropbox-status').textContent = '✓ Token Dropbox chargé';
+  document.getElementById('dropbox-status').style.color = '#3D5438';
 }
 </script>
 </body>
