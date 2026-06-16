@@ -90,6 +90,14 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 .btn-generate{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:18px;background:#2C3D2C;color:#fff;border:none;border-radius:12px;font-family:'Jost',sans-serif;font-size:1rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .15s;box-shadow:0 4px 20px rgba(44,61,44,.25)}
 .btn-generate:hover{background:#3D5438;transform:translateY(-2px)}
 .btn-generate svg{width:20px;height:20px;fill:#C8956C}
+.btn-notion{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:16px;background:#fff;color:#1A1A1A;border:2px solid #1A1A1A;border-radius:12px;font-family:'Jost',sans-serif;font-size:1rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:-12px}
+.btn-notion:hover{background:#1A1A1A;color:#fff;transform:translateY(-2px)}
+.btn-notion svg{width:20px;height:20px;flex-shrink:0}
+.btn-notion:disabled{opacity:.5;cursor:wait;transform:none}
+.notion-status{padding:14px 20px;border-radius:10px;font-size:.82rem;font-weight:500;text-align:center}
+.notion-status.loading{background:#F0EDE6;color:#2C3D2C}
+.notion-status.success{background:#EDF5EC;color:#2C3D2C;border:1px solid #6A8C65}
+.notion-status.error{background:#FFF0F0;color:#C0392B;border:1px solid #e88}
 .preview-note{text-align:center;font-size:.72rem;color:#aaa;margin-top:-12px}
 </style>
 </head>
@@ -101,6 +109,22 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 </div>
 
 <div class="form-body">
+
+  <!-- 0. NOTION CONFIG -->
+  <div class="section-card" id="notion-config-card">
+    <div class="section-title">🔗 Connexion Notion</div>
+    <div class="field-grid">
+      <div class="field" style="grid-column:1/-1">
+        <label>Token d'intégration Notion <span style="color:#aaa;font-weight:400">(sauvegardé localement, jamais partagé)</span></label>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input type="password" id="notion-token-input" placeholder="ntn_..." style="flex:1"
+            oninput="saveNotionToken(this.value)">
+          <button onclick="toggleTokenVisibility()" style="padding:10px 14px;border:1.5px solid #E0D8CE;border-radius:8px;background:#FAFAF8;cursor:pointer;font-size:.85rem;white-space:nowrap" id="token-eye">👁 Voir</button>
+        </div>
+        <span class="hint" id="token-status"></span>
+      </div>
+    </div>
+  </div>
 
   <!-- 1. MAISON & DATES -->
   <div class="section-card">
@@ -239,6 +263,11 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
     <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
     Générer le devis PDF
   </button>
+  <button class="btn-notion" onclick="saveToNotion()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Sauvegarder dans Notion
+  </button>
+  <div id="notion-status" class="notion-status" style="display:none"></div>
   <p class="preview-note">Le devis s'ouvrira dans un nouvel onglet — faites Fichier → Enregistrer en PDF</p>
 
 </div>
@@ -778,12 +807,197 @@ table.fin tr:last-child td{border-bottom:none}
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
+// ══ TOKEN NOTION ══
+function saveNotionToken(val) {
+  if (val && val.startsWith('ntn_')) {
+    localStorage.setItem('notion_token', val);
+    document.getElementById('token-status').textContent = '✓ Token sauvegardé localement';
+    document.getElementById('token-status').style.color = '#3D5438';
+  } else if (val) {
+    document.getElementById('token-status').textContent = 'Le token doit commencer par ntn_...';
+    document.getElementById('token-status').style.color = '#C8956C';
+  }
+}
+
+function toggleTokenVisibility() {
+  const inp = document.getElementById('notion-token-input');
+  const btn = document.getElementById('token-eye');
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈 Cacher'; }
+  else { inp.type = 'password'; btn.textContent = '👁 Voir'; }
+}
+
+function getNotionToken() {
+  return document.getElementById('notion-token-input')?.value?.trim()
+      || localStorage.getItem('notion_token')
+      || '';
+}
+
+// ══ NOTION INTEGRATION ══
+const NOTION_TOKEN = document.getElementById('notion-token-input')?.value?.trim() || localStorage.getItem('notion_token') || '';
+const NOTION_DB_ID = '249a8c29d0568122a40ccf7180e98935';
+const NOTION_PROXY = 'https://notion-proxy.vercel.app/api/notion'; // proxy CORS
+
+async function saveToNotion() {
+  const NOTION_TOKEN = getNotionToken();
+  const btn = document.querySelector('.btn-notion');
+  const status = document.getElementById('notion-status');
+
+  if (!NOTION_TOKEN || !NOTION_TOKEN.startsWith('ntn_')) {
+    showStatus('error', '⚠️ Entre ton token Notion en haut du formulaire (commence par ntn_...)');
+    return;
+  }
+
+  // Récupérer les valeurs
+  const prenom  = document.getElementById('prenom').value.trim();
+  const nom     = document.getElementById('nom').value.trim();
+  const asso    = document.getElementById('asso').value.trim();
+  const adresse = document.getElementById('adresse').value.trim();
+  const cp      = document.getElementById('cp').value.trim();
+  const ville   = document.getElementById('ville').value.trim();
+  const tel     = document.getElementById('tel').value.trim();
+  const email   = document.getElementById('email').value.trim();
+  const dE      = CAL.entree.date;
+  const dS      = CAL.sortie.date;
+  const nA      = parseInt(document.getElementById('nb-adultes').value) || 0;
+  const enfants = parseInt(document.getElementById('nb-enfants').value) || 0;
+  const prix    = parseFloat(document.getElementById('prix-sejour').value) || 0;
+  const taxeOffert   = document.getElementById('taxe-offert').checked;
+  const menageOffert = document.getElementById('menage-offert').checked;
+  const taxe   = taxeOffert   ? 0 : (parseFloat(document.getElementById('taxe').value)   || 0);
+  const menage = menageOffert ? 0 : (parseFloat(document.getElementById('menage').value) || 0);
+  const reducM = parseFloat(document.getElementById('reduc-montant').value) || 0;
+  const total  = Math.max(0, prix + taxe + menage - reducM);
+  const m      = MAISONS[currentMaison];
+  const nuits  = dE && dS ? Math.round((dS - dE) / 86400000) : 0;
+  const jours  = nuits + 1;
+
+  // Validation basique
+  if (!prenom && !nom) { showStatus('error', '⚠️ Remplis au moins le nom du client avant de sauvegarder.'); return; }
+  if (!dE || !dS)      { showStatus('error', '⚠️ Sélectionne les dates d\'entrée et de sortie.'); return; }
+
+  // Nom complet
+  const nomComplet = [prenom, nom].filter(Boolean).join(' ') + (asso ? ` (${asso})` : '');
+
+  // Préparer le payload Notion
+  const payload = {
+    parent: { database_id: NOTION_DB_ID },
+    properties: {
+      // Nom (title)
+      'Nom': {
+        title: [{ text: { content: nomComplet } }]
+      },
+      // Maison (select)
+      'Maison': {
+        select: { name: m.label }
+      },
+      // Arrivée (date)
+      ...(dE ? { 'Arrivée': { date: { start: isoDate(dE) } } } : {}),
+      // Départ (date)
+      ...(dS ? { 'Départ': { date: { start: isoDate(dS) } } } : {}),
+      // Nbr de jours (number)
+      'Nbr de jours': { number: jours },
+      // Nbr de nuits (number)
+      'Nbr de nuits': { number: nuits },
+      // Organisme
+      ...(asso ? { 'Organisme': { rich_text: [{ text: { content: asso } }] } } : {}),
+      // Adresse
+      ...(adresse ? { 'Adresse': { rich_text: [{ text: { content: adresse } }] } } : {}),
+      // Place (CP + ville)
+      ...((cp||ville) ? { 'Place': { rich_text: [{ text: { content: [cp, ville].filter(Boolean).join(' ') } }] } } : {}),
+      // Email
+      ...(email ? { 'Email': { email: email } } : {}),
+      // Tel
+      ...(tel ? { 'Tel': { phone_number: tel } } : {}),
+      // Adultes
+      ...(nA ? { 'Adultes': { number: nA } } : {}),
+      // Enfants & bébés
+      ...(enfants ? { 'Enfants & bébés': { number: enfants } } : {}),
+      // Prix
+      'Prix': { number: total },
+      // Statut par défaut
+      'Statut': { select: { name: 'Devis envoyé' } },
+    }
+  };
+
+  // Envoyer à Notion via proxy CORS
+  btn.disabled = true;
+  showStatus('loading', '⏳ Sauvegarde dans Notion en cours…');
+
+  try {
+    // Essai 1 : allorigins
+    let res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://api.notion.com/v1/pages')}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${NOTION_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Notion-Version': '2022-06-28',
+      },
+      body: JSON.stringify(payload)
+    });
+
+    // Essai 2 si le premier échoue : corsproxy.io
+    if (!res.ok && res.status === 0) {
+      res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://api.notion.com/v1/pages')}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${NOTION_TOKEN}`,
+          'Content-Type': 'application/json',
+          'Notion-Version': '2022-06-28',
+        },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    const data = await res.json();
+
+    if (res.ok) {
+      showStatus('success', `✅ Sauvegardé dans Notion ! Fiche créée pour ${nomComplet}.`);
+    } else {
+      console.error('Notion error:', data);
+      // Si le DB_ID n'est pas rempli
+      if (NOTION_DB_ID === 'COLLE_TON_ID_DE_BASE_ICI') {
+        showStatus('error', '⚠️ ID de base Notion manquant — remplace COLLE_TON_ID_DE_BASE_ICI dans le code avec ton ID de base.');
+      } else {
+        showStatus('error', `❌ Erreur Notion : ${data.message || 'Vérifie que la base est connectée à l\'intégration.'}`);
+      }
+    }
+  } catch(e) {
+    console.error(e);
+    showStatus('error', '❌ Erreur réseau — vérifie ta connexion internet.');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function showStatus(type, msg) {
+  const el = document.getElementById('notion-status');
+  el.className = `notion-status ${type}`;
+  el.textContent = msg;
+  el.style.display = 'block';
+  if (type === 'success') setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+function isoDate(d) {
+  if (!d) return null;
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
 // ══ INIT ══
 initCalViews();
 updateAdultesOptions();
 document.getElementById('caution').value=MAISONS['rosa-lina'].caution;
 document.getElementById('menage').value=MAISONS['rosa-lina'].menage;
 calcAll();
+// Charger le token sauvegardé
+const savedToken = localStorage.getItem('notion_token');
+if (savedToken) {
+  document.getElementById('notion-token-input').value = savedToken;
+  document.getElementById('token-status').textContent = '✓ Token chargé depuis la mémoire locale';
+  document.getElementById('token-status').style.color = '#3D5438';
+}
 </script>
 </body>
 </html>
