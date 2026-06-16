@@ -894,7 +894,6 @@ async function saveToNotion() {
       'Nbr de nuits': { number: nuits },
       ...(asso ? { 'Organisme': { rich_text: [{ text: { content: asso } }] } } : {}),
       ...(adresse ? { 'Adresse': { rich_text: [{ text: { content: adresse } }] } } : {}),
-      ...((cp||ville) ? { 'Place': { rich_text: [{ text: { content: [cp, ville].filter(Boolean).join(' ') } }] } } : {}),
       ...(email ? { 'Email': { email: email } } : {}),
       ...(tel ? { 'Tel': { phone_number: tel } } : {}),
       ...(nA ? { 'Adultes': { number: nA } } : {}),
