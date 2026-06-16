@@ -987,9 +987,6 @@ async function saveToNotion() {
       // Arrivée / Départ (champs date calendrier Notion)
       ...(dE ? { 'Arriv\u00e9e': { date: { start: isoDate(dE) } } } : {}),
       ...(dS ? { 'D\u00e9part':  { date: { start: isoDate(dS) } } } : {}),
-      // Date d'entrée / Date de sortie (rich_text pour formules)
-      ...(dE ? { "Date d'entr\u00e9e": { rich_text: [{ text: { content: fmtDateFR(dE) } }] } } : {}),
-      ...(dS ? { 'Date de sortie':      { rich_text: [{ text: { content: fmtDateFR(dS) } }] } } : {}),
       // Code postal
       ...(cp ? { 'Code postal': { number: parseInt(cp) || 0 } } : {}),
       // Nbr de jours / nuits
