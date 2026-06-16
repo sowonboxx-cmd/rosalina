@@ -885,19 +885,19 @@ async function saveToNotion() {
   const payload = {
     parent: { database_id: NOTION_DB_ID },
     properties: {
-      // Prénom = champ titre (champ principal d'ouverture de fiche)
-      'Prénom': {
+      // Prénom = champ titre
+      'Pr\u00e9nom': {
         title: [{ text: { content: prenom || nomComplet } }]
       },
       // Nom en rich_text séparé
       ...(nom ? { 'Nom': { rich_text: [{ text: { content: nom } }] } } : {}),
       // Maison
       'Maison': { select: { name: m.notionLabel } },
-      // Date séjour = plage arrivée → départ (pour le calendrier Notion)
-      ...(dE && dS ? { 'Date séjour': { date: { start: isoDate(dE), end: isoDate(dS) } } } : {}),
-      // Arrivée / Départ séparés
-      ...(dE ? { 'Arrivée': { date: { start: isoDate(dE) } } } : {}),
-      ...(dS ? { 'Départ':  { date: { start: isoDate(dS) } } } : {}),
+      // Date séjour = plage arrivée → départ
+      ...(dE && dS ? { 'Date s\u00e9jour': { date: { start: isoDate(dE), end: isoDate(dS) } } } : {}),
+      // Arrivée / Départ
+      ...(dE ? { 'Arriv\u00e9e': { date: { start: isoDate(dE) } } } : {}),
+      ...(dS ? { 'D\u00e9part':  { date: { start: isoDate(dS) } } } : {}),
       // Nbr de jours / nuits
       'Nbr de jours': { number: jours },
       'Nbr de nuits': { number: nuits },
@@ -908,7 +908,7 @@ async function saveToNotion() {
       ...(tel     ? { 'Tel':       { phone_number: tel } } : {}),
       // Personnes
       ...(nA      ? { 'Adultes':         { number: nA } } : {}),
-      ...(enfants ? { 'Enfants & bébés': { number: enfants } } : {}),
+      ...(enfants ? { 'Enfants & b\u00e9b\u00e9s': { number: enfants } } : {}),
       // Prix & statut
       'Prix':   { number: total },
       'Statut': { multi_select: [{ name: 'Devis envoyé' }] },
