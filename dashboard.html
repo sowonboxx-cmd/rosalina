@@ -6,7 +6,7 @@
 <title>Rosalina Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600;700&family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>:root{--bg:#F4F0EA;--bg2:#EDEAE4;--card:#fff;--border:#E0D8CE;--green:#2C3D2C;--green2:#3D5438;--rose:#C8956C;--text:#1A1A1A;--text2:#666;--text3:#999;--shadow:0 2px 12px rgba(0,0,0,.07);--shadow-lg:0 8px 40px rgba(0,0,0,.13);--r:14px;--r2:8px;--rosa:#E8834A;--lina:#D4A017;--rosalina:#4A7EC8;}
-[data-theme="dark"]{--bg:#0F1410;--bg2:#161B16;--card:#1C211C;--border:#2A312A;--text:#EEE8DF;--text2:#8A8A7A;--text3:#4A4A3A;--shadow:0 2px 12px rgba(0,0,0,.4);--shadow-lg:0 8px 40px rgba(0,0,0,.6);}
+[data-theme="dark"]{--bg:#0F1410;--bg2:#161B16;--card:#1C211C;--border:#2A312A;--text:#EEE8DF;--text2:#8A8A7A;--text3:#c2cdd9;--shadow:0 2px 12px rgba(0,0,0,.4);--shadow-lg:0 8px 40px rgba(0,0,0,.6);}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
 .header{background:var(--green);padding:0 16px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
@@ -83,9 +83,9 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 [data-theme="dark"] .sb-acompte{background:rgba(74,144,217,.15);color:#7AABF0;}
 [data-theme="dark"] .sb-solde{background:rgba(90,154,90,.15);color:#7ACC7A;}
 [data-theme="dark"] .sb-paiement{background:rgba(150,100,240,.15);color:#B090F0;}
-.caution-tag{display:flex;align-items:center;gap:4px;font-size:.6rem;font-weight:600;padding:3px 8px;border-radius:10px;cursor:pointer;transition:all .15s;user-select:none;}
+.caution-tag{display:inline-flex;align-items:center;gap:3px;font-size:.6rem;font-weight:600;padding:3px 9px;border-radius:20px;cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap;}
 .caution-tag.ok{background:rgba(90,154,90,.12);color:#5A9A5A;}
-.caution-tag.empty{background:transparent;color:var(--text3);border:1px dashed var(--border);}
+.caution-tag.empty{background:transparent;color:var(--text3);border:1px solid var(--border);}
 .caution-tag svg{width:11px;height:11px;}
 .empty{text-align:center;padding:50px 20px;color:var(--text3);}
 .empty .icon{font-size:2.5rem;margin-bottom:10px;}
@@ -319,8 +319,8 @@ function parseClient(page){
     nom:g('Nom','rich'),
     org:g('Organisme','rich'),
     maison:g('Maison','select'),
-    arrivee:g('Arriv\u00e9e','date'),
-    depart:g('D\u00e9part','date'),
+    arrivee:g('Arriv\u00e9e','date')||g('Arriv\u00e9e-2','date')||g('Arrivee-2','date'),
+    depart:g('D\u00e9part','date')||g('D\u00e9part-2','date')||g('Depart-2','date'),
     adultes:g('Adultes','num'),
     enfants:g('Enfants & b\u00e9b\u00e9s','num'),
     adresse:g('Adresse','rich'),
@@ -456,7 +456,7 @@ function renderCard(c,today){
       (c.statut?'<span class="statut-badge '+sbCls+'" onclick="openModalById(\''+cid+'\');event.stopPropagation()">'+escAttr(c.statut)+'</span>':'')+
       '<span class="caution-tag '+(c.caution?'ok':'empty')+'" onclick="toggleCautionCard(event,\''+cid+'\','+c.caution+')">'+
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'+
-        'Caution'+
+        'Caution vers\u00e9e'+
       '</span>'+
     '</div>'+
   '</div>';
