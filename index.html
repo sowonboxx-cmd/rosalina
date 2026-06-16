@@ -966,6 +966,8 @@ async function saveToNotion() {
       // Arrivée / Départ (champs date calendrier Notion)
       ...(dE ? { 'Arriv\u00e9e': { date: { start: isoDate(dE) } } } : {}),
       ...(dS ? { 'D\u00e9part':  { date: { start: isoDate(dS) } } } : {}),
+      // Date séjour = plage complète arrivée → départ
+      ...(dE && dS ? { 'Date s\u00e9jour': { date: { start: isoDate(dE), end: isoDate(dS) } } } : {}),
       // Code postal
       ...(cp ? { 'Code postal': { number: parseInt(cp) || 0 } } : {}),
       // Nbr de jours / nuits
