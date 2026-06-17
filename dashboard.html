@@ -205,6 +205,65 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .caution-toggle-btn.ok{border-color:#5A9A5A;color:#5A9A5A;background:rgba(90,154,90,.08);}
 .caution-toggle-btn svg{width:14px;height:14px;}
 @media(min-width:600px){.overlay{align-items:center;}.modal{border-radius:14px;max-width:520px;margin:auto;}}
+
+/* SEARCH */
+.search-btn{background:rgba(255,255,255,.12);border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.8);transition:background .2s;}
+.search-btn:hover{background:rgba(255,255,255,.22);color:#fff;}
+.search-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);z-index:300;display:flex;align-items:flex-start;justify-content:center;padding:80px 16px 20px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.search-overlay.open{opacity:1;pointer-events:all;}
+.search-box{background:var(--card);border-radius:var(--r);width:100%;max-width:520px;box-shadow:var(--shadow-lg);overflow:hidden;}
+.search-input-row{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);}
+.search-input-row input{flex:1;border:none;background:transparent;font-family:'Jost',sans-serif;font-size:.95rem;color:var(--text);outline:none;}
+.search-input-row input::placeholder{color:var(--text3);}
+.search-results{max-height:340px;overflow-y:auto;}
+.search-item{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;}
+.search-item:last-child{border-bottom:none;}
+.search-item:hover{background:var(--bg2);}
+.search-item-left{display:flex;flex-direction:column;gap:2px;}
+.search-item-name{font-size:.88rem;font-weight:600;color:var(--text);}
+.search-item-sub{font-size:.72rem;color:var(--text3);}
+.search-item-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+.search-empty{padding:24px 16px;text-align:center;color:var(--text3);font-size:.85rem;}
+
+/* STATS */
+.stats-tabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.stats-tabs::-webkit-scrollbar{display:none;}
+.stats-tab{flex-shrink:0;padding:6px 16px;border-radius:14px;border:1.5px solid var(--border);background:transparent;color:var(--text2);font-family:'Jost',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s;}
+.stats-tab.active{border-color:var(--green);background:var(--green);color:#fff;}
+[data-theme="dark"] .stats-tab.active{border-color:var(--rose);background:var(--rose);}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
+.kpi-card{background:var(--card);border-radius:var(--r2);padding:12px 14px;border:1px solid var(--border);box-shadow:var(--shadow);}
+.kpi-lbl{font-family:'Open Sans',sans-serif;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+.kpi-val{font-family:'Open Sans',sans-serif;font-size:1.25rem;font-weight:700;color:var(--text);line-height:1.1;}
+.kpi-sub{font-size:.65rem;color:var(--text3);margin-top:3px;}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+@media(max-width:560px){.charts-row{grid-template-columns:1fr;}}
+.chart-card{background:var(--card);border-radius:var(--r2);padding:14px;border:1px solid var(--border);box-shadow:var(--shadow);}
+.chart-title{font-family:'Open Sans',sans-serif;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}
+.source-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.source-name{font-size:.8rem;color:var(--text2);min-width:80px;}
+.source-track{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;}
+.source-fill{height:100%;border-radius:3px;background:var(--rose);}
+.source-count{font-size:.72rem;font-weight:600;color:var(--text);min-width:24px;text-align:right;}
+.heatmap-container{overflow-x:auto;}
+.heatmap-grid{display:flex;gap:2px;padding-bottom:4px;}
+.heatmap-col{display:flex;flex-direction:column;gap:2px;}
+.heatmap-cell{width:12px;height:12px;border-radius:2px;background:var(--bg2);}
+.heatmap-cell.l1{background:rgba(200,149,108,.25);}
+.heatmap-cell.l2{background:rgba(200,149,108,.5);}
+.heatmap-cell.l3{background:rgba(200,149,108,.75);}
+.heatmap-cell.l4{background:var(--rose);}
+.heatmap-months{display:flex;gap:2px;margin-bottom:4px;}
+.heatmap-month-lbl{font-size:.55rem;color:var(--text3);white-space:nowrap;}
+.revenue-year-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.85rem;}
+.revenue-year-row:last-child{border-bottom:none;}
+.revenue-year-bar{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;margin:0 12px;}
+.revenue-year-fill{height:100%;border-radius:3px;background:var(--green2);}
+[data-theme="dark"] .revenue-year-fill{background:#7ACC7A;}
+.duration-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.82rem;}
+.duration-row:last-child{border-bottom:none;}
+.duration-lbl{color:var(--text2);}
+.duration-val{font-weight:700;color:var(--text);}
 </style>
 </head>
 <body data-theme="dark">
@@ -220,6 +279,9 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
         Cr&#233;er un devis
       </a>
+      <button class="search-btn" onclick="toggleSearch()" id="search-btn" title="Rechercher">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">
         <img id="theme-icon" src="https://domainerosalina.com/wp-content/uploads/2026/06/icon-sun.png" alt="theme">
       </button>
@@ -231,6 +293,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
   <div class="subnav">
     <button class="subnav-tab active" onclick="showView('dashboard',this)">Accueil</button>
     <button class="subnav-tab" onclick="showView('cal',this)">Calendrier des maisons</button>
+    <button class="subnav-tab" onclick="showView('stats',this)">Stats</button>
     <button class="subnav-refresh" onclick="loadData()" id="refresh-btn">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
       Actualiser
@@ -313,6 +376,53 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="cal-maisons-grid" id="cal-content"></div>
     <a class="cal-btn-devis" href="https://sowonboxx-cmd.github.io/rosalina/" target="_blank">+ Cr&#233;er un devis</a>
   </div>
+
+  <!-- STATS VIEW -->
+  <div id="stats-view" style="display:none">
+    <!-- TABS -->
+    <div class="stats-tabs">
+      <button class="stats-tab active" onclick="setStatsTab('global',this)">Global</button>
+      <button class="stats-tab" onclick="setStatsTab('2026',this)">2026</button>
+      <button class="stats-tab" onclick="setStatsTab('2025',this)">2025</button>
+      <button class="stats-tab" id="stats-tab-prev" onclick="setStatsTab('2024',this)" style="display:none">2024</button>
+    </div>
+
+    <!-- KPI ROW -->
+    <div class="kpi-row" id="kpi-row"></div>
+
+    <!-- CHARTS ROW -->
+    <div class="charts-row">
+      <div class="chart-card" style="grid-column:1/-1">
+        <div class="chart-title">R&#233;servations par mois</div>
+        <canvas id="chart-months" height="180"></canvas>
+      </div>
+    </div>
+
+    <!-- SOURCES + HEATMAP -->
+    <div class="charts-row" style="grid-template-columns:1fr 1fr">
+      <div class="chart-card">
+        <div class="chart-title">Sources clients</div>
+        <div id="sources-list"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Dur&#233;e moyenne des s&#233;jours</div>
+        <div id="duration-stats"></div>
+      </div>
+    </div>
+
+    <!-- HEATMAP -->
+    <div class="chart-card" style="margin-top:10px">
+      <div class="chart-title">Heatmap — semaines occup&#233;es</div>
+      <div id="heatmap-container" class="heatmap-container"></div>
+    </div>
+
+    <!-- REVENUE BY YEAR -->
+    <div class="chart-card" style="margin-top:10px">
+      <div class="chart-title">Revenus par ann&#233;e</div>
+      <div id="revenue-by-year"></div>
+    </div>
+  </div>
+
 </main>
 
 <div class="overlay" id="overlay" onclick="onOverlayClick(event)">
@@ -402,7 +512,9 @@ function showView(v,btn){
   btn.classList.add('active');
   document.getElementById('dashboard-view').style.display=v==='dashboard'?'block':'none';
   document.getElementById('cal-view').style.display=v==='cal'?'block':'none';
+  const sv=document.getElementById('stats-view');if(sv)sv.style.display=v==='stats'?'block':'none';
   if(v==='cal'){initCalYearSel();renderCal();}
+  if(v==='stats'){buildStatsTabs();renderStats();}
 }
 
 async function loadData(){
@@ -420,6 +532,7 @@ async function loadData(){
       all=all.concat(d.results);more=d.has_more;cursor=d.next_cursor;
     }
     allClients=all.map(parseClient);
+    autoUpdateFinished();
     document.getElementById('setup-card').style.display='none';
     document.getElementById('stats-block').style.display='block';
     buildYearPills();updateStats();renderCards();
@@ -787,6 +900,313 @@ if(saved){
   loadData();
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+function buildStatsTabs(){
+  const years=[...new Set(allClients.map(c=>c.arrivee?.slice(0,4)).filter(Boolean))].sort().reverse();
+  const tabsEl=document.querySelector('.stats-tabs');
+  if(!tabsEl)return;
+  tabsEl.querySelectorAll('.dyn-stats-tab').forEach(e=>e.remove());
+  years.forEach(y=>{
+    const btn=document.createElement('button');
+    btn.className='stats-tab dyn-stats-tab';
+    btn.setAttribute('data-year',y);
+    btn.textContent=y;
+    btn.onclick=()=>{statsTab=y;document.querySelectorAll('.stats-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderStats();};
+    tabsEl.appendChild(btn);
+  });
+}
+
+// ══ SEARCH ══
+function toggleSearch(){
+  const ov=document.getElementById('search-overlay');
+  ov.classList.toggle('open');
+  if(ov.classList.contains('open')){
+    setTimeout(()=>document.getElementById('search-input').focus(),50);
+    document.getElementById('search-input').value='';
+    document.getElementById('search-results').innerHTML='';
+  }
+}
+function closeSearch(){document.getElementById('search-overlay').classList.remove('open');}
+function onSearchOverlay(e){if(e.target===document.getElementById('search-overlay'))closeSearch();}
+function onSearchInput(q){
+  q=q.trim().toLowerCase();
+  const res=document.getElementById('search-results');
+  if(!q){res.innerHTML='';return;}
+  const found=allClients.filter(c=>{
+    const name=([c.prenom,c.nom].filter(Boolean).join(' ')).toLowerCase();
+    return name.includes(q)||(c.org||'').toLowerCase().includes(q)||(c.email||'').toLowerCase().includes(q);
+  }).slice(0,8);
+  if(!found.length){res.innerHTML='<div class="search-empty">Aucun r\u00e9sultat</div>';return;}
+  const today=new Date();today.setHours(0,0,0,0);
+  res.innerHTML=found.map(c=>{
+    const name=[c.prenom,c.nom].filter(Boolean).join(' ')||'Client';
+    const mc=getMC(c.maison);
+    const dA=c.arrivee?fmtShort(c.arrivee,true):'\u2014';
+    const dD=c.depart?fmtShort(c.depart,true):'\u2014';
+    return '<div class="search-item" onclick="openModalById(\''+esc(c.id)+'\');closeSearch()">'+
+      '<div class="search-item-left">'+
+        '<div class="search-item-name">'+esc(name)+'</div>'+
+        '<div class="search-item-sub">'+(c.org?esc(c.org)+' \u2022 ':'')+dA+' \u2192 '+dD+'</div>'+
+      '</div>'+
+      '<span class="maison-pill '+mc+'">'+esc(c.maison||'\u2014')+'</span>'+
+    '</div>';
+  }).join('');
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeSearch();closeModal();}
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();toggleSearch();}
+});
+
+// ══ AUTO-UPDATE FINISHED SÉJOURS ══
+async function autoUpdateFinished(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const finished=allClients.filter(c=>{
+    if(!c.depart) return false;
+    const dep=new Date(c.depart+'T23:59:59');
+    if(dep>=today) return false;
+    const s=(c.statut||'').toLowerCase();
+    // Skip if already fully paid/closed
+    return !s.includes('solde')&&!s.includes('annul')&&!s.includes('pay');
+  });
+  // Update silently - don't await all, fire and forget
+  for(const c of finished){
+    const updates={};
+    updates['Statut']={multi_select:[{name:'Solde Pay\u00e9'}]};
+    if(!c.caution) updates['Caution vers\u00e9e']={checkbox:true};
+    await patch(c.id, updates);
+    c.statut='Solde Pay\u00e9';
+    if(!c.caution) c.caution=true;
+  }
+  if(finished.length>0) renderCards();
+}
+
+// ══ STATS ══
+let statsTab='global';
+
+function setStatsTab(tab, btn){
+  statsTab=tab;
+  document.querySelectorAll('.stats-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStats();
+}
+
+function renderStats(){
+  const today=new Date();today.setHours(0,0,0,0);
+  let clients=allClients.filter(c=>c.arrivee);
+  if(statsTab!=='global') clients=clients.filter(c=>c.arrivee.startsWith(statsTab));
+
+  // Build stats-tabs dynamically with available years
+  const years=[...new Set(allClients.map(c=>c.arrivee?.slice(0,4)).filter(Boolean))].sort().reverse();
+  const tabsEl=document.querySelector('.stats-tabs');
+  const existingDyn=tabsEl.querySelectorAll('.dyn-stats-tab');
+  existingDyn.forEach(e=>e.remove());
+  years.forEach(y=>{
+    if(tabsEl.querySelector('[data-year="'+y+'"]')) return;
+    const btn=document.createElement('button');
+    btn.className='stats-tab dyn-stats-tab '+(statsTab===y?'active':'');
+    btn.setAttribute('data-year',y);
+    btn.textContent=y;
+    btn.onclick=()=>setStatsTab(y,btn);
+    tabsEl.appendChild(btn);
+  });
+
+  // KPIs
+  const total=clients.length;
+  const totalAdultes=clients.reduce((s,c)=>s+(Number(c.adultes)||0),0);
+  const totalEnfants=clients.reduce((s,c)=>s+(Number(c.enfants)||0),0);
+  const totalPersonnes=totalAdultes+totalEnfants;
+  const avgAdultes=total?Math.round(totalAdultes/total):0;
+  const avgEnfants=total?Math.round(totalEnfants/total):0;
+  const avgPersonnes=total?(totalPersonnes/total).toFixed(1):0;
+  const totalRevenu=clients.reduce((s,c)=>s+(Number(c.prix)||0),0);
+  const avgRevenu=total?Math.round(totalRevenu/total):0;
+  const nuits=clients.map(c=>c.nuits||(c.arrivee&&c.depart?Math.round((new Date(c.depart)-new Date(c.arrivee))/86400000):0));
+  const avgNuits=nuits.length?Math.round(nuits.reduce((a,b)=>a+b,0)/nuits.length):0;
+  const avgJours=avgNuits+1;
+
+  document.getElementById('kpi-row').innerHTML=[
+    {l:'R\u00e9servations',v:total,s:''},
+    {l:'Personnes total',v:totalPersonnes,s:'adultes: '+totalAdultes+' / enfants: '+totalEnfants},
+    {l:'Moy. personnes/s\u00e9jour',v:avgPersonnes,s:'adultes: '+avgAdultes+' / enfants: '+avgEnfants},
+    {l:'Prix moyen',v:fmtPrix(avgRevenu),s:'total: '+fmtPrix(totalRevenu)},
+    {l:'Dur\u00e9e moyenne',v:avgJours+'j / '+avgNuits+'n',s:''},
+  ].map(k=>'<div class="kpi-card"><div class="kpi-lbl">'+k.l+'</div><div class="kpi-val">'+k.v+'</div><div class="kpi-sub">'+k.s+'</div></div>').join('');
+
+  // Monthly chart
+  renderMonthChart(clients);
+
+  // Sources
+  const srcMap={};
+  clients.forEach(c=>{const s=c.source||'Direct';srcMap[s]=(srcMap[s]||0)+1;});
+  const srcTotal=Object.values(srcMap).reduce((a,b)=>a+b,0)||1;
+  const srcSorted=Object.entries(srcMap).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('sources-list').innerHTML=srcSorted.map(([name,cnt])=>
+    '<div class="source-bar">'+
+      '<div class="source-name">'+esc(name)+'</div>'+
+      '<div class="source-track"><div class="source-fill" style="width:'+Math.round(cnt/srcTotal*100)+'%"></div></div>'+
+      '<div class="source-count">'+cnt+'</div>'+
+    '</div>'
+  ).join('')||'<div style="color:var(--text3);font-size:.8rem">Aucune donn\u00e9e</div>';
+
+  // Duration stats
+  const durMap={'1-3 nuits':0,'4-7 nuits':0,'8-14 nuits':0,'15+ nuits':0};
+  nuits.forEach(n=>{
+    if(n<=3)durMap['1-3 nuits']++;
+    else if(n<=7)durMap['4-7 nuits']++;
+    else if(n<=14)durMap['8-14 nuits']++;
+    else durMap['15+ nuits']++;
+  });
+  document.getElementById('duration-stats').innerHTML=
+    Object.entries(durMap).map(([k,v])=>'<div class="duration-row"><span class="duration-lbl">'+k+'</span><span class="duration-val">'+v+' s\u00e9jour'+(v>1?'s':'')+'</span></div>').join('');
+
+  // Revenue by year
+  const allYears=[...new Set(allClients.map(c=>c.arrivee?.slice(0,4)).filter(Boolean))].sort().reverse();
+  const maxRev=Math.max(...allYears.map(y=>allClients.filter(c=>c.arrivee?.startsWith(y)).reduce((s,c)=>s+(Number(c.prix)||0),0)),1);
+  document.getElementById('revenue-by-year').innerHTML=allYears.map(y=>{
+    const rev=allClients.filter(c=>c.arrivee?.startsWith(y)).reduce((s,c)=>s+(Number(c.prix)||0),0);
+    const cnt=allClients.filter(c=>c.arrivee?.startsWith(y)).length;
+    const pct=Math.round(rev/maxRev*100);
+    return '<div class="revenue-year-row">'+
+      '<span style="font-weight:700;min-width:40px">'+y+'</span>'+
+      '<div class="revenue-year-bar"><div class="revenue-year-fill" style="width:'+pct+'%"></div></div>'+
+      '<span style="font-weight:700;min-width:90px;text-align:right">'+fmtPrix(rev)+'</span>'+
+      '<span style="color:var(--text3);font-size:.72rem;min-width:60px;text-align:right">'+cnt+' s\u00e9j.</span>'+
+    '</div>';
+  }).join('');
+
+  // Heatmap
+  renderHeatmap(clients);
+}
+
+function renderMonthChart(clients){
+  const canvas=document.getElementById('chart-months');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const MOIS_SHORT=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  const years=statsTab==='global'
+    ?[...new Set(clients.map(c=>c.arrivee?.slice(0,4)).filter(Boolean))].sort().slice(-3)
+    :[statsTab];
+  const colors=['#C8956C','#4A7EC8','#6AA865'];
+  const W=canvas.parentElement.clientWidth-28;
+  const H=180;
+  canvas.width=W;canvas.height=H;
+  const pad={t:10,r:10,b:30,l:36};
+  const chartW=W-pad.l-pad.r;
+  const chartH=H-pad.t-pad.b;
+  // Get data
+  const datasets=years.map((y,i)=>{
+    const data=Array(12).fill(0);
+    clients.filter(c=>c.arrivee?.startsWith(y)).forEach(c=>{
+      const m=parseInt(c.arrivee.slice(5,7))-1;
+      if(m>=0&&m<12) data[m]++;
+    });
+    return{y,data,color:colors[i%colors.length]};
+  });
+  const maxVal=Math.max(...datasets.flatMap(d=>d.data),1);
+  const isDark=document.body.getAttribute('data-theme')==='dark';
+  const textColor=isDark?'#9A9A8A':'#999';
+  const gridColor=isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
+  ctx.clearRect(0,0,W,H);
+  // Grid
+  for(let i=0;i<=4;i++){
+    const y=pad.t+chartH-(chartH*i/4);
+    ctx.strokeStyle=gridColor;ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.fillStyle=textColor;ctx.font='10px Jost';ctx.textAlign='right';
+    ctx.fillText(Math.round(maxVal*i/4),pad.l-4,y+3);
+  }
+  // Month labels
+  const barW=chartW/12;
+  MOIS_SHORT.forEach((m,i)=>{
+    ctx.fillStyle=textColor;ctx.font='9px Jost';ctx.textAlign='center';
+    ctx.fillText(m,pad.l+barW*i+barW/2,H-8);
+  });
+  // Lines
+  datasets.forEach(({data,color})=>{
+    ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.lineJoin='round';
+    ctx.beginPath();
+    data.forEach((v,i)=>{
+      const x=pad.l+barW*i+barW/2;
+      const y=pad.t+chartH-(v/maxVal*chartH);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    // Dots
+    data.forEach((v,i)=>{
+      const x=pad.l+barW*i+barW/2;
+      const y=pad.t+chartH-(v/maxVal*chartH);
+      ctx.fillStyle=color;
+      ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();
+    });
+  });
+  // Legend
+  if(datasets.length>1){
+    datasets.forEach(({y,color},i)=>{
+      ctx.fillStyle=color;ctx.fillRect(pad.l+i*50,2,12,3);
+      ctx.fillStyle=textColor;ctx.font='9px Jost';ctx.textAlign='left';
+      ctx.fillText(y,pad.l+i*50+16,6);
+    });
+  }
+}
+
+function renderHeatmap(clients){
+  const container=document.getElementById('heatmap-container');
+  if(!container)return;
+  const today=new Date();
+  const startYear=today.getFullYear()-1;
+  // 52 weeks
+  const weeks=[];
+  const start=new Date(startYear,0,1);
+  // align to Monday
+  while(start.getDay()!==1)start.setDate(start.getDate()+1);
+  for(let w=0;w<53;w++){
+    const week=[];
+    for(let d=0;d<7;d++){
+      const day=new Date(start);
+      day.setDate(start.getDate()+w*7+d);
+      week.push(new Date(day));
+    }
+    weeks.push(week);
+  }
+  // Count bookings per day
+  const dayMap={};
+  clients.forEach(c=>{
+    if(!c.arrivee||!c.depart)return;
+    const s=new Date(c.arrivee+'T12:00:00');
+    const e=new Date(c.depart+'T12:00:00');
+    for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
+      const key=d.toISOString().slice(0,10);
+      dayMap[key]=(dayMap[key]||0)+1;
+    }
+  });
+  const maxDay=Math.max(...Object.values(dayMap),1);
+  const MOIS=['J','F','M','A','M','J','J','A','S','O','N','D'];
+  let html='<div class="heatmap-grid">';
+  let lastMonth=-1;
+  weeks.forEach(week=>{
+    html+='<div class="heatmap-col">';
+    week.forEach(day=>{
+      const key=day.toISOString().slice(0,10);
+      const cnt=dayMap[key]||0;
+      const lvl=cnt===0?'':(cnt/maxDay<.25?'l1':cnt/maxDay<.5?'l2':cnt/maxDay<.75?'l3':'l4');
+      html+='<div class="heatmap-cell '+lvl+'" title="'+key+' ('+cnt+')"></div>';
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  container.innerHTML=html;
+}
 </script>
+<!-- SEARCH OVERLAY -->
+<div id="search-overlay" class="search-overlay" onclick="onSearchOverlay(event)">
+  <div class="search-box">
+    <div class="search-input-row">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;opacity:.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search-input" placeholder="Nom, pr&#233;nom, organisme..." oninput="onSearchInput(this.value)" autocomplete="off">
+      <button onclick="closeSearch()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.1rem;padding:0 4px;">&#10005;</button>
+    </div>
+    <div id="search-results" class="search-results"></div>
+  </div>
+</div>
 </body>
 </html>
