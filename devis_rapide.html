@@ -292,10 +292,10 @@ const MAISONS = {
   ROSALINA:{ prix:1300, menage:300, taxe:1.65, max:38,
     lien:'https://domainerosalina.com/maison-rosalina',
     body:`Informations pratiques :
-Draps et serviettes fournis et inclus dans le prix
-Séjour de 50m², 40 personnes assises
-Voir toutes les photos : https://domainerosalina.com/photos-rosa/
-Disposition des chambres : https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png
+• Draps et serviettes fournis et inclus dans le prix
+• Séjour de 50m², 40 personnes assises
+• Photos : https://domainerosalina.com/photos-rosa/
+• Plan des chambres : https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png
 
 Réservez votre séjour sur notre site internet : https://domainerosalina.com/maison-rosalina, vous recevrez automatiquement le contrat et la facture. Le processus de réservation est entièrement automatisé et les paiements y sont sécurisés.
 
@@ -306,10 +306,10 @@ Aline et Eugène` },
   ROSA:    { prix:1000, menage:250, taxe:1.65, max:24,
     lien:'https://domainerosalina.com/maison-rosa',
     body:`Informations pratiques :
-Draps et serviettes fournis et inclus dans le prix
-Séjour de 50m², 40 personnes assises
-Voir toutes les photos : https://domainerosalina.com/photos-rosa/
-Disposition des chambres : https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png
+• Draps et serviettes fournis et inclus dans le prix
+• Séjour de 50m², 40 personnes assises
+• Photos : https://domainerosalina.com/photos-rosa/
+• Plan des chambres : https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png
 
 Réservez votre séjour sur notre site internet : https://domainerosalina.com/maison-rosa, vous recevrez automatiquement le contrat et la facture. Le processus de réservation est entièrement automatisé et les paiements y sont sécurisés.
 
@@ -320,10 +320,10 @@ Aline et Eugène` },
   LINA:    { prix:500,  menage:150, taxe:1.65, max:14,
     lien:'https://domainerosalina.com/maison-lina',
     body:`Informations pratiques :
-Draps et serviettes fournis et inclus dans le prix
-Double séjour de 40m², 16 personnes assises
-Voir toutes les photos : https://domainerosalina.com/photos-lina
-Disposition des chambres : https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png
+• Draps et serviettes fournis et inclus dans le prix
+• Double séjour de 40m², 16 personnes assises
+• Photos : https://domainerosalina.com/photos-lina
+• Plan des chambres : https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png
 
 Réservez votre séjour sur notre site internet : https://domainerosalina.com/maison-lina, vous recevrez automatiquement le contrat et la facture. Le processus de réservation est entièrement automatisé et les paiements y sont sécurisés.
 
@@ -479,7 +479,7 @@ function calc(){
 // ── EMAIL ──
 function buildSubject(){
   const labels={ROSALINA:'Maisons Rosa & Lina',ROSA:'Maison Rosa',LINA:'Maison Lina'};
-  return`Domaine Rosalina — Votre demande de séjour ${labels[curMaison]}`;
+  return`Domaine Rosalina — Votre demande de séjour : ${labels[curMaison]}`;
 }
 
 function buildBody(){
