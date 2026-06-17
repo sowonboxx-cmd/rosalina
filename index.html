@@ -46,6 +46,7 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 .date-input-btn .clear-btn:hover{color:#C8956C}
 .cal-popup{position:absolute;top:calc(100% + 8px);left:0;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.18);padding:20px;width:300px;display:none}
 .cal-popup.open{display:block}
+#cal-sortie{left:auto;right:0}
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .cal-nav{background:none;border:none;cursor:pointer;padding:6px 12px;border-radius:8px;font-size:1.2rem;color:#555;transition:background .15s;line-height:1;font-weight:300}
 .cal-nav:hover{background:#F5EFE8;color:#2C3D2C}
@@ -118,6 +119,14 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
   .section-card{padding:22px 18px}
   .reduc-sep{display:none}
   .reduc-wrap{gap:10px}
+  /* Pas de zoom iOS au focus (police >=16px) */
+  .field input,.field select,.finance-table .ft-input input,.reduc-wrap input,.date-input-btn,#notion-token-input{font-size:16px}
+  /* "Offert (0 €)" et "Caution remboursable" sur une seule ligne */
+  .offert-row span{white-space:nowrap}
+  .row-caution .ft-label{white-space:nowrap}
+  .finance-table td{padding:11px 8px}
+  .finance-table .ft-input input{width:84px}
+  .finance-table .ft-label{font-size:.83rem}
 }
 </style>
 </head>
@@ -200,12 +209,7 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
       <div class="field"><label>Adultes</label><select id="nb-adultes" onchange="calcAll()"><option value="">— —</option></select></div>
       <div class="field">
         <label>Enfants</label>
-        <select id="nb-enfants" onchange="calcAll()">
-          <option value="0">0</option><option value="1">1</option><option value="2">2</option>
-          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
-          <option value="6">6</option><option value="7">7</option><option value="8">8</option>
-          <option value="9">9</option><option value="10">10</option>
-        </select>
+        <select id="nb-enfants" onchange="calcAll()"></select>
       </div>
     </div>
   </div>
@@ -518,12 +522,24 @@ function selectMaison(m){
 
 function updateAdultesOptions(){
   const sel=document.getElementById('nb-adultes');
-  const max=MAISONS[currentMaison].maxA;
+  const max=38;
   const cur=parseInt(sel.value)||0;
   sel.innerHTML='<option value="">— —</option>';
   for(let i=1;i<=max;i++){
     const o=document.createElement('option');
     o.value=i; o.textContent=i+' adulte'+(i>1?'s':'');
+    if(i===cur) o.selected=true;
+    sel.appendChild(o);
+  }
+}
+
+function buildEnfantsOptions(){
+  const sel=document.getElementById('nb-enfants');
+  const cur=parseInt(sel.value)||0;
+  sel.innerHTML='';
+  for(let i=0;i<=30;i++){
+    const o=document.createElement('option');
+    o.value=i; o.textContent=i;
     if(i===cur) o.selected=true;
     sel.appendChild(o);
   }
@@ -916,7 +932,7 @@ function getNotionToken() {
 // ══ NOTION INTEGRATION ══
 const NOTION_TOKEN = document.getElementById('notion-token-input')?.value?.trim() || localStorage.getItem('notion_token') || '';
 const NOTION_DB_ID = '249a8c29d0568122a40ccf7180e98935';
-const NOTION_PROXY = 'https://notion-proxy.vercel.app/api/notion'; // proxy CORS
+const WORKER = 'https://notion-proxy.sowonboxx.workers.dev'; // ton Worker Cloudflare (même que le dashboard)
 
 async function saveToNotion() {
   const NOTION_TOKEN = getNotionToken();
@@ -1003,54 +1019,39 @@ async function saveToNotion() {
     }
   };
 
-  // Envoyer à Notion via proxy CORS
+  // Envoyer via ton Worker Cloudflare (fiable, pas de proxy public)
   btn.disabled = true;
-  showStatus('loading', '⏳ Sauvegarde dans Notion en cours…');
+  showStatus('loading', '⏳ Ajout dans Notion en cours…');
 
   try {
-    // Essai 1 : allorigins
-    let res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://api.notion.com/v1/pages')}`, {
+    const res = await fetch(WORKER + '/create', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${NOTION_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': '2022-06-28',
-      },
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: NOTION_TOKEN,
+        database_id: NOTION_DB_ID,
+        properties: payload.properties
+      })
     });
-
-    // Essai 2 si le premier échoue : corsproxy.io
-    if (!res.ok && res.status === 0) {
-      res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://api.notion.com/v1/pages')}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${NOTION_TOKEN}`,
-          'Content-Type': 'application/json',
-          'Notion-Version': '2022-06-28',
-        },
-        body: JSON.stringify(payload)
-      });
-    }
 
     const data = await res.json();
 
-    if (res.ok) {
+    if (res.ok && data.id) {
       showStatus('success', `✅ Ajouté dans Notion ! Fiche créée pour ${nomComplet}.`);
       const gen = document.getElementById('btn-generate');
       gen.disabled = false;
       document.getElementById('generate-note').textContent = 'Réservation ajoutée ✓ — vous pouvez générer le PDF';
     } else {
       console.error('Notion error:', data);
-      // Si le DB_ID n'est pas rempli
-      if (NOTION_DB_ID === 'COLLE_TON_ID_DE_BASE_ICI') {
-        showStatus('error', '⚠️ ID de base Notion manquant — remplace COLLE_TON_ID_DE_BASE_ICI dans le code avec ton ID de base.');
+      if (data && data.error === 'route_not_found') {
+        showStatus('error', '⚠️ Ton Worker n\'a pas encore la route /create — ajoute le code fourni dans Cloudflare puis redéploie.');
       } else {
-        showStatus('error', `❌ Erreur Notion : ${data.message || 'Vérifie que la base est connectée à l\'intégration.'}`);
+        showStatus('error', `❌ Erreur Notion : ${(data && data.message) || 'Vérifie que la base est connectée à ton intégration.'}`);
       }
     }
   } catch(e) {
     console.error(e);
-    showStatus('error', '❌ Erreur réseau — vérifie ta connexion internet.');
+    showStatus('error', '❌ Erreur réseau — impossible de joindre le Worker Cloudflare.');
   } finally {
     btn.disabled = false;
   }
@@ -1075,6 +1076,7 @@ function isoDate(d) {
 // ══ INIT ══
 initCalViews();
 updateAdultesOptions();
+buildEnfantsOptions();
 document.getElementById('caution').value=MAISONS['rosa-lina'].caution;
 document.getElementById('menage').value=MAISONS['rosa-lina'].menage;
 calcAll();
