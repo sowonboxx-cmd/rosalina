@@ -273,13 +273,9 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
     </div>
 
     <div class="action-stack">
-      <button class="btn-send" id="btn-send-gmail" onclick="sendGmail()" disabled>
+      <button class="btn-send" id="btn-send-mailto" onclick="sendMailto()" disabled>
         <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="#C8956C"/></svg>
-        Ouvrir dans Gmail (web)
-      </button>
-      <button class="btn-reset" id="btn-send-mailto" onclick="sendMailto()" disabled style="border-color:#2C3D2C;color:#2C3D2C">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
-        Ouvrir dans l'app Mail par défaut
+        Envoyer l'email
       </button>
       <button class="btn-reset" onclick="resetForm()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
@@ -295,13 +291,46 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 const MAISONS = {
   ROSALINA:{ prix:1300, menage:300, taxe:1.65, max:38,
     lien:'https://domainerosalina.com/maison-rosalina',
-    info:'• Le grand séjour de 50m² peut accueillir jusqu\'à 40 personnes assises\n• Draps et serviettes fournis et inclus dans le prix\n• Plans des chambres et salle d\'eau : https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png' },
+    body:`Informations pratiques :
+Draps et serviettes fournis et inclus dans le prix
+Séjour de 50m², 40 personnes assises
+Voir toutes les photos : https://domainerosalina.com/photos-rosa/
+Disposition des chambres : https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png
+
+Réservez votre séjour sur notre site internet : https://domainerosalina.com/maison-rosalina, vous recevrez automatiquement le contrat et la facture. Le processus de réservation est entièrement automatisé et les paiements y sont sécurisés.
+
+Pour plus d'informations, n'hésitez pas à nous contacter par email : domainerosalina@gmail.com ou par téléphone : 07 83 87 60 90.
+
+Bien cordialement,
+Aline et Eugène` },
   ROSA:    { prix:1000, menage:250, taxe:1.65, max:24,
     lien:'https://domainerosalina.com/maison-rosa',
-    info:'• Draps et serviettes fournis et inclus dans le prix de la location' },
+    body:`Informations pratiques :
+Draps et serviettes fournis et inclus dans le prix
+Séjour de 50m², 40 personnes assises
+Voir toutes les photos : https://domainerosalina.com/photos-rosa/
+Disposition des chambres : https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png
+
+Réservez votre séjour sur notre site internet : https://domainerosalina.com/maison-rosa, vous recevrez automatiquement le contrat et la facture. Le processus de réservation est entièrement automatisé et les paiements y sont sécurisés.
+
+Pour plus d'informations, n'hésitez pas à nous contacter par email : domainerosalina@gmail.com ou par téléphone : 07 83 87 60 90.
+
+Bien cordialement,
+Aline et Eugène` },
   LINA:    { prix:500,  menage:150, taxe:1.65, max:14,
     lien:'https://domainerosalina.com/maison-lina',
-    info:'• Draps et serviettes fournis et inclus dans le prix de la location' },
+    body:`Informations pratiques :
+Draps et serviettes fournis et inclus dans le prix
+Double séjour de 40m², 16 personnes assises
+Voir toutes les photos : https://domainerosalina.com/photos-lina
+Disposition des chambres : https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png
+
+Réservez votre séjour sur notre site internet : https://domainerosalina.com/maison-lina, vous recevrez automatiquement le contrat et la facture. Le processus de réservation est entièrement automatisé et les paiements y sont sécurisés.
+
+Pour plus d'informations, n'hésitez pas à nous contacter par email : domainerosalina@gmail.com ou par téléphone : 07 83 87 60 90.
+
+Bien cordialement,
+Aline et Eugène` },
 };
 
 let curMaison='ROSALINA';
@@ -458,11 +487,9 @@ function buildBody(){
   const prenom=document.getElementById('prospect-prenom').value.trim();
   const dE=CAL.entree.date;const dS=CAL.sortie.date;
   const nA=parseInt(document.getElementById('nb-adultes').value)||0;
-  const nE=parseInt(document.getElementById('nb-enfants').value)||0;
 
   const salut=prenom?`Bonjour ${prenom},`:'Bonjour,';
   const dateStr=(dE&&dS)?`du ${fmtDateFR(dE)} au ${fmtDateFR(dS)} `:'';
-  const paxStr=[nA>0?`${nA} adulte${nA>1?'s':''}`:null,nE>0?`${nE} enfant${nE>1?'s':''}`:null].filter(Boolean).join(' et ');
   const taxe=nA>0?Math.round(m.taxe*nA*nuits*100)/100:0;
 
   let detail=`  • Location ${curMaison} (${nuits} nuit${nuits>1?'s':''}) : ${fmt(m.prix*nuits)}`;
@@ -478,47 +505,35 @@ La maison est disponible à vos dates.
 Votre séjour ${dateStr}comprend :
 ${detail}
 
-Informations pratiques :
-
-${m.info}
-
-Vous pouvez réserver votre séjour directement sur notre site internet : ${m.lien} en indiquant vos dates de départ et d'arrivée, vous recevrez automatiquement le contrat et la facture. Le processus de réservation est entièrement automatisé (arrhes, solde, caution…) et les paiements y sont sécurisés.
-
-Si vous avez besoin de plus d'informations, n'hésitez pas à nous contacter par email : domainerosalina@gmail.com ou par téléphone : 07 83 87 60 90.
-
-Bien cordialement,
-Aline et Eugène`;
+${m.body}`;
 }
 
 function updatePreview(){
   const email=document.getElementById('prospect-email').value.trim();
   const prevBody=document.getElementById('preview-body');
-  const btnG=document.getElementById('btn-send-gmail');
-  const btnM=document.getElementById('btn-send-mailto');
+  const btn=document.getElementById('btn-send-mailto');
 
   document.getElementById('prev-to').textContent=email||'—';
   document.getElementById('prev-subject').textContent=email?buildSubject():'—';
 
   if(!totalTTC||!CAL.entree.date||!CAL.sortie.date){
     prevBody.innerHTML='<div class="preview-empty">Sélectionne les dates pour voir l\'email…</div>';
-    btnG.disabled=true;btnM.disabled=true;return;
+    btn.disabled=true;return;
   }
   prevBody.textContent=buildBody();
-  btnG.disabled=!email;btnM.disabled=!email;
-}
-
-function sendGmail(){
-  const email=document.getElementById('prospect-email').value.trim();
-  const subj=encodeURIComponent(buildSubject());
-  const body=encodeURIComponent(buildBody());
-  window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(email)}&su=${subj}&body=${body}`,'_blank');
+  btn.disabled=!email;
 }
 
 function sendMailto(){
   const email=document.getElementById('prospect-email').value.trim();
   const subj=encodeURIComponent(buildSubject());
   const body=encodeURIComponent(buildBody());
-  window.location.href=`mailto:${email}?subject=${subj}&body=${body}`;
+  const a=document.createElement('a');
+  a.href=`mailto:${email}?subject=${subj}&body=${body}`;
+  a.target='_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function toggleGrille(){
