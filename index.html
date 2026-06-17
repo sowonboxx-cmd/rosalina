@@ -1019,19 +1019,15 @@ async function saveToNotion() {
     }
   };
 
-  // Envoyer via ton Worker Cloudflare (fiable, pas de proxy public)
+  // Envoyer via ton Worker Cloudflare (racine = création de fiche, format {token, payload})
   btn.disabled = true;
   showStatus('loading', '⏳ Ajout dans Notion en cours…');
 
   try {
-    const res = await fetch(WORKER + '/create', {
+    const res = await fetch(WORKER, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        token: NOTION_TOKEN,
-        database_id: NOTION_DB_ID,
-        properties: payload.properties
-      })
+      body: JSON.stringify({ token: NOTION_TOKEN, payload: payload })
     });
 
     const data = await res.json();
@@ -1043,11 +1039,7 @@ async function saveToNotion() {
       document.getElementById('generate-note').textContent = 'Réservation ajoutée ✓ — vous pouvez générer le PDF';
     } else {
       console.error('Notion error:', data);
-      if (data && data.error === 'route_not_found') {
-        showStatus('error', '⚠️ Ton Worker n\'a pas encore la route /create — ajoute le code fourni dans Cloudflare puis redéploie.');
-      } else {
-        showStatus('error', `❌ Erreur Notion : ${(data && data.message) || 'Vérifie que la base est connectée à ton intégration.'}`);
-      }
+      showStatus('error', `❌ Erreur Notion : ${(data && data.message) || 'Vérifie que la base est connectée à ton intégration Notion.'}`);
     }
   } catch(e) {
     console.error(e);
