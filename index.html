@@ -980,10 +980,9 @@ async function saveToNotion() {
   const payload = {
     parent: { database_id: NOTION_DB_ID },
     properties: {
-      // Nom (title)
-      'Nom': {
-        title: [{ text: { content: nomComplet } }]
-      },
+      // Prénom = propriété TITRE de la base ; Nom = rich_text
+      'Prénom': { title: [{ text: { content: prenom || nomComplet } }] },
+      ...(nom ? { 'Nom': { rich_text: [{ text: { content: nom } }] } } : {}),
       // Maison (select)
       'Maison': {
         select: { name: m.label }
@@ -998,10 +997,8 @@ async function saveToNotion() {
       'Nbr de nuits': { number: nuits },
       // Organisme
       ...(asso ? { 'Organisme': { rich_text: [{ text: { content: asso } }] } } : {}),
-      // Adresse
-      ...(adresse ? { 'Adresse': { rich_text: [{ text: { content: adresse } }] } } : {}),
-      // Place (CP + ville)
-      ...((cp||ville) ? { 'Place': { rich_text: [{ text: { content: [cp, ville].filter(Boolean).join(' ') } }] } } : {}),
+      // Adresse complète (rue + CP + ville) — "Place" est un champ location non écrivable par l'API, on l'évite
+      ...((adresse||cp||ville) ? { 'Adresse': { rich_text: [{ text: { content: [adresse, [cp,ville].filter(Boolean).join(' ')].filter(Boolean).join(' - ') } }] } } : {}),
       // Email
       ...(email ? { 'Email': { email: email } } : {}),
       // Tel
@@ -1014,8 +1011,8 @@ async function saveToNotion() {
       ...(source ? { 'Source': { multi_select: [{ name: source }] } } : {}),
       // Prix
       'Prix': { number: total },
-      // Statut par défaut
-      'Statut': { select: { name: 'Devis envoyé' } },
+      // Statut par défaut (multi_select)
+      'Statut': { multi_select: [{ name: 'Devis envoyé' }] },
     }
   };
 
