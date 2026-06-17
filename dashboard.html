@@ -382,9 +382,6 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
     <!-- TABS -->
     <div class="stats-tabs">
       <button class="stats-tab active" onclick="setStatsTab('global',this)">Global</button>
-      <button class="stats-tab" onclick="setStatsTab('2026',this)">2026</button>
-      <button class="stats-tab" onclick="setStatsTab('2025',this)">2025</button>
-      <button class="stats-tab" id="stats-tab-prev" onclick="setStatsTab('2024',this)" style="display:none">2024</button>
     </div>
 
     <!-- KPI ROW -->
@@ -408,12 +405,6 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
         <div class="chart-title">Dur&#233;e moyenne des s&#233;jours</div>
         <div id="duration-stats"></div>
       </div>
-    </div>
-
-    <!-- HEATMAP -->
-    <div class="chart-card" style="margin-top:10px">
-      <div class="chart-title">Heatmap — semaines occup&#233;es</div>
-      <div id="heatmap-container" class="heatmap-container"></div>
     </div>
 
     <!-- REVENUE BY YEAR -->
@@ -455,6 +446,8 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       <div class="modal-section">
         <div class="modal-section-title">Financier</div>
         <div class="modal-row"><span class="lbl">Total</span><span class="val" id="m-prix" style="color:var(--rose);font-size:1rem;font-weight:700"></span></div>
+        <div class="modal-row" style="opacity:.7"><span class="lbl" style="font-size:.72rem">Acompte</span><span class="val" id="m-acompte" style="font-size:.78rem">&#8212;</span></div>
+        <div class="modal-row" style="opacity:.7"><span class="lbl" style="font-size:.72rem">Solde</span><span class="val" id="m-solde" style="font-size:.78rem">&#8212;</span></div>
         <div class="modal-row" id="m-contrat-row" style="display:none"><span class="lbl">Contrat</span><a class="val" id="m-contrat" href="#" target="_blank">Voir &#8594;</a></div>
         <div class="modal-section-title" style="margin-top:14px">Statut</div>
         <div class="statut-selector" id="m-statut-selector"></div>
@@ -563,6 +556,8 @@ function parseClient(page){
     depart:g('D\u00e9part','date')||g('D\u00e9part-2','date'),
     adultes:g('Adultes','num'),enfants:g('Enfants & b\u00e9b\u00e9s','num'),
     adresse:g('Adresse','rich'),tel:g('Tel','phone'),email:g('Email','email'),
+    cp:(()=>{const v=g('Code postal','num');return v!==''&&v!=null?String(v):g('Code postal','rich');})(),
+    ville:g('Ville','rich')||g('Ville','select'),
     prix:g('Prix','num'),statut:g('Statut','multi'),contrat:g('Contrat','url'),
     nuits:g('Nbr de nuits','num'),jours:g('Nbr de jours','num'),
     source:(()=>{const prop=page.properties['Source'];if(!prop)return'';if(prop.multi_select)return prop.multi_select.map(s=>s.name).join(', ');if(prop.select)return prop.select?.name||'';if(prop.rich_text)return prop.rich_text[0]?.plain_text||'';return'';})(),
@@ -837,11 +832,14 @@ function openModal(c){
   document.getElementById('m-duree').textContent=nuits?jours+' jours / '+nuits+' nuits':'\u2014';
   document.getElementById('m-adultes').textContent=c.adultes!==''&&c.adultes!==null?c.adultes:'\u2014';
   document.getElementById('m-enfants').textContent=c.enfants||'0';
-  document.getElementById('m-adr').textContent=c.adresse||'\u2014';
+  (()=>{let adr=c.adresse||'';const extra=[c.cp,c.ville].filter(Boolean).map(String).filter(x=>!adr.includes(x)).join(' ');if(extra)adr=adr?adr+' - '+extra:extra;document.getElementById('m-adr').textContent=adr||'\u2014';})();
   document.getElementById('m-source').textContent=c.source||'\u2014';
   const tel=document.getElementById('m-tel');tel.textContent=c.tel||'\u2014';tel.href=c.tel?'tel:'+c.tel.replace(/\s/g,''):'#';
   const email=document.getElementById('m-email');email.textContent=c.email||'\u2014';email.href=c.email?'mailto:'+c.email:'#';
   document.getElementById('m-prix').textContent=c.prix?fmtPrix(c.prix):'\u2014';
+  const moitie=c.prix?Number(c.prix)/2:0;
+  document.getElementById('m-acompte').textContent=c.prix?fmtPrix(moitie):'\u2014';
+  document.getElementById('m-solde').textContent=c.prix?fmtPrix(moitie):'\u2014';
   const cr=document.getElementById('m-contrat-row');
   if(c.contrat){cr.style.display='flex';document.getElementById('m-contrat').href=c.contrat;}
   else cr.style.display='none';
@@ -1073,9 +1071,6 @@ function renderStats(){
       '<span style="color:var(--text3);font-size:.72rem;min-width:60px;text-align:right">'+cnt+' s\u00e9j.</span>'+
     '</div>';
   }).join('');
-
-  // Heatmap
-  renderHeatmap(clients);
 }
 
 function renderMonthChart(clients){
