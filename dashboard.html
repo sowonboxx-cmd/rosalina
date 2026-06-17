@@ -135,8 +135,8 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 [data-theme="dark"] .sb-paiement{background:rgba(150,100,240,.15);color:#B090F0;}
 
 /* EMPTY / SKELETON */
-.empty{text-align:center;padding:50px 20px;color:var(--text3);}
-.empty .icon{font-size:2.5rem;margin-bottom:10px;}
+.no-results{text-align:center;padding:50px 20px;color:var(--text3);}
+.no-results .icon{font-size:2.5rem;margin-bottom:10px;}
 .skeleton{background:var(--card);border-radius:var(--r);height:110px;border:1px solid var(--border);position:relative;overflow:hidden;margin-bottom:10px;}
 .skeleton::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);animation:shimmer 1.4s infinite;}
 @keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
@@ -152,11 +152,11 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .setup-hint.ok{color:#5A9A5A;}.setup-hint.err{color:#C0392B;}
 
 /* CALENDAR */
-.cal-nav-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:8px;}
-.cal-nav-btn{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);width:36px;height:36px;cursor:pointer;font-size:1.1rem;color:var(--text2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cal-nav-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:8px;height:40px;}
+.cal-nav-btn{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);width:40px;height:40px;cursor:pointer;font-size:1.1rem;color:var(--text2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
 .cal-nav-btn:hover{border-color:var(--text2);}
-.cal-month-select-row{display:flex;align-items:center;gap:8px;}
-.cal-select{border:1.5px solid var(--border);border-radius:var(--r2);padding:6px 10px;font-family:'Jost',sans-serif;font-size:.82rem;background:var(--bg2);color:var(--text);cursor:pointer;outline:none;}
+.cal-month-select-row{display:flex;align-items:center;gap:8px;height:40px;}
+.cal-select{border:1px solid var(--border);border-radius:var(--r2);padding:0 10px;height:40px;font-family:'Jost',sans-serif;font-size:.82rem;background:var(--bg2);color:var(--text);cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;}
 .cal-select:focus{border-color:var(--rose);}
 .cal-maisons-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
 @media(max-width:600px){.cal-maisons-grid{grid-template-columns:1fr;}}
@@ -255,10 +255,9 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
         <div class="stat-card"><div class="stat-lbl">&#192; venir</div><div class="stat-val" id="s-upcoming">&#8212;</div></div>
         <div class="stat-card"><div class="stat-lbl">En cours</div><div class="stat-val" id="s-current">&#8212;</div></div>
         <div class="stat-card">
-  <div class="stat-lbl">Informations</div>
-  <div style="font-size:.72rem;color:var(--text2);margin-top:4px;">Devis envoy&#233;s : <span id="s-devis-envoye" style="font-weight:700;color:var(--text)">&#8212;</span></div>
-  <div style="font-size:.72rem;color:var(--text2);margin-top:3px;">Devis sign&#233;s : <span id="s-devis-signe" style="font-weight:700;color:var(--text)">&#8212;</span></div>
-  <div style="font-size:.72rem;color:var(--text2);margin-top:3px;">Acomptes : <span id="s-acompte" style="font-weight:700;color:var(--text)">&#8212;</span></div>
+  <div class="stat-lbl" id="s-year-lbl">2026</div>
+  <div class="stat-val" id="s-year">&#8212;</div>
+  <div class="stat-compare" id="s-compare"></div>
 </div>
       </div>
       <div class="revenue-row">
@@ -506,15 +505,6 @@ function updateStats(){
   document.getElementById('s-upcoming').textContent=upcoming.length;
   document.getElementById('s-current').textContent=current.length||'\u2014';
 
-  // Info block - count by statut
-  const countStatut=(key)=>allClients.filter(c=>(c.statut||'').toLowerCase().includes(key.toLowerCase())).length;
-  const elDE=document.getElementById('s-devis-envoye');
-  const elDS=document.getElementById('s-devis-signe');
-  const elAC=document.getElementById('s-acompte');
-  if(elDE)elDE.textContent=countStatut('envoy');
-  if(elDS)elDS.textContent=countStatut('sign');
-  if(elAC)elAC.textContent=countStatut('acompte');
-
   let yearClients,yearLabel,lastYrClients=[];
   if(selectedYear==='tout'){
     yearClients=allClients;yearLabel='Tout';
@@ -525,11 +515,10 @@ function updateStats(){
     yearLabel=selectedYear;
     lastYrClients=allClients.filter(c=>c.arrivee?.startsWith(String(parseInt(selectedYear)-1)));
   }
-  // Info block already updated above
+  const yl=document.getElementById('s-year-lbl');const ys=document.getElementById('s-year');const sc=document.getElementById('s-compare');if(yl)yl.textContent=yearLabel;if(ys)ys.textContent=yearClients.length;
   const diff=yearClients.length-lastYrClients.length;
   const pct=lastYrClients.length?Math.round(Math.abs(diff)/lastYrClients.length*100):0;
-  const cmp=document.getElementById('s-compare');
-  if(cmp){if(lastYrClients.length){cmp.textContent=(diff>=0?'\u25b2 +':'\u25bc ')+Math.abs(diff)+(pct?' ('+pct+'%)':'');cmp.className='stat-compare '+(diff>=0?'up':'down');}else{cmp.textContent='';cmp.className='stat-compare';}}
+  if(sc){if(lastYrClients.length){sc.textContent=(diff>=0?'\u25b2 +':'\u25bc ')+Math.abs(diff)+(pct?' ('+pct+'%)':'');sc.className='stat-compare '+(diff>=0?'up':'down');}else{sc.textContent='';sc.className='stat-compare';}}
 
   // Revenue logic
   const past=allClients.filter(c=>c.depart&&new Date(c.depart+'T23:59:59')<today);
@@ -582,7 +571,7 @@ function renderCards(){
   });
   const showYear=(selectedYear==='tout'||selectedYear==='upcoming');
   const container=document.getElementById('cards-container');
-  if(!list.length){container.innerHTML='<div class="empty"><div class="icon">\ud83d\udcc5</div><p>Aucune r\u00e9servation</p></div>';return;}
+  if(!list.length){container.innerHTML='<div class="no-results"><div class="icon">\ud83d\udcc5</div><p>Aucune r\u00e9servation</p></div>';return;}
   container.innerHTML='<div class="cards-list">'+list.map(c=>renderCard(c,today,showYear)).join('')+'</div>';
 }
 
@@ -787,7 +776,7 @@ function fmtShort(iso,withYear=false){if(!iso)return'\u2014';const d=new Date(is
 function fmtLong(iso){if(!iso)return'\u2014';const d=new Date(iso+'T12:00:00');return d.getDate()+' '+MOIS_L[d.getMonth()]+' '+d.getFullYear();}
 function fmtPrix(n){return Number(n).toLocaleString('fr-FR')+' \u20ac';}
 function showSkeletons(){document.getElementById('cards-container').innerHTML='<div class="cards-list"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>';}
-function showErr(msg){document.getElementById('cards-container').innerHTML='<div class="empty"><div class="icon">\u26a0\ufe0f</div><p>'+msg+'</p></div>';}
+function showErr(msg){document.getElementById('cards-container').innerHTML='<div class="no-results"><div class="icon">\u26a0\ufe0f</div><p>'+msg+'</p></div>';}
 
 initTheme();
 const saved=localStorage.getItem('notion_token');
