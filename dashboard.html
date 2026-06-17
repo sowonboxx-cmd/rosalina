@@ -460,20 +460,22 @@ function parseClient(page){
 
 function buildYearPills(){
   const years=[...new Set(allClients.map(c=>c.arrivee?.slice(0,4)).filter(Boolean))].sort().reverse();
-  // pill-cur = current year, pill-n1 = next year
-  const pc=document.getElementById('pill-cur');
+  // pill-n1=2027, pill-cur=2026, pill-n2=2025
   const pn1=document.getElementById('pill-n1');
-  pc.textContent=CUR_YEAR;
-  pc.onclick=()=>selectYear(String(CUR_YEAR),pc);
-  pn1.textContent=CUR_YEAR+1;
-  pn1.onclick=()=>selectYear(String(CUR_YEAR+1),pn1);
-  // Dropdown: all other years
-  const other=years.filter(y=>y!==String(CUR_YEAR)&&y!==String(CUR_YEAR+1));
+  const pc =document.getElementById('pill-cur');
+  const pn2=document.getElementById('pill-n2');
+  if(pn1){pn1.textContent=CUR_YEAR+1; pn1.onclick=()=>selectYear(String(CUR_YEAR+1),pn1);}
+  if(pc) {pc.textContent=CUR_YEAR;    pc.onclick=()=>selectYear(String(CUR_YEAR),pc);}
+  if(pn2){pn2.textContent=CUR_YEAR-1; pn2.onclick=()=>selectYear(String(CUR_YEAR-1),pn2);}
+  // Dropdown: all other years not shown in pills
+  const shown=[String(CUR_YEAR+1),String(CUR_YEAR),String(CUR_YEAR-1)];
+  const other=years.filter(y=>!shown.includes(y));
   const dd=document.getElementById('year-dropdown');
-  if(!other.length){document.getElementById('year-plus-btn').style.display='none';}
+  const plusBtn=document.getElementById('year-plus-btn');
+  if(!other.length){if(plusBtn)plusBtn.style.display='none';}
   else{
-    document.getElementById('year-plus-btn').style.display='';
-    dd.innerHTML=other.map(y=>'<div class="year-dd-item" onclick="selectYear(\''+y+'\',null);closeDD()">'+y+'</div>').join('');
+    if(plusBtn)plusBtn.style.display='';
+    if(dd)dd.innerHTML=other.map(y=>'<div class="year-dd-item" onclick="selectYear(\''+y+'\',null);closeDD()">'+y+'</div>').join('');
   }
 }
 
@@ -483,7 +485,7 @@ function selectYear(y,btn){
   if(btn)btn.classList.add('active');
   else{
     // highlight in dropdown - find matching static pill
-    ['pill-tout','pill-upcoming','pill-cur','pill-n1'].forEach(id=>{
+    ['pill-tout','pill-upcoming','pill-cur','pill-n1','pill-n2'].forEach(id=>{
       const el=document.getElementById(id);
       if(el&&el.textContent.trim()===y)el.classList.add('active');
     });
@@ -527,8 +529,7 @@ function updateStats(){
   const diff=yearClients.length-lastYrClients.length;
   const pct=lastYrClients.length?Math.round(Math.abs(diff)/lastYrClients.length*100):0;
   const cmp=document.getElementById('s-compare');
-  if(lastYrClients.length){cmp.textContent=(diff>=0?'\u25b2 +':'\u25bc ')+Math.abs(diff)+(pct?' ('+pct+'%)':'');cmp.className='stat-compare '+(diff>=0?'up':'down');}
-  else{cmp.textContent='';cmp.className='stat-compare';}
+  if(cmp){if(lastYrClients.length){cmp.textContent=(diff>=0?'\u25b2 +':'\u25bc ')+Math.abs(diff)+(pct?' ('+pct+'%)':'');cmp.className='stat-compare '+(diff>=0?'up':'down');}else{cmp.textContent='';cmp.className='stat-compare';}}
 
   // Revenue logic
   const past=allClients.filter(c=>c.depart&&new Date(c.depart+'T23:59:59')<today);
