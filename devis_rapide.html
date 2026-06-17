@@ -273,9 +273,13 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
     </div>
 
     <div class="action-stack">
-      <button class="btn-send" id="btn-send-mailto" onclick="sendMailto()" disabled>
+      <button class="btn-send" id="btn-send-gmail" onclick="sendGmail()" disabled>
         <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="#C8956C"/></svg>
-        Envoyer l'email
+        Ouvrir dans Gmail
+      </button>
+      <button class="btn-reset" id="btn-send-mailto" onclick="sendMailto()" disabled style="border-color:#2C3D2C;color:#2C3D2C">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+        Envoyer via l'app Mail (mobile)
       </button>
       <button class="btn-reset" onclick="resetForm()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
@@ -511,17 +515,28 @@ ${m.body}`;
 function updatePreview(){
   const email=document.getElementById('prospect-email').value.trim();
   const prevBody=document.getElementById('preview-body');
-  const btn=document.getElementById('btn-send-mailto');
+  const btnG=document.getElementById('btn-send-gmail');
+  const btnM=document.getElementById('btn-send-mailto');
 
   document.getElementById('prev-to').textContent=email||'—';
   document.getElementById('prev-subject').textContent=email?buildSubject():'—';
 
   if(!totalTTC||!CAL.entree.date||!CAL.sortie.date){
     prevBody.innerHTML='<div class="preview-empty">Sélectionne les dates pour voir l\'email…</div>';
-    btn.disabled=true;return;
+    if(btnG)btnG.disabled=true;
+    if(btnM)btnM.disabled=true;
+    return;
   }
   prevBody.textContent=buildBody();
-  btn.disabled=!email;
+  if(btnG)btnG.disabled=!email;
+  if(btnM)btnM.disabled=!email;
+}
+
+function sendGmail(){
+  const email=document.getElementById('prospect-email').value.trim();
+  const subj=encodeURIComponent(buildSubject());
+  const body=encodeURIComponent(buildBody());
+  window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(email)}&su=${subj}&body=${body}`,'_blank');
 }
 
 function sendMailto(){
