@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domaine Rosalina — Devis Rapide</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500;600&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0 0 80px}
+
+/* ── HEADER (identique générateur) ── */
+.screen-header{background:#2C3D2C;padding:24px 20px}
+.screen-header-inner{max-width:880px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.screen-header h1{font-family:'Open Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;letter-spacing:.01em}
+.screen-header p{font-size:.72rem;color:rgba(255,255,255,.55);letter-spacing:.15em;text-transform:uppercase;margin-top:5px}
+.header-logo-img{height:54px;width:auto;display:block;flex-shrink:0}
+
+/* ── LAYOUT ── */
+.form-body{max-width:880px;margin:36px auto;padding:0 20px;display:flex;flex-direction:column;gap:28px}
+
+/* ── CARDS (identique générateur) ── */
+.section-card{background:#fff;border-radius:12px;padding:28px 32px;box-shadow:0 4px 24px rgba(0,0,0,.07)}
+.section-title{font-size:.64rem;letter-spacing:.28em;text-transform:uppercase;color:#C8956C;margin-bottom:22px;display:flex;align-items:center;gap:12px}
+.section-title::after{content:'';flex:1;height:1px;background:#eee}
+
+/* ── FIELDS (identique générateur) ── */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field-grid.four{grid-template-columns:1fr 1fr 1fr 1fr}
+.field-grid.three{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.72rem;font-weight:500;color:#444;letter-spacing:.04em}
+.field input,.field select{border:1.5px solid #E0D8CE;border-radius:8px;padding:10px 14px;font-family:'Jost',sans-serif;font-size:.9rem;color:#1A1A1A;background:#FAFAF8;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.field input:focus,.field select:focus{border-color:#C8956C;box-shadow:0 0 0 3px rgba(200,149,108,.12);background:#fff}
+.field input[readonly]{background:#F0EDE6;color:#2C3D2C;font-weight:600;cursor:default}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.field .hint{font-size:.67rem;color:#aaa}
+
+/* ── MAISON SELECTOR (identique générateur) ── */
+.maison-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.maison-btn{border:2px solid #E0D8CE;border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;background:#FAFAF8}
+.maison-btn:hover{border-color:#C8956C;background:#FFF8F2}
+.maison-btn.active{border-color:#C8956C;background:#FFF8F2;box-shadow:0 0 0 3px rgba(200,149,108,.15)}
+.maison-btn .mb-name{font-weight:600;font-size:.88rem;color:#2C3D2C;letter-spacing:.04em}
+.maison-btn .mb-cap{font-size:.72rem;color:#888;margin-top:3px}
+
+/* ── DATE FIELDS (identique générateur) ── */
+.date-field-wrap{position:relative}
+.date-input-btn{border:1.5px solid #E0D8CE;border-radius:8px;padding:10px 14px;font-family:'Jost',sans-serif;font-size:.9rem;color:#1A1A1A;background:#FAFAF8;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;min-height:42px}
+.date-input-btn:hover,.date-input-btn.open{border-color:#C8956C;box-shadow:0 0 0 3px rgba(200,149,108,.12);background:#fff}
+.date-input-btn .date-text{flex:1;font-size:.9rem}
+.date-input-btn .date-text.placeholder{color:#aaa}
+.date-input-btn .clear-btn{color:#ccc;font-size:.85rem;cursor:pointer;padding:2px 4px;border-radius:4px;transition:color .15s;flex-shrink:0}
+.date-input-btn .clear-btn:hover{color:#C8956C}
+.cal-popup{position:absolute;top:calc(100%+8px);left:0;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.18);padding:20px;width:300px;display:none}
+.cal-popup.open{display:block}
+#cal-sortie{left:auto;right:0}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cal-nav{background:none;border:none;cursor:pointer;padding:6px 12px;border-radius:8px;font-size:1.2rem;color:#555;transition:background .15s;line-height:1;font-weight:300}
+.cal-nav:hover{background:#F5EFE8;color:#2C3D2C}
+.cal-month-label{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:400;color:#1A1A1A;letter-spacing:.02em}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+.cal-dow{font-size:.6rem;font-weight:600;text-align:center;color:#bbb;padding:4px 0 8px;letter-spacing:.05em;text-transform:uppercase}
+.cal-day{height:36px;display:flex;align-items:center;justify-content:center;font-size:.82rem;border-radius:50%;cursor:pointer;transition:all .12s;color:#1A1A1A}
+.cal-day:hover:not(.disabled):not(.empty){background:#F5EFE8}
+.cal-day.today{font-weight:700;color:#C8956C}
+.cal-day.selected{background:#2C3D2C!important;color:#fff!important;font-weight:600;border-radius:50%}
+.cal-day.in-range{background:#EDF5EC;color:#2C3D2C;border-radius:0}
+.cal-day.range-start{background:#2C3D2C!important;color:#fff!important;font-weight:600;border-radius:50% 0 0 50%}
+.cal-day.range-end{background:#2C3D2C!important;color:#fff!important;font-weight:600;border-radius:0 50% 50% 0}
+.cal-day.range-start.range-end{border-radius:50%!important}
+.cal-day.disabled{color:#ddd;cursor:default;pointer-events:none}
+.cal-day.empty{pointer-events:none}
+.cal-year-btns{display:flex;gap:6px;margin-top:14px;padding-top:12px;border-top:1px solid #f0ece6}
+.cal-year-btn{flex:1;padding:6px 4px;border:1.5px solid #E0D8CE;border-radius:8px;background:#FAFAF8;font-family:'Jost',sans-serif;font-size:.78rem;color:#555;cursor:pointer;transition:all .15s;text-align:center}
+.cal-year-btn:hover{border-color:#C8956C;color:#C8956C;background:#FFF8F2}
+.cal-year-btn.active{border-color:#2C3D2C;background:#2C3D2C;color:#fff}
+
+/* ── FINANCE TABLE (identique générateur) ── */
+.finance-table{width:100%;border-collapse:collapse;font-size:.88rem}
+.finance-table td{padding:13px 16px;border-bottom:1px solid #F0ECE6;vertical-align:middle}
+.finance-table tr:last-child td{border-bottom:none}
+.finance-table .ft-label{color:#444}
+.finance-table .ft-value{text-align:right;font-weight:600;color:#2C3D2C;white-space:nowrap}
+.row-auto td{background:#F9F7F4}
+.row-auto .ft-label{color:#888;font-size:.83rem}
+.row-total td{font-weight:700;font-size:1rem;color:#2C3D2C;border-top:2px solid #2C3D2C!important;border-bottom:2px solid #2C3D2C;padding:14px 16px}
+.row-total .ft-value{color:#C8956C;font-size:1.1rem}
+.row-caution td{background:#F9F7F4;color:#666;font-size:.83rem}
+
+/* ── EMAIL PREVIEW ── */
+.preview-wrap{border:1.5px solid #E0D8CE;border-radius:10px;overflow:hidden;margin-top:6px}
+.preview-header{background:#F9F7F4;padding:10px 16px;border-bottom:1px solid #E0D8CE;display:flex;gap:14px;font-size:.72rem;color:#888}
+.preview-header span{color:#444;font-weight:500}
+.preview-body{padding:18px 20px;font-size:.83rem;line-height:1.8;color:#1A1A1A;white-space:pre-wrap;word-break:break-word;min-height:60px;background:#fff;max-height:380px;overflow-y:auto}
+.preview-empty{padding:30px;text-align:center;color:#bbb;font-style:italic;font-size:.82rem}
+
+/* ── BUTTONS (identique générateur) ── */
+.btn-send{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:18px;background:#2C3D2C;color:#fff;border:none;border-radius:12px;font-family:'Jost',sans-serif;font-size:1rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .15s;box-shadow:0 4px 20px rgba(44,61,44,.25)}
+.btn-send:hover{background:#3D5438;transform:translateY(-2px)}
+.btn-send:disabled{opacity:.42;cursor:not-allowed;box-shadow:none;transform:none}
+.btn-send:disabled:hover{background:#2C3D2C;transform:none}
+.btn-send svg{width:20px;height:20px;fill:#C8956C}
+.btn-reset{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:#fff;color:#1A1A1A;border:2px solid #1A1A1A;border-radius:12px;font-family:'Jost',sans-serif;font-size:.9rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-reset:hover{background:#1A1A1A;color:#fff;transform:translateY(-2px)}
+.action-stack{display:flex;flex-direction:column;gap:14px}
+
+/* ── GRILLE TOGGLE ── */
+.grille-toggle{font-size:.67rem;color:#C8956C;cursor:pointer;letter-spacing:.1em;text-transform:uppercase;text-align:center;margin-top:16px;user-select:none;font-weight:500}
+.grille-toggle:hover{color:#2C3D2C}
+.grille-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:.8rem;display:none}
+.grille-table th{background:#2C3D2C;color:#fff;padding:9px 14px;text-align:left;font-weight:500;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase}
+.grille-table td{padding:9px 14px;border-bottom:1px solid #F0ECE6;color:#444}
+.grille-table tr:last-child td{border:none}
+.grille-table td.v{font-weight:600;color:#2C3D2C}
+
+/* ── MOBILE ── */
+@media(max-width:600px){
+  .screen-header h1{font-size:1.25rem}
+  .header-logo-img{height:42px}
+  .section-card{padding:22px 18px}
+  .field-grid.four,.field-grid.three{grid-template-columns:1fr 1fr}
+  .field input,.field select,.date-input-btn{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="screen-header">
+  <div class="screen-header-inner">
+    <div><h1>Devis Rapide</h1><p>Domaine Rosalina</p></div>
+    <img class="header-logo-img" src="https://domainerosalina.com/wp-content/uploads/2026/06/logo-rosalina-white-transparent.png" alt="Domaine Rosalina" onerror="this.style.display='none'">
+  </div>
+</div>
+
+<div class="form-body">
+
+  <!-- 1. MAISON & DATES -->
+  <div class="section-card">
+    <div class="section-title">1. Maison &amp; Dates</div>
+
+    <div class="maison-selector">
+      <div class="maison-btn active" id="mbtn-rosalina" onclick="selectMaison('ROSALINA')">
+        <div class="mb-name">ROSALINA</div>
+        <div class="mb-cap">Jusqu'à 38 personnes</div>
+      </div>
+      <div class="maison-btn" id="mbtn-rosa" onclick="selectMaison('ROSA')">
+        <div class="mb-name">ROSA</div>
+        <div class="mb-cap">Jusqu'à 24 personnes</div>
+      </div>
+      <div class="maison-btn" id="mbtn-lina" onclick="selectMaison('LINA')">
+        <div class="mb-name">LINA</div>
+        <div class="mb-cap">Jusqu'à 14 personnes</div>
+      </div>
+    </div>
+
+    <!-- Dates -->
+    <div class="field-grid" style="margin-bottom:18px">
+      <div class="field">
+        <label>Date d'entrée</label>
+        <div class="date-field-wrap">
+          <button class="date-input-btn" id="btn-entree" onclick="toggleCal('entree',event)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span class="date-text placeholder" id="txt-entree">Sélectionner</span>
+            <span class="clear-btn" id="clr-entree" onclick="clearDate('entree',event)" style="display:none">✕</span>
+          </button>
+          <div class="cal-popup" id="cal-entree"></div>
+        </div>
+        <span class="hint">Entrée à 16h00</span>
+      </div>
+      <div class="field">
+        <label>Date de sortie</label>
+        <div class="date-field-wrap">
+          <button class="date-input-btn" id="btn-sortie" onclick="toggleCal('sortie',event)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span class="date-text placeholder" id="txt-sortie">Sélectionner</span>
+            <span class="clear-btn" id="clr-sortie" onclick="clearDate('sortie',event)" style="display:none">✕</span>
+          </button>
+          <div class="cal-popup" id="cal-sortie"></div>
+        </div>
+        <span class="hint">Sortie à 11h00</span>
+      </div>
+    </div>
+
+    <!-- Voyageurs -->
+    <div class="field-grid four" style="margin-bottom:0">
+      <div class="field">
+        <label>Jours</label>
+        <input type="text" id="nb-jours" value="auto" readonly>
+      </div>
+      <div class="field">
+        <label>Nuitées</label>
+        <input type="text" id="nb-nuits" value="auto" readonly>
+      </div>
+      <div class="field">
+        <label>Adultes</label>
+        <select id="nb-adultes" onchange="calc()"></select>
+      </div>
+      <div class="field">
+        <label>Enfants</label>
+        <select id="nb-enfants" onchange="calc()"></select>
+      </div>
+    </div>
+
+    <!-- Grille tarifaire toggle -->
+    <div class="grille-toggle" onclick="toggleGrille()">▾ Voir la grille tarifaire</div>
+    <table class="grille-table" id="grille-table">
+      <thead><tr><th>Maison</th><th>Prix / nuit</th><th>Ménage</th><th>Taxe / adulte / nuit</th></tr></thead>
+      <tbody>
+        <tr><td>ROSALINA</td><td class="v">1 300 €</td><td class="v">300 €</td><td class="v">1,65 €</td></tr>
+        <tr><td>ROSA</td><td class="v">1 000 €</td><td class="v">250 €</td><td class="v">1,65 €</td></tr>
+        <tr><td>LINA</td><td class="v">500 €</td><td class="v">150 €</td><td class="v">1,65 €</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:.62rem;color:#bbb;text-align:center;margin-top:8px">Tarifs 2026–2027 · Même prix toute l'année · Taxe de séjour adultes uniquement</p>
+  </div>
+
+  <!-- 2. TARIFICATION -->
+  <div class="section-card">
+    <div class="section-title">2. Tarification</div>
+    <table class="finance-table">
+      <tbody>
+        <tr class="row-auto">
+          <td class="ft-label" id="lbl-base">Location (— nuits)</td>
+          <td class="ft-value" id="val-base">—</td>
+        </tr>
+        <tr class="row-auto">
+          <td class="ft-label">Taxe de séjour</td>
+          <td class="ft-value" id="val-taxe">—</td>
+        </tr>
+        <tr class="row-auto">
+          <td class="ft-label">Ménage</td>
+          <td class="ft-value" id="val-menage">—</td>
+        </tr>
+        <tr class="row-total">
+          <td class="ft-label">TOTAL</td>
+          <td class="ft-value" id="val-total">—</td>
+        </tr>
+        <tr class="row-caution">
+          <td class="ft-label">Acompte (50%)</td>
+          <td class="ft-value" id="val-acompte">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3. EMAIL RAPIDE -->
+  <div class="section-card">
+    <div class="section-title">3. Email au client</div>
+
+    <div class="field-grid" style="margin-bottom:18px">
+      <div class="field">
+        <label>Email du prospect <span style="color:#C0392B">*</span></label>
+        <input type="email" id="prospect-email" placeholder="ex : contact@exemple.fr" oninput="updatePreview()">
+      </div>
+      <div class="field">
+        <label>Prénom (optionnel)</label>
+        <input type="text" id="prospect-prenom" placeholder="ex : Marie" oninput="updatePreview()">
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:20px">
+      <label>Aperçu de l'email</label>
+      <div class="preview-wrap">
+        <div class="preview-header">
+          <span>À :</span> <span id="prev-to" style="color:#888">—</span>
+          &nbsp;|&nbsp; <span>Objet :</span> <span id="prev-subject" style="color:#888">—</span>
+        </div>
+        <div class="preview-body" id="preview-body">
+          <div class="preview-empty">Sélectionne les dates pour voir l'email…</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-stack">
+      <button class="btn-send" id="btn-send-gmail" onclick="sendGmail()" disabled>
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="#C8956C"/></svg>
+        Ouvrir dans Gmail (web)
+      </button>
+      <button class="btn-reset" id="btn-send-mailto" onclick="sendMailto()" disabled style="border-color:#2C3D2C;color:#2C3D2C">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+        Ouvrir dans l'app Mail par défaut
+      </button>
+      <button class="btn-reset" onclick="resetForm()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+        Réinitialiser
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ══ CONFIG ══
+const MAISONS = {
+  ROSALINA:{ prix:1300, menage:300, taxe:1.65, max:38,
+    lien:'https://domainerosalina.com/maison-rosalina',
+    info:'• Le grand séjour de 50m² peut accueillir jusqu\'à 40 personnes assises\n• Draps et serviettes fournis et inclus dans le prix\n• Plans des chambres et salle d\'eau : https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png' },
+  ROSA:    { prix:1000, menage:250, taxe:1.65, max:24,
+    lien:'https://domainerosalina.com/maison-rosa',
+    info:'• Draps et serviettes fournis et inclus dans le prix de la location' },
+  LINA:    { prix:500,  menage:150, taxe:1.65, max:14,
+    lien:'https://domainerosalina.com/maison-lina',
+    info:'• Draps et serviettes fournis et inclus dans le prix de la location' },
+};
+
+let curMaison='ROSALINA';
+let totalTTC=0, nuits=0;
+
+// ── CALENDAR (same engine as devis_rosalina) ──
+const MOIS=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const DOW=['L','M','M','J','V','S','D'];
+const CAL={entree:{date:null,year:new Date().getFullYear(),month:new Date().getMonth()},sortie:{date:null,year:new Date().getFullYear(),month:new Date().getMonth()}};
+let openCal=null;
+
+function toggleCal(k,e){e.stopPropagation();if(openCal===k){closeCals();return;}closeCals();openCal=k;renderCal(k);document.getElementById('cal-'+k).classList.add('open');document.getElementById('btn-'+k).classList.add('open');}
+function closeCals(){document.querySelectorAll('.cal-popup').forEach(c=>c.classList.remove('open'));document.querySelectorAll('.date-input-btn').forEach(b=>b.classList.remove('open'));openCal=null;}
+document.addEventListener('click',closeCals);
+document.querySelectorAll('.cal-popup').forEach(p=>p.addEventListener('click',e=>e.stopPropagation()));
+
+function renderCal(k){
+  const s=CAL[k];const c=document.getElementById('cal-'+k);
+  const today=new Date();today.setHours(0,0,0,0);
+  const first=new Date(s.year,s.month,1);const dow=(first.getDay()+6)%7;
+  const days=new Date(s.year,s.month+1,0).getDate();
+  let html=`<div class="cal-header"><button class="cal-nav" onclick="calNav('${k}',-1,event)">‹</button><span class="cal-month-label">${MOIS[s.month]} ${s.year}</span><button class="cal-nav" onclick="calNav('${k}',1,event)">›</button></div>`;
+  html+=`<div class="cal-grid">`;
+  DOW.forEach(d=>{html+=`<div class="cal-dow">${d}</div>`;});
+  for(let i=0;i<dow;i++)html+=`<div class="cal-day empty"></div>`;
+  const dE=CAL.entree.date;const dS=CAL.sortie.date;
+  for(let d=1;d<=days;d++){
+    const dt=new Date(s.year,s.month,d);dt.setHours(0,0,0,0);
+    let cls='cal-day';
+    if(dt<today)cls+=' disabled';
+    else if(dt.getTime()===today.getTime())cls+=' today';
+    if(dE&&dt.getTime()===dE.getTime())cls+=(dS&&dE.getTime()!==dS.getTime())?' range-start':' selected';
+    else if(dS&&dt.getTime()===dS.getTime())cls+=(dE&&dE.getTime()!==dS.getTime())?' range-end':' selected';
+    else if(dE&&dS&&dt>dE&&dt<dS)cls+=' in-range';
+    html+=`<div class="${cls}" onclick="pickDay('${k}',${s.year},${s.month},${d},event)">${d}</div>`;
+  }
+  html+=`</div>`;
+  const y=new Date().getFullYear();
+  html+=`<div class="cal-year-btns">`;
+  [y,y+1].forEach(yr=>{html+=`<button class="cal-year-btn${s.year===yr?' active':''}" onclick="calYear('${k}',${yr},event)">${yr}</button>`;});
+  html+=`</div>`;
+  c.innerHTML=html;
+}
+
+function calNav(k,d,e){e.stopPropagation();CAL[k].month+=d;if(CAL[k].month<0){CAL[k].month=11;CAL[k].year--;}if(CAL[k].month>11){CAL[k].month=0;CAL[k].year++;}renderCal(k);}
+function calYear(k,y,e){e.stopPropagation();CAL[k].year=y;renderCal(k);}
+
+function pickDay(k,y,m,d,e){
+  e.stopPropagation();
+  const dt=new Date(y,m,d);dt.setHours(0,0,0,0);
+  CAL[k].date=dt;
+  if(k==='entree'&&CAL.sortie.date&&dt>=CAL.sortie.date)CAL.sortie.date=null;
+  if(k==='sortie'&&CAL.entree.date&&dt<=CAL.entree.date)CAL.entree.date=null;
+  updateDateBtns();
+  // Après sélection de l'entrée : ouvrir le calendrier de sortie sur le même mois
+  if(k==='entree'){
+    closeCals();
+    CAL.sortie.year=y;CAL.sortie.month=m;
+    openCal='sortie';
+    renderCal('sortie');
+    document.getElementById('cal-sortie').classList.add('open');
+    document.getElementById('btn-sortie').classList.add('open');
+  } else {
+    closeCals();
+    calc();
+  }
+}
+
+function clearDate(k,e){e.stopPropagation();CAL[k].date=null;updateDateBtns();calc();}
+
+function fmtDateFR(dt){if(!dt)return'';const d=['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'][(dt.getDay()+6)%7];const m=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'][dt.getMonth()];return`${dt.getDate()} ${m} ${dt.getFullYear()}`;}
+
+function fmtShort(dt){if(!dt)return'';const m=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'][dt.getMonth()];return`${dt.getDate()} ${m} ${dt.getFullYear()}`;}
+
+function updateDateBtns(){
+  ['entree','sortie'].forEach(k=>{
+    const dt=CAL[k].date;
+    const txt=document.getElementById('txt-'+k);
+    const clr=document.getElementById('clr-'+k);
+    if(dt){txt.textContent=fmtShort(dt);txt.classList.remove('placeholder');clr.style.display='inline';}
+    else{txt.textContent='Sélectionner';txt.classList.add('placeholder');clr.style.display='none';}
+    if(dt){CAL[k].year=dt.getFullYear();CAL[k].month=dt.getMonth();}
+    if(openCal===k)renderCal(k);
+  });
+}
+
+// ── SELECTS ──
+function buildSelects(){
+  const m=MAISONS[curMaison];
+  const selA=document.getElementById('nb-adultes');
+  const curA=parseInt(selA.value)||0;
+  selA.innerHTML='';
+  for(let i=0;i<=m.max;i++){const o=document.createElement('option');o.value=i;o.textContent=i+(i===0?' adulte':i===1?' adulte':' adultes');if(i===curA)o.selected=true;selA.appendChild(o);}
+  const selE=document.getElementById('nb-enfants');
+  const curE=parseInt(selE.value)||0;
+  selE.innerHTML='';
+  for(let i=0;i<=30;i++){const o=document.createElement('option');o.value=i;o.textContent=i;if(i===curE)o.selected=true;selE.appendChild(o);}
+}
+
+// ── MAISON SELECT ──
+function selectMaison(m){
+  curMaison=m;
+  document.querySelectorAll('.maison-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mbtn-'+m.toLowerCase()).classList.add('active');
+  buildSelects();calc();
+}
+
+// ── CALC ──
+function fmt(n){return Number(n).toLocaleString('fr-FR',{minimumFractionDigits:Number.isInteger(n)?0:2,maximumFractionDigits:2})+' €';}
+
+function calc(){
+  const dE=CAL.entree.date;const dS=CAL.sortie.date;
+  const m=MAISONS[curMaison];
+  const nA=parseInt(document.getElementById('nb-adultes').value)||0;
+
+  if(!dE||!dS||dS<=dE){
+    nuits=0;totalTTC=0;
+    document.getElementById('nb-jours').value='auto';
+    document.getElementById('nb-nuits').value='auto';
+    ['val-base','val-taxe','val-menage','val-total','val-acompte'].forEach(id=>document.getElementById(id).textContent='—');
+    document.getElementById('lbl-base').textContent='Location (— nuits)';
+    updatePreview();return;
+  }
+
+  nuits=Math.round((dS-dE)/86400000);
+  const jours=nuits+1;
+  document.getElementById('nb-jours').value=jours;
+  document.getElementById('nb-nuits').value=nuits;
+
+  const base=m.prix*nuits;
+  const taxe=Math.round(m.taxe*nA*nuits*100)/100;
+  const menage=m.menage;
+  totalTTC=base+taxe+menage;
+  const acompte=Math.round(totalTTC/2*100)/100;
+
+  document.getElementById('lbl-base').textContent=`Location (${nuits} nuit${nuits>1?'s':''} × ${fmt(m.prix)})`;
+  document.getElementById('val-base').textContent=fmt(base);
+  document.getElementById('val-taxe').textContent=nA>0?fmt(taxe):'—';
+  document.getElementById('val-menage').textContent=fmt(menage);
+  document.getElementById('val-total').textContent=fmt(totalTTC);
+  document.getElementById('val-acompte').textContent=fmt(acompte);
+
+  updatePreview();
+}
+
+// ── EMAIL ──
+function buildSubject(){
+  const labels={ROSALINA:'Maisons Rosa & Lina',ROSA:'Maison Rosa',LINA:'Maison Lina'};
+  return`Domaine Rosalina — Votre demande de séjour ${labels[curMaison]}`;
+}
+
+function buildBody(){
+  const m=MAISONS[curMaison];
+  const prenom=document.getElementById('prospect-prenom').value.trim();
+  const dE=CAL.entree.date;const dS=CAL.sortie.date;
+  const nA=parseInt(document.getElementById('nb-adultes').value)||0;
+  const nE=parseInt(document.getElementById('nb-enfants').value)||0;
+
+  const salut=prenom?`Bonjour ${prenom},`:'Bonjour,';
+  const dateStr=(dE&&dS)?`du ${fmtDateFR(dE)} au ${fmtDateFR(dS)} `:'';
+  const paxStr=[nA>0?`${nA} adulte${nA>1?'s':''}`:null,nE>0?`${nE} enfant${nE>1?'s':''}`:null].filter(Boolean).join(' et ');
+  const taxe=nA>0?Math.round(m.taxe*nA*nuits*100)/100:0;
+
+  let detail=`  • Location ${curMaison} (${nuits} nuit${nuits>1?'s':''}) : ${fmt(m.prix*nuits)}`;
+  if(nA>0)detail+=`\n  • Taxe de séjour (${nA} adulte${nA>1?'s':''} × ${nuits} nuit${nuits>1?'s':''}) : ${fmt(taxe)}`;
+  detail+=`\n  • Ménage de fin de séjour : ${fmt(m.menage)}`;
+  detail+=`\n  • Total : ${fmt(totalTTC)}`;
+
+  return`${salut}
+
+Merci de nous avoir contactés.
+La maison est disponible à vos dates.
+
+Votre séjour ${dateStr}comprend :
+${detail}
+
+Informations pratiques :
+
+${m.info}
+
+Vous pouvez réserver votre séjour directement sur notre site internet : ${m.lien} en indiquant vos dates de départ et d'arrivée, vous recevrez automatiquement le contrat et la facture. Le processus de réservation est entièrement automatisé (arrhes, solde, caution…) et les paiements y sont sécurisés.
+
+Si vous avez besoin de plus d'informations, n'hésitez pas à nous contacter par email : domainerosalina@gmail.com ou par téléphone : 07 83 87 60 90.
+
+Bien cordialement,
+Aline et Eugène`;
+}
+
+function updatePreview(){
+  const email=document.getElementById('prospect-email').value.trim();
+  const prevBody=document.getElementById('preview-body');
+  const btnG=document.getElementById('btn-send-gmail');
+  const btnM=document.getElementById('btn-send-mailto');
+
+  document.getElementById('prev-to').textContent=email||'—';
+  document.getElementById('prev-subject').textContent=email?buildSubject():'—';
+
+  if(!totalTTC||!CAL.entree.date||!CAL.sortie.date){
+    prevBody.innerHTML='<div class="preview-empty">Sélectionne les dates pour voir l\'email…</div>';
+    btnG.disabled=true;btnM.disabled=true;return;
+  }
+  prevBody.textContent=buildBody();
+  btnG.disabled=!email;btnM.disabled=!email;
+}
+
+function sendGmail(){
+  const email=document.getElementById('prospect-email').value.trim();
+  const subj=encodeURIComponent(buildSubject());
+  const body=encodeURIComponent(buildBody());
+  window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(email)}&su=${subj}&body=${body}`,'_blank');
+}
+
+function sendMailto(){
+  const email=document.getElementById('prospect-email').value.trim();
+  const subj=encodeURIComponent(buildSubject());
+  const body=encodeURIComponent(buildBody());
+  window.location.href=`mailto:${email}?subject=${subj}&body=${body}`;
+}
+
+function toggleGrille(){
+  const t=document.getElementById('grille-table');
+  t.style.display=t.style.display==='table'?'none':'table';
+}
+
+function resetForm(){
+  CAL.entree.date=null;CAL.sortie.date=null;
+  updateDateBtns();
+  document.getElementById('prospect-email').value='';
+  document.getElementById('prospect-prenom').value='';
+  selectMaison('ROSALINA');
+  calc();
+}
+
+// ── INIT ──
+buildSelects();
+</script>
+</body>
+</html>
