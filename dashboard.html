@@ -565,7 +565,7 @@ function parseClient(page){
     adresse:g('Adresse','rich'),tel:g('Tel','phone'),email:g('Email','email'),
     prix:g('Prix','num'),statut:g('Statut','multi'),contrat:g('Contrat','url'),
     nuits:g('Nbr de nuits','num'),jours:g('Nbr de jours','num'),
-    source:g('Source','select')||g('Source','rich'),
+    source:(()=>{const prop=page.properties['Source'];if(!prop)return'';if(prop.multi_select)return prop.multi_select.map(s=>s.name).join(', ');if(prop.select)return prop.select?.name||'';if(prop.rich_text)return prop.rich_text[0]?.plain_text||'';return'';})(),
     caution:g('Caution vers\u00e9e','check'),
   };
 }
