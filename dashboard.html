@@ -161,6 +161,27 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 [data-theme="dark"] .cal-select{background:var(--card);}
 .cal-maisons-grid{display:grid;grid-template-columns:1fr;gap:16px;}
 .cal-maisons-bottom{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
+/* ── ALERTES PAIEMENT ── */
+.alert-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:10px;font-size:.62rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;border:none;font-family:'Jost',sans-serif;transition:all .15s;}
+.alert-badge.solde,.alert-badge.caution-alert{background:#C0392B;color:#fff;}
+.alert-badge:hover{opacity:.85;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+.alert-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1.2s ease-in-out infinite;flex-shrink:0;}
+.remind-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:center;justify-content:center;}
+.remind-overlay.open{display:flex;}
+.remind-modal{background:var(--card);border-radius:14px;width:min(500px,94vw);max-height:90vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,.3);}
+.remind-header{background:var(--green);border-radius:14px 14px 0 0;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
+.remind-header-title{font-family:'Open Sans',sans-serif;font-size:.88rem;font-weight:700;color:#fff;}
+.remind-body{padding:20px;}
+.remind-label{font-size:.65rem;font-weight:600;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.remind-meta{font-size:.82rem;color:var(--text2);margin-bottom:14px;}
+.remind-textarea{width:100%;min-height:200px;padding:14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Jost',sans-serif;font-size:.82rem;line-height:1.7;color:var(--text);background:var(--bg2);resize:vertical;outline:none;}
+.remind-textarea:focus{border-color:var(--rose);}
+.remind-actions{display:flex;gap:10px;margin-top:14px;}
+.remind-btn-send{flex:1;padding:13px;background:var(--green);color:#fff;border:none;border-radius:10px;font-family:'Jost',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;}
+.remind-btn-send:hover{background:var(--green2);}
+.remind-btn-cancel{padding:13px 18px;background:transparent;color:var(--text2);border:1.5px solid var(--border);border-radius:10px;font-family:'Jost',sans-serif;font-size:.85rem;cursor:pointer;}
+
 @media(max-width:600px){.cal-maisons-bottom{grid-template-columns:1fr;}}
 .cal-tarif-wrap{margin-top:16px;}
 .cal-maison-card{background:var(--card);border-radius:var(--r2);padding:18px 16px;border:1px solid var(--border);}
@@ -489,6 +510,26 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
   </div>
 
 </main>
+
+<!-- REMIND MODAL (solde / caution) -->
+<div class="remind-overlay" id="remind-overlay" onclick="if(event.target===this)closeRemind()">
+  <div class="remind-modal">
+    <div class="remind-header">
+      <span class="remind-header-title" id="remind-title">Rappel de paiement</span>
+      <button onclick="closeRemind()" style="background:rgba(255,255,255,.15);border:none;border-radius:50%;width:28px;height:28px;color:#fff;cursor:pointer;font-size:1rem;line-height:1;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div class="remind-body">
+      <div class="remind-label">Destinataire</div>
+      <div class="remind-meta" id="remind-meta"></div>
+      <div class="remind-label">Email à envoyer</div>
+      <textarea class="remind-textarea" id="remind-body-text"></textarea>
+      <div class="remind-actions">
+        <button class="remind-btn-send" onclick="sendRemind()">Ouvrir dans Gmail</button>
+        <button class="remind-btn-cancel" onclick="closeRemind()">Annuler</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- DEVIS CHOICE MODAL -->
 <div class="devis-modal-overlay" id="devis-modal-overlay" onclick="if(event.target===this)closeDevisModal()">
@@ -839,6 +880,24 @@ function renderCard(c,today,showYear){
     else{cd='Termin\u00e9';cdCls='past';}
   }
   const cid=esc(c.id);
+  // Alertes paiement
+  let alertBadges='';
+  if(c.arrivee){
+    const arr=new Date(c.arrivee+'T12:00:00');
+    const diffDays=Math.round((arr-today)/86400000);
+    const statut=(c.statut||'').toLowerCase();
+    const soldePaye=statut.includes('solde') || statut.includes('payé');
+    const acomptePaye=statut.includes('acompte');
+    // Alerte solde : 4 jours avant arrivée, solde non payé
+    if(diffDays>=0&&diffDays<=4&&!soldePaye&&acomptePaye){
+      alertBadges+=`<button class="alert-badge solde" onclick="event.stopPropagation();openRemind('solde','${cid}')" title="Rappel solde"><span class="alert-dot"></span>Solde</button>`;
+    }
+    // Alerte caution : 48h avant arrivée, caution non versée
+    if(diffDays>=0&&diffDays<=2&&!c.caution){
+      alertBadges+=`<button class="alert-badge caution-alert" onclick="event.stopPropagation();openRemind('caution','${cid}')" title="Rappel caution"><span class="alert-dot"></span>Caution</button>`;
+    }
+  }
+
   return '<div class="client-card '+mc+'" onclick="openModalById(\''+cid+'\')" data-id="'+cid+'">'+
     '<div class="card-row1">'+
       '<div><div class="card-name">'+esc(name)+'</div>'+(c.org?'<div class="card-org">'+esc(c.org)+'</div>':'')+' </div>'+
@@ -867,6 +926,7 @@ function renderCard(c,today,showYear){
         'Caution vers\u00e9e'+
       '</span>'+
     '</div>'+
+    (alertBadges?'<div style="display:flex;gap:6px;padding:8px 16px 12px;flex-wrap:wrap;">'+alertBadges+'</div>':'')+
   '</div>';
 }
 
@@ -1143,8 +1203,70 @@ function updateCautionBtn(v){
   document.getElementById('m-caution-label').textContent=v?'Vers\u00e9e \u2713':'Non vers\u00e9e';
   document.getElementById('m-caution-btn').className='caution-toggle-btn '+(v?'ok':'');
 }
-function openDevisModal(){document.getElementById('devis-modal-overlay').classList.add('open');}
-function closeDevisModal(){document.getElementById('devis-modal-overlay').classList.remove('open');}
+// ── ALERTES RAPPEL PAIEMENT ──
+let remindClient=null, remindType=null;
+function openRemind(type,id){
+  const c=allClients.find(x=>x.id===id);
+  if(!c)return;
+  remindClient=c;remindType=type;
+  const name=[c.prenom,c.nom].filter(Boolean).join(' ')||'Client';
+  const email=c.email||'';
+  const prenom=c.prenom||'';
+  const maison=c.maison||'votre maison';
+  const arr=c.arrivee?fmtLong(c.arrivee):'votre date d\'arrivée';
+  const solde=c.prix?fmtPrix(Number(c.prix)/2):'le solde';
+  const caution=c.maison?.toUpperCase()==='ROSALINA'?'2 500 €':c.maison?.toUpperCase()==='ROSA'?'1 500 €':'800 €';
+
+  let title, body;
+  if(type==='solde'){
+    title='Rappel — Solde à régler';
+    body=`Bonjour ${prenom||name},
+
+Nous espérons que vous êtes prêt(e) pour votre séjour au Domaine Rosalina ${maison ? '— '+maison : ''} !
+
+Nous souhaitons vous rappeler que le solde de votre réservation d'un montant de ${solde} est dû avant votre arrivée prévue le ${arr}.
+
+Merci de procéder au règlement dans les 3 jours à venir afin que votre séjour se déroule dans les meilleures conditions.
+
+Pour toute question, n'hésitez pas à nous contacter :
+Email : domainerosalina@gmail.com
+Téléphone : 07 83 87 60 90
+
+Bien cordialement,
+Aline et Eugène`;
+  } else {
+    title='Rappel — Caution à verser';
+    body=`Bonjour ${prenom||name},
+
+Votre arrivée au Domaine Rosalina ${maison ? '— '+maison : ''} approche — nous avons hâte de vous accueillir le ${arr} !
+
+Nous souhaitons vous rappeler que la caution remboursable d'un montant de ${caution} doit être versée avant votre arrivée.
+
+Merci de procéder au règlement dans les 24 heures.
+
+Pour toute question :
+Email : domainerosalina@gmail.com
+Téléphone : 07 83 87 60 90
+
+Bien cordialement,
+Aline et Eugène`;
+  }
+
+  document.getElementById('remind-title').textContent=title;
+  document.getElementById('remind-meta').textContent=name+(email?' — '+email:'');
+  document.getElementById('remind-body-text').value=body;
+  document.getElementById('remind-overlay').classList.add('open');
+}
+function closeRemind(){document.getElementById('remind-overlay').classList.remove('open');}
+function sendRemind(){
+  const c=remindClient;if(!c)return;
+  const email=c.email||'';
+  const subj=encodeURIComponent(remindType==='solde'?'Domaine Rosalina — Rappel solde de votre séjour':'Domaine Rosalina — Rappel caution de votre séjour');
+  const body=encodeURIComponent(document.getElementById('remind-body-text').value);
+  window.open(`https://mail.google.com/mail/u/domainerosalina@gmail.com/?view=cm&to=${encodeURIComponent(email)}&su=${subj}&body=${body}`,'_blank');
+  closeRemind();
+}
+function fmtLong(s){if(!s)return'';const[y,m,d]=s.split('-');const mo=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];return parseInt(d)+' '+mo[parseInt(m)-1]+' '+y;}
 
 function closeModal(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';}
 function onOverlayClick(e){if(e.target===document.getElementById('overlay'))closeModal();}
