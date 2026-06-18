@@ -846,7 +846,7 @@ function renderCal(){
       '<div class="cal-maison-name '+m+'">'+labels[m]+'</div>'+
       '<div style="font-size:.65rem;color:var(--text3);margin-bottom:6px;display:flex;align-items:center;gap:6px">'+
         '<span style="font-weight:600;color:var(--text2)">'+fmtPrixCourt(prix)+' / nuit</span>'+
-        '<span style="padding:1px 6px;border-radius:8px;background:'+(saison==='haute'?'rgba(200,149,108,.15)':'rgba(90,154,90,.12)')+';color:'+(saison==='haute'?'var(--rose)':'var(--green)')+';font-size:.58rem;letter-spacing:.06em;text-transform:uppercase">'+saisonLabel+'</span>'+
+        '<span style="padding:1px 7px;border-radius:8px;font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;background:'+(saison==='haute'?'rgba(200,149,108,.2)':'rgba(106,168,101,.22)')+';color:'+(saison==='haute'?'var(--rose)':'#6AA865')+'">'+saisonLabel+'</span>'+
       '</div>'+
       buildCalMonth(calYear,calMonth,clients,m)+
     '</div>';
@@ -1140,8 +1140,8 @@ function renderStats(){
   // Taxe de séjour table
   renderTaxeTable(clients);
 
-  // Monthly chart
-  renderMonthChart(clients);
+  // Monthly chart — deferred so canvas has correct dimensions after display:block
+  requestAnimationFrame(()=>renderMonthChart(clients));
 
   // Sources
   const srcMap={};

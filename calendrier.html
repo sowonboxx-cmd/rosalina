@@ -39,8 +39,8 @@ body{font-family:'Jost',sans-serif;background:var(--beige);min-height:100vh;padd
 .prix-badge{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;margin-bottom:10px}
 .prix-badge .prix-val{font-weight:700;color:var(--text);font-size:.82rem}
 .saison-tag{padding:2px 8px;border-radius:8px;font-size:.6rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
-.saison-tag.haute{background:rgba(200,149,108,.15);color:var(--rose)}
-.saison-tag.basse{background:rgba(90,154,90,.12);color:var(--vert)}
+.saison-tag.haute{background:rgba(200,149,108,.2);color:var(--rose)}
+.saison-tag.basse{background:rgba(106,168,101,.22);color:#6AA865}
 
 /* CALENDRIER CELLS */
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
@@ -60,18 +60,33 @@ body{font-family:'Jost',sans-serif;background:var(--beige);min-height:100vh;padd
 .tarif-table-wrap{max-width:1100px;margin:28px auto 0;padding:0 20px}
 .tarif-card{background:#fff;border-radius:14px;padding:22px 24px;box-shadow:0 2px 16px rgba(0,0,0,.07)}
 .tarif-card-title{font-family:'Open Sans',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text);margin-bottom:16px}
-table.tarifs{width:100%;border-collapse:collapse;font-size:.85rem}
-table.tarifs th{background:var(--vert);color:#fff;padding:10px 16px;text-align:left;font-size:.7rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase}
-table.tarifs td{padding:12px 16px;border-bottom:1px solid var(--beige2);color:var(--text2)}
+table.tarifs{width:100%;border-collapse:collapse;font-size:.82rem;table-layout:fixed}
+table.tarifs th{background:var(--vert);color:#fff;padding:9px 10px;text-align:left;font-size:.65rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;word-break:break-word}
+table.tarifs td{padding:11px 10px;border-bottom:1px solid var(--beige2);color:var(--text2);word-break:break-word}
 table.tarifs tr:last-child td{border-bottom:none}
 table.tarifs td.m-rosalina{color:var(--rosalina-c);font-weight:700}
 table.tarifs td.m-rosa{color:var(--rosa-c);font-weight:700}
 table.tarifs td.m-lina{color:var(--lina-c);font-weight:700}
 table.tarifs td.prix{font-weight:600;color:var(--text)}
-.saison-band{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.saison-band{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:middle}
 .saison-band.haute{background:rgba(200,149,108,.5)}
-.saison-band.basse{background:rgba(90,154,90,.3)}
-</style>
+.saison-band.basse{background:rgba(106,168,101,.4)}
+@media(max-width:600px){
+  .tarif-card{padding:16px 14px}
+  table.tarifs th,table.tarifs td{padding:8px 6px;font-size:.72rem}
+}
+/* POPUP */
+.popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.popup-overlay.open{display:flex}
+.popup-box{background:#fff;border-radius:16px 16px 0 0;width:min(480px,100%);padding:24px 20px 32px;max-height:80vh;overflow-y:auto}
+.popup-handle{width:36px;height:3px;background:#ddd;border-radius:2px;margin:0 auto 16px}
+.popup-name{font-family:'Open Sans',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text)}
+.popup-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--beige2);font-size:.85rem}
+.popup-row:last-child{border-bottom:none}
+.popup-row .lbl{color:var(--text2)}
+.popup-row .val{font-weight:500;color:var(--text)}
+.popup-close{margin-top:16px;text-align:center;font-size:.75rem;color:var(--text3);cursor:pointer}
+@media(min-width:600px){.popup-overlay{align-items:center}.popup-box{border-radius:16px}}</style>
 </head>
 <body>
 
@@ -100,33 +115,33 @@ table.tarifs td.prix{font-weight:600;color:var(--text)}
       <thead>
         <tr>
           <th>Maison</th>
-          <th><span class="saison-band basse"></span>Basse saison</th>
-          <th><span class="saison-band haute"></span>Haute saison</th>
+          <th><span class="saison-band basse"></span>Basse</th>
+          <th><span class="saison-band haute"></span>Haute</th>
           <th>Ménage</th>
-          <th>Taxe de séjour</th>
+          <th>Taxe / adulte</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td class="m-rosalina">ROSALINA</td>
-          <td class="prix">1 100 € / nuit</td>
-          <td class="prix">1 200 € / nuit</td>
+          <td class="prix">1 100 €</td>
+          <td class="prix">1 200 €</td>
           <td class="prix">300 €</td>
-          <td class="prix">1,65 € / adulte / nuit</td>
+          <td class="prix">1,65 €</td>
         </tr>
         <tr>
           <td class="m-rosa">ROSA</td>
-          <td class="prix">900 € / nuit</td>
-          <td class="prix">1 000 € / nuit</td>
+          <td class="prix">900 €</td>
+          <td class="prix">1 000 €</td>
           <td class="prix">250 €</td>
-          <td class="prix">1,65 € / adulte / nuit</td>
+          <td class="prix">1,65 €</td>
         </tr>
         <tr>
           <td class="m-lina">LINA</td>
-          <td class="prix">400 € / nuit</td>
-          <td class="prix">500 € / nuit</td>
+          <td class="prix">400 €</td>
+          <td class="prix">500 €</td>
           <td class="prix">150 €</td>
-          <td class="prix">1,65 € / adulte / nuit</td>
+          <td class="prix">1,65 €</td>
         </tr>
       </tbody>
     </table>
@@ -134,6 +149,16 @@ table.tarifs td.prix{font-weight:600;color:var(--text)}
       <strong>Basse saison</strong> : 05 jan → 31 mar &nbsp;·&nbsp; 01 sep → 21 déc &nbsp;&nbsp;
       <strong>Haute saison</strong> : 01 avr → 31 aoû &nbsp;·&nbsp; 22 déc → 04 jan
     </p>
+  </div>
+</div>
+
+<!-- POPUP -->
+<div class="popup-overlay" id="popup-overlay" onclick="if(event.target===this)closePopup()">
+  <div class="popup-box">
+    <div class="popup-handle"></div>
+    <div class="popup-name" id="popup-name"></div>
+    <div id="popup-rows" style="margin-top:14px"></div>
+    <div class="popup-close" onclick="closePopup()">Fermer</div>
   </div>
 </div>
 
@@ -276,6 +301,29 @@ function renderCal(){
   document.getElementById('cal-content').innerHTML=html;
 }
 
+function openPopup(ids){
+  const clients=ids.split(',').map(id=>allClients.find(c=>c.id===id)).filter(Boolean);
+  if(!clients.length)return;
+  const c=clients[0];
+  const name=[c.prenom,c.nom].filter(Boolean).join(' ')||'Réservation';
+  document.getElementById('popup-name').textContent=name;
+  const nuits=c.arrivee&&c.depart?Math.round((new Date(c.depart+'T12:00:00')-new Date(c.arrivee+'T12:00:00'))/86400000):0;
+  const allMaisons=clients.map(cl=>cl.maison).filter(Boolean).join(' + ');
+  const rows=[
+    {l:'Maison',v:allMaisons||'—'},
+    {l:'Arrivée',v:c.arrivee?fmtDateLong(c.arrivee):'—'},
+    {l:'Départ',v:c.depart?fmtDateLong(c.depart):'—'},
+    {l:'Durée',v:nuits?nuits+' nuit'+(nuits>1?'s':''):'—'},
+  ];
+  document.getElementById('popup-rows').innerHTML=rows.map(r=>
+    '<div class="popup-row"><span class="lbl">'+r.l+'</span><span class="val">'+r.v+'</span></div>'
+  ).join('');
+  document.getElementById('popup-overlay').classList.add('open');
+}
+function closePopup(){document.getElementById('popup-overlay').classList.remove('open');}
+function fmtDateLong(s){const[y,m,d]=s.split('-');const mo=['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];return parseInt(d)+' '+mo[parseInt(m)-1]+' '+y;}
+
+// Event delegation for busy day clicks
 // ══ INIT ══
 initSel();
 loadClients();
