@@ -180,6 +180,11 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
 [data-theme="dark"] .euro{color:#8AABCC}
 [data-theme="dark"] .lbl{color:#C1CCD8}
 [data-theme="dark"] #prev-to,[data-theme="dark"] #prev-subject{color:#8AABCC}
+
+/* Jours occupés dans le calendrier de sélection */
+.cal-day.booked{background:#FEEAEA;color:#C0392B;cursor:not-allowed;pointer-events:none;font-weight:600;}
+[data-theme="dark"] .cal-day.booked{background:rgba(220,80,80,.22);color:#F08080;}
+.cal-day.booked::after{content:'';position:absolute;inset:0;border-radius:inherit;}
 </style>
 </head>
 <body>
@@ -449,12 +454,16 @@ function renderCal(k){
   const dE=CAL.entree.date;const dS=CAL.sortie.date;
   for(let d=1;d<=days;d++){
     const dt=new Date(s.year,s.month,d);dt.setHours(0,0,0,0);
+    const booked=isBooked(dt,curMaison);
     let cls='cal-day';
-    if(dt<today)cls+=' disabled';
+    if(booked)cls+=' booked';
+    else if(dt<today)cls+=' disabled';
     else if(dt.getTime()===today.getTime())cls+=' today';
-    if(dE&&dt.getTime()===dE.getTime())cls+=(dS&&dE.getTime()!==dS.getTime())?' range-start':' selected';
-    else if(dS&&dt.getTime()===dS.getTime())cls+=(dE&&dE.getTime()!==dS.getTime())?' range-end':' selected';
-    else if(dE&&dS&&dt>dE&&dt<dS)cls+=' in-range';
+    if(!booked){
+      if(dE&&dt.getTime()===dE.getTime())cls+=(dS&&dE.getTime()!==dS.getTime())?' range-start':' selected';
+      else if(dS&&dt.getTime()===dS.getTime())cls+=(dE&&dE.getTime()!==dS.getTime())?' range-end':' selected';
+      else if(dE&&dS&&dt>dE&&dt<dS)cls+=' in-range';
+    }
     html+=`<div class="${cls}" onclick="pickDay('${k}',${s.year},${s.month},${d},event)">${d}</div>`;
   }
   html+=`</div>`;
@@ -471,6 +480,7 @@ function calYear(k,y,e){e.stopPropagation();CAL[k].year=y;renderCal(k);}
 function pickDay(k,y,m,d,e){
   e.stopPropagation();
   const dt=new Date(y,m,d);dt.setHours(0,0,0,0);
+  if(isBooked(dt,curMaison))return; // jour occupé, non sélectionnable
   CAL[k].date=dt;
   if(k==='entree'&&CAL.sortie.date&&dt>=CAL.sortie.date)CAL.sortie.date=null;
   if(k==='sortie'&&CAL.entree.date&&dt<=CAL.entree.date)CAL.entree.date=null;
@@ -525,7 +535,10 @@ function selectMaison(m){
   curMaison=m;
   document.querySelectorAll('.maison-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('mbtn-'+m.toLowerCase()).classList.add('active');
-  buildSelects();calc();
+  buildSelects();
+  // Re-render open calendar for correct booked dates
+  if(openCal)renderCal(openCal);
+  calc();
 }
 
 // ── CALC ──
@@ -693,6 +706,48 @@ function resetForm(){
 buildSelects();
 updateCardPrices();
 initTheme();
+
+// ── RÉSERVATIONS OCCUPÉES depuis Notion ──
+const WORKER_URL='https://notion-proxy.sowonboxx.workers.dev';
+const DB_ID='249a8c29-d056-8122-a40c-cf7180e98935';
+let bookedRanges=[];// [{start:Date, end:Date, maison:'ROSALINA'}]
+
+async function loadBookedDates(){
+  const token=localStorage.getItem('notion_token');
+  if(!token)return;
+  try{
+    let all=[],cursor=null;
+    do{
+      const body={token,database_id:DB_ID,page_size:100};
+      if(cursor)body.start_cursor=cursor;
+      const res=await fetch(WORKER_URL+'/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const data=await res.json();
+      if(data.results)all=[...all,...data.results];
+      cursor=data.has_more?data.next_cursor:null;
+    }while(cursor);
+    bookedRanges=all.map(page=>{
+      const p=page.properties;
+      const arrivee=(p['Arrivée']?.date?.start||p['Arrivée-2']?.date?.start||'');
+      const depart=(p['Départ']?.date?.start||p['Départ-2']?.date?.start||'');
+      const maison=(p['Maison']?.select?.name||'').toUpperCase();
+      if(!arrivee||!depart)return null;
+      return{start:new Date(arrivee+'T00:00:00'),end:new Date(depart+'T00:00:00'),maison};
+    }).filter(Boolean);
+    // Re-render calendars to show booked days
+    if(openCal)renderCal(openCal);
+  }catch(e){console.warn('Booked dates load failed',e);}
+}
+
+function isBooked(dt,maison){
+  const m=maison.toUpperCase();
+  const checkMaison=m==='ROSALINA'?['ROSALINA','ROSA','LINA']:m==='ROSA'?['ROSALINA','ROSA']:m==='LINA'?['ROSALINA','LINA']:[];
+  return bookedRanges.some(r=>{
+    if(!checkMaison.includes(r.maison))return false;
+    return dt>=r.start&&dt<r.end;
+  });
+}
+loadBookedDates();
+
 </script>
 </body>
 </html>
