@@ -166,10 +166,10 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .cal-maison-name.lina{color:var(--lina-c);border-color:var(--lina-c);}
 .cal-maison-name.rosalina{color:var(--rosalina-c);border-color:var(--rosalina-c);}
 /* Fix calendar grid gap - uniform grid no extra spacing */
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;grid-auto-rows:22px;}
-.cal-dow{font-size:.52rem;text-align:center;color:var(--text3);padding:0;height:18px;display:flex;align-items:center;justify-content:center;font-weight:600;}
-.cal-day{min-height:38px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.72rem;border-radius:4px;color:var(--text2);padding:3px 2px;gap:1px;}
-.cal-day-prix{font-size:.52rem;color:var(--text3);line-height:1;white-space:nowrap;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-dow{font-size:.58rem;font-weight:600;text-align:center;color:var(--text3);padding:4px 0 6px;letter-spacing:.04em;text-transform:uppercase;}
+.cal-day{min-height:38px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.72rem;border-radius:5px;color:var(--text2);padding:3px 1px;}
+.cal-day-prix{font-size:.52rem;color:var(--text3);margin-top:1px;line-height:1;white-space:nowrap;}
 .cal-day.busy .cal-day-prix{color:rgba(192,57,43,.55);}
 .cal-day.free .cal-day-prix{color:rgba(44,90,44,.55);}
 [data-theme="dark"] .cal-day.free .cal-day-prix{color:rgba(122,204,122,.45);}
@@ -318,7 +318,8 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 <div class="subheader">
   <div class="subnav">
     <button class="subnav-tab active" onclick="showView('dashboard',this)">Accueil</button>
-    <button class="subnav-tab" onclick="showView('cal',this)">Calendrier des maisons</button>
+    <button class="subnav-tab" onclick="showView('cal',this)">Calendrier</button>
+    <a class="subnav-tab" href="calendrier.html" target="_blank" style="text-decoration:none">Tarifs ↗</a>
     <button class="subnav-tab" onclick="showView('stats',this)">Stats</button>
     <button class="subnav-refresh" onclick="loadData()" id="refresh-btn">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -1219,7 +1220,8 @@ function renderTaxeTable(allC){
     '<div class="source-bar" style="cursor:pointer;border-radius:6px;padding:5px 4px" onclick="openModalById(\''+esc(c.id)+'\')">'+
       '<div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">'+
         '<span style="font-size:.7rem;color:var(--text3);white-space:nowrap;flex-shrink:0">'+fmtDateCourt(c.arrivee)+'</span>'+
-        '<span style="font-size:.78rem;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(c.prenom||'\u2014')+'</span>'+
+        '<span style="font-size:.78rem;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc([c.prenom,c.nom].filter(Boolean).join(' ')||'\u2014')+'</span>'+
+        '<span class="maison-pill '+getMC(c.maison)+'" style="flex-shrink:0;font-size:.55rem">'+esc(c.maison||'')+'</span>'+
       '</div>'+
       '<span style="font-size:.78rem;font-weight:600;color:var(--text);flex-shrink:0;margin-left:8px">'+fmtPrix(c.taxe)+'</span>'+
     '</div>'
