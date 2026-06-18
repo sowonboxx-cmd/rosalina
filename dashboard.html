@@ -1205,6 +1205,9 @@ function updateCautionBtn(v){
   document.getElementById('m-caution-label').textContent=v?'Vers\u00e9e \u2713':'Non vers\u00e9e';
   document.getElementById('m-caution-btn').className='caution-toggle-btn '+(v?'ok':'');
 }
+function openDevisModal(){document.getElementById('devis-modal-overlay').classList.add('open');}
+function closeDevisModal(){document.getElementById('devis-modal-overlay').classList.remove('open');}
+
 // ── ALERTES RAPPEL PAIEMENT ──
 let remindClient=null, remindType=null;
 function openRemind(type,id){
