@@ -184,7 +184,12 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
 /* Jours occupés dans le calendrier de sélection */
 .cal-day.booked{background:#FEEAEA;color:#C0392B;cursor:not-allowed;pointer-events:none;font-weight:600;}
 [data-theme="dark"] .cal-day.booked{background:rgba(220,80,80,.22);color:#F08080;}
-.cal-day.booked::after{content:'';position:absolute;inset:0;border-radius:inherit;}
+/* Arrivée : transparent à gauche, rouge à droite (vertical au milieu) */
+.cal-day.booked-arrival{background:linear-gradient(to right, transparent 50%, #FEEAEA 50%);color:#C0392B;font-weight:600;cursor:pointer;pointer-events:all;}
+[data-theme="dark"] .cal-day.booked-arrival{background:linear-gradient(to right, transparent 50%, rgba(220,80,80,.22) 50%);}
+/* Départ : rouge à gauche, transparent à droite */
+.cal-day.booked-departure{background:linear-gradient(to right, #FEEAEA 50%, transparent 50%);color:#C0392B;font-weight:600;cursor:pointer;pointer-events:all;}
+[data-theme="dark"] .cal-day.booked-departure{background:linear-gradient(to right, rgba(220,80,80,.22) 50%, transparent 50%);}
 </style>
 </head>
 <body>
@@ -454,12 +459,20 @@ function renderCal(k){
   const dE=CAL.entree.date;const dS=CAL.sortie.date;
   for(let d=1;d<=days;d++){
     const dt=new Date(s.year,s.month,d);dt.setHours(0,0,0,0);
-    const booked=isBooked(dt,curMaison);
+    const bookedStatus=isBookedStatus(dt,curMaison);
     let cls='cal-day';
-    if(booked)cls+=' booked';
-    else if(dt<today)cls+=' disabled';
-    else if(dt.getTime()===today.getTime())cls+=' today';
-    if(!booked){
+    if(bookedStatus==='middle'){
+      cls+=' booked';
+    } else if(bookedStatus==='arrival'){
+      cls+=' booked-arrival'; // selectionnable (peut arriver ce jour)
+    } else if(bookedStatus==='departure'){
+      cls+=' booked-departure'; // selectionnable (peut partir ce jour)
+    } else if(dt<today){
+      cls+=' disabled';
+    } else if(dt.getTime()===today.getTime()){
+      cls+=' today';
+    }
+    if(!bookedStatus||bookedStatus==='arrival'||bookedStatus==='departure'){
       if(dE&&dt.getTime()===dE.getTime())cls+=(dS&&dE.getTime()!==dS.getTime())?' range-start':' selected';
       else if(dS&&dt.getTime()===dS.getTime())cls+=(dE&&dE.getTime()!==dS.getTime())?' range-end':' selected';
       else if(dE&&dS&&dt>dE&&dt<dS)cls+=' in-range';
@@ -480,7 +493,7 @@ function calYear(k,y,e){e.stopPropagation();CAL[k].year=y;renderCal(k);}
 function pickDay(k,y,m,d,e){
   e.stopPropagation();
   const dt=new Date(y,m,d);dt.setHours(0,0,0,0);
-  if(isBooked(dt,curMaison))return; // jour occupé, non sélectionnable
+  if(isBookedStatus(dt,curMaison)==='middle')return; // milieu de séjour : bloqué
   CAL[k].date=dt;
   if(k==='entree'&&CAL.sortie.date&&dt>=CAL.sortie.date)CAL.sortie.date=null;
   if(k==='sortie'&&CAL.entree.date&&dt<=CAL.entree.date)CAL.entree.date=null;
@@ -738,14 +751,24 @@ async function loadBookedDates(){
   }catch(e){console.warn('Booked dates load failed',e);}
 }
 
-function isBooked(dt,maison){
+function getMaisonsToCheck(maison){
   const m=maison.toUpperCase();
-  const checkMaison=m==='ROSALINA'?['ROSALINA','ROSA','LINA']:m==='ROSA'?['ROSALINA','ROSA']:m==='LINA'?['ROSALINA','LINA']:[];
-  return bookedRanges.some(r=>{
-    if(!checkMaison.includes(r.maison))return false;
-    return dt>=r.start&&dt<r.end;
-  });
+  return m==='ROSALINA'?['ROSALINA','ROSA','LINA']:m==='ROSA'?['ROSALINA','ROSA']:m==='LINA'?['ROSALINA','LINA']:[];
 }
+function isBookedStatus(dt,maison){
+  // Returns: 'arrival' | 'departure' | 'middle' | null
+  const check=getMaisonsToCheck(maison);
+  const dtMs=dt.getTime();
+  for(const r of bookedRanges){
+    if(!check.includes(r.maison))continue;
+    const s=r.start.getTime(), e=r.end.getTime();
+    if(dtMs===s)return'arrival';
+    if(dtMs===e)return'departure';
+    if(dtMs>s&&dtMs<e)return'middle';
+  }
+  return null;
+}
+function isBooked(dt,maison){return isBookedStatus(dt,maison)!==null;}
 loadBookedDates();
 
 </script>
