@@ -184,7 +184,26 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 [data-theme="dark"] .cal-day.busy{background:rgba(220,80,80,.25);color:#F08080;}
 .cal-day.busy:hover{opacity:.75;}
 /* Bloqué par Rosa ou Lina (pas une resa Rosalina directe) */
-.cal-day.blocked-by{background:repeating-linear-gradient(135deg,#FEEAEA 0px,#FEEAEA 4px,#FCDADA 4px,#FCDADA 8px);}
+/* Diagonal split: arrivée (red top-left triangle) */
+.cal-day.arrival{background:linear-gradient(135deg,#FEEAEA 50%,#EDF5EC 50%);color:#C0392B;font-weight:700;cursor:pointer;}
+.cal-day.arrival .cal-day-prix{color:rgba(44,90,44,.7);}
+[data-theme="dark"] .cal-day.arrival{background:linear-gradient(135deg,rgba(220,80,80,.3) 50%,rgba(90,154,90,.18) 50%);}
+/* Diagonal split: départ (green top-left, red bottom-right) */
+.cal-day.departure{background:linear-gradient(135deg,#EDF5EC 50%,#FEEAEA 50%);color:#2C5A2C;font-weight:700;cursor:pointer;}
+.cal-day.departure .cal-day-prix{color:rgba(192,57,43,.7);}
+[data-theme="dark"] .cal-day.departure{background:linear-gradient(135deg,rgba(90,154,90,.18) 50%,rgba(220,80,80,.3) 50%);}
+/* Hover highlight full group */
+.cal-day.busy:hover,.cal-day.arrival:hover,.cal-day.departure:hover{opacity:.75;}
+.cal-day[data-group]:hover,.cal-day.busy-hover{filter:brightness(.88);}
+/* Tooltip */
+.cal-tooltip{position:fixed;z-index:9999;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;box-shadow:0 8px 32px rgba(0,0,0,.25);pointer-events:none;display:none;max-width:230px;min-width:180px;}
+.cal-tooltip.visible{display:block;}
+.cal-tooltip .tt-name{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+.cal-tooltip .tt-org{font-size:.72rem;color:var(--text2);margin-bottom:8px;}
+.cal-tooltip .tt-row{display:flex;justify-content:space-between;gap:12px;font-size:.72rem;padding:3px 0;border-top:1px solid var(--border);}
+.cal-tooltip .tt-lbl{color:var(--text3);}
+.cal-tooltip .tt-val{font-weight:600;color:var(--text);}
+.cal-tooltip .tt-pill{display:inline-block;padding:1px 6px;border-radius:6px;font-size:.6rem;font-weight:700;letter-spacing:.06em;}
 .cal-day.empty{visibility:hidden;}
 .cal-btn-devis{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:var(--green);color:#fff;border:none;border-radius:var(--r2);font-family:'Jost',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;margin-top:16px;text-decoration:none;transition:background .2s;}
 .cal-btn-devis:hover{background:var(--green2);}
@@ -404,10 +423,10 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
         <thead>
           <tr>
             <th style="background:var(--green);color:#fff;padding:8px 10px;text-align:left;font-size:.62rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase">Maison</th>
-            <th style="background:var(--green);color:#fff;padding:8px 10px;font-size:.62rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(106,168,101,.5);margin-right:4px;vertical-align:middle"></span>Basse</th>
-            <th style="background:var(--green);color:#fff;padding:8px 10px;font-size:.62rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(200,149,108,.5);margin-right:4px;vertical-align:middle"></span>Haute</th>
-            <th style="background:var(--green);color:#fff;padding:8px 10px;font-size:.62rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase">Ménage</th>
-            <th style="background:var(--green);color:#fff;padding:8px 10px;font-size:.62rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase">Taxe</th>
+            <th style="background:var(--green);color:#fff;padding:8px 10px;text-align:left;font-size:.62rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(106,168,101,.5);margin-right:4px;vertical-align:middle"></span>Basse</th>
+            <th style="background:var(--green);color:#fff;padding:8px 10px;text-align:left;font-size:.62rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(200,149,108,.5);margin-right:4px;vertical-align:middle"></span>Haute</th>
+            <th style="background:var(--green);color:#fff;padding:8px 10px;text-align:left;font-size:.62rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase">Ménage</th>
+            <th style="background:var(--green);color:#fff;padding:8px 10px;text-align:left;font-size:.62rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase">Taxe</th>
           </tr>
         </thead>
         <tbody>
@@ -494,6 +513,17 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
     </div>
     <div class="devis-modal-close" onclick="closeDevisModal()">Annuler</div>
   </div>
+</div>
+
+<!-- CALENDAR TOOLTIP -->
+<div class="cal-tooltip" id="cal-tooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-org" id="tt-org" style="display:none"></div>
+  <div class="tt-row"><span class="tt-lbl">Maison</span><span class="tt-val" id="tt-maison"></span></div>
+  <div class="tt-row"><span class="tt-lbl">Dates</span><span class="tt-val" id="tt-dates"></span></div>
+  <div class="tt-row"><span class="tt-lbl">Durée</span><span class="tt-val" id="tt-duree"></span></div>
+  <div class="tt-row" id="tt-adultes-row"><span class="tt-lbl">Adultes</span><span class="tt-val" id="tt-adultes"></span></div>
+  <div class="tt-row" id="tt-enfants-row"><span class="tt-lbl">Enfants</span><span class="tt-val" id="tt-enfants"></span></div>
 </div>
 
 <div class="overlay" id="overlay" onclick="onOverlayClick(event)">
@@ -906,9 +936,11 @@ function renderCal(){
 function buildCalMonth(yr,m,clients,maison){
   const firstDay=new Date(yr,m,1);
   const lastDay=new Date(yr,m+1,0).getDate();
-  let dow=firstDay.getDay();dow=(dow===0)?6:dow-1;// Mon=0
-  // Busy map — on garde TOUS les clients qui occupent ce jour
-  const busy={};
+  let dow=firstDay.getDay();dow=(dow===0)?6:dow-1;
+  const today=new Date();today.setHours(0,0,0,0);
+
+  // Build maps: busy (middle days), arrivals, departures
+  const busy={}, arrivals={}, departures={};
   clients.forEach(c=>{
     if(!c.arrivee||!c.depart)return;
     const s=new Date(c.arrivee+'T12:00:00');
@@ -916,33 +948,69 @@ function buildCalMonth(yr,m,clients,maison){
     for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
       if(d.getMonth()===m&&d.getFullYear()===yr){
         const k=d.getDate();
-        if(!busy[k])busy[k]=[];
-        // Évite les doublons (même client)
-        if(!busy[k].find(x=>x.id===c.id))busy[k].push(c);
+        const isArrival=d.toDateString()===s.toDateString();
+        const isDeparture=d.toDateString()===e.toDateString();
+        if(isArrival){if(!arrivals[k])arrivals[k]=[];if(!arrivals[k].find(x=>x.id===c.id))arrivals[k].push(c);}
+        else if(isDeparture){if(!departures[k])departures[k]=[];if(!departures[k].find(x=>x.id===c.id))departures[k].push(c);}
+        else{if(!busy[k])busy[k]=[];if(!busy[k].find(x=>x.id===c.id))busy[k].push(c);}
       }
     }
   });
+
+  // Precompute tooltip JSON per client
+  function tooltipData(clientList){
+    const c=clientList[0];
+    const allM=clientList.map(cl=>cl.maison).filter(Boolean).join(' + ')||c.maison||'—';
+    const nuits=c.arrivee&&c.depart?Math.round((new Date(c.depart)-new Date(c.arrivee))/86400000):0;
+    return JSON.stringify({
+      name:[c.prenom,c.nom].filter(Boolean).join(' ')||'Client',
+      org:c.org||'',
+      maison:allM,
+      arrivee:c.arrivee||'',depart:c.depart||'',nuits,
+      adultes:c.adultes||'',enfants:c.enfants||''
+    });
+  }
+
+  // Build group IDs for full-stay hover highlight
+  // Map: clientId → all day numbers in this month
+  const clientDays={};
+  clients.forEach(c=>{
+    if(!c.arrivee||!c.depart)return;
+    const s=new Date(c.arrivee+'T12:00:00'),e=new Date(c.depart+'T12:00:00');
+    clientDays[c.id]=[];
+    for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
+      if(d.getMonth()===m&&d.getFullYear()===yr)clientDays[c.id].push(d.getDate());
+    }
+  });
+
   const totalCells=Math.ceil((dow+lastDay)/7)*7;
   let cells='';
   for(let i=0;i<totalCells;i++){
     const day=i-dow+1;
-    if(day<1||day>lastDay){
-      cells+='<div class="cal-day empty"></div>';
+    if(day<1||day>lastDay){cells+='<div class="cal-day empty"></div>';continue;}
+    const dt=new Date(yr,m,day);
+    const prix=maison?getPrixNuit(maison,dt):null;
+    const prixHtml=prix?'<span class="cal-day-prix">'+fmtPrixCourt(prix)+'</span>':'';
+
+    const bList=busy[day], aList=arrivals[day], dList=departures[day];
+    const anyList=bList||aList||dList;
+
+    if(anyList){
+      const primary=(bList||aList||dList)[0];
+      const ids=(anyList).map(c=>c.id).join(',');
+      const groupIds=anyList.map(c=>c.id).flatMap(id=>clientDays[id]||[]).filter((v,i,a)=>a.indexOf(v)===i).join(',');
+      const tip=tooltipData(anyList);
+      const allMaisons=anyList.map(c=>(c.maison||'').toUpperCase());
+      const hasRosa=allMaisons.some(v=>v==='ROSA'),hasLina=allMaisons.some(v=>v==='LINA'),hasRosalina=allMaisons.some(v=>v==='ROSALINA');
+      const multiBlock=(hasRosa||hasLina)&&!hasRosalina;
+      let cls='cal-day';
+      if(aList&&!bList&&!dList) cls+=' arrival';
+      else if(dList&&!bList&&!aList) cls+=' departure';
+      else cls+=' busy';
+      if(multiBlock&&!aList&&!dList) cls+=' blocked-by';
+      cells+=`<div class="${cls}" data-ids="${ids}" data-group="${groupIds}" data-tip='${tip.replace(/'/g,"&#39;")}'>${day}${prixHtml}</div>`;
     } else {
-      const dt=new Date(yr,m,day);
-      const prix=maison?getPrixNuit(maison,dt):null;
-      const prixHtml=prix?'<span class="cal-day-prix">'+fmtPrixCourt(prix)+'</span>':'';
-      if(busy[day]&&busy[day].length){
-        const names=busy[day].map(c=>[c.prenom,c.nom].filter(Boolean).join(' ')).join(' · ');
-        const allMaisons=busy[day].map(c=>(c.maison||'').toUpperCase());
-        const hasRosa=allMaisons.some(mv=>mv==='ROSA');
-        const hasLina=allMaisons.some(mv=>mv==='LINA');
-        const hasRosalina=allMaisons.some(mv=>mv==='ROSALINA');
-        const multiBlock=(hasRosa||hasLina)&&!hasRosalina;
-        cells+='<div class="cal-day busy'+(multiBlock?' blocked-by':'')+'" data-ids="'+busy[day].map(c=>c.id).join(',')+'" title="'+esc(names)+'">'+day+prixHtml+'</div>';
-      } else {
-        cells+='<div class="cal-day free">'+day+prixHtml+'</div>';
-      }
+      cells+='<div class="cal-day free">'+day+prixHtml+'</div>';
     }
   }
   const hdrs=DOW.map(d=>'<div class="cal-dow">'+d+'</div>').join('');
@@ -959,13 +1027,63 @@ function openModalByIds(ids){
   openModal(clients[0], clients);
 }
 // Event delegation pour les jours occupés du calendrier
+const calTooltip=document.getElementById('cal-tooltip');
+const MOIS_LONG_TT=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function fmtDateTT(s){if(!s)return'—';const[y,mo,d]=s.split('-');return parseInt(d)+' '+MOIS_LONG_TT[parseInt(mo)-1];}
+
+document.addEventListener('mouseover',function(e){
+  const cell=e.target.closest('.cal-day[data-tip]');
+  if(!cell)return;
+  // Tooltip
+  try{
+    const d=JSON.parse(cell.getAttribute('data-tip').replace(/&#39;/g,"'"));
+    document.getElementById('tt-name').textContent=d.name;
+    const orgEl=document.getElementById('tt-org');
+    if(d.org){orgEl.textContent=d.org;orgEl.style.display='block';}else orgEl.style.display='none';
+    document.getElementById('tt-maison').textContent=d.maison||'—';
+    document.getElementById('tt-dates').textContent=fmtDateTT(d.arrivee)+' → '+fmtDateTT(d.depart);
+    document.getElementById('tt-duree').textContent=d.nuits+' nuit'+(d.nuits>1?'s':'');
+    const aEl=document.getElementById('tt-adultes-row'),eEl=document.getElementById('tt-enfants-row');
+    if(d.adultes){document.getElementById('tt-adultes').textContent=d.adultes;aEl.style.display='flex';}else aEl.style.display='none';
+    if(d.enfants){document.getElementById('tt-enfants').textContent=d.enfants;eEl.style.display='flex';}else eEl.style.display='none';
+    calTooltip.classList.add('visible');
+  }catch(err){}
+  // Group hover highlight
+  const grp=cell.getAttribute('data-group');
+  if(grp){
+    const days=new Set(grp.split(',').map(Number));
+    cell.closest('.cal-grid')?.querySelectorAll('.cal-day[data-group]').forEach(c=>{
+      const cDays=new Set((c.getAttribute('data-group')||'').split(',').map(Number));
+      const overlap=[...days].some(d=>cDays.has(d));
+      if(overlap)c.classList.add('busy-hover');
+    });
+  }
+});
+
+document.addEventListener('mousemove',function(e){
+  if(calTooltip.classList.contains('visible')){
+    const vw=window.innerWidth,vh=window.innerHeight;
+    const tw=calTooltip.offsetWidth||230,th=calTooltip.offsetHeight||120;
+    let x=e.clientX+14,y=e.clientY+14;
+    if(x+tw>vw-8)x=e.clientX-tw-10;
+    if(y+th>vh-8)y=e.clientY-th-10;
+    calTooltip.style.left=x+'px';calTooltip.style.top=y+'px';
+  }
+});
+
+document.addEventListener('mouseout',function(e){
+  const cell=e.target.closest('.cal-day[data-tip]');
+  if(!cell)return;
+  calTooltip.classList.remove('visible');
+  cell.closest('.cal-grid')?.querySelectorAll('.cal-day.busy-hover').forEach(c=>c.classList.remove('busy-hover'));
+});
+
 document.addEventListener('click',function(e){
-  const cell=e.target.closest('.cal-day.busy');
+  const cell=e.target.closest('.cal-day[data-ids]');
   if(!cell)return;
   const raw=cell.getAttribute('data-ids');
   if(!raw)return;
-  const ids=raw.split(',').filter(Boolean);
-  openModalByIds(ids);
+  openModalByIds(raw.split(',').filter(Boolean));
 });
 function openModal(c, allC){
   allC=allC||[c];
@@ -1217,12 +1335,14 @@ function renderStats(){
   document.getElementById('duration-stats').innerHTML=
     Object.entries(durMap).map(([k,v])=>'<div class="duration-row"><span class="duration-lbl">'+k+'</span><span class="duration-val">'+v+' s\u00e9jour'+(v>1?'s':'')+'</span></div>').join('');
 
-  // Revenue by year
-  const allYears=[...new Set(allClients.map(c=>c.arrivee?.slice(0,4)).filter(Boolean))].sort().reverse();
-  const maxRev=Math.max(...allYears.map(y=>allClients.filter(c=>c.arrivee?.startsWith(y)).reduce((s,c)=>s+(Number(c.prix)||0),0)),1);
+  // Revenue by year — séjours PASSÉS uniquement (réaliste)
+  const todayRev=new Date(); todayRev.setHours(0,0,0,0);
+  const pastClients=allClients.filter(c=>c.depart&&new Date(c.depart+'T00:00:00')<todayRev);
+  const allYears=[...new Set(pastClients.map(c=>c.arrivee?.slice(0,4)).filter(Boolean))].sort().reverse();
+  const maxRev=Math.max(...allYears.map(y=>pastClients.filter(c=>c.arrivee?.startsWith(y)).reduce((s,c)=>s+(Number(c.prix)||0),0)),1);
   document.getElementById('revenue-by-year').innerHTML=allYears.map(y=>{
-    const rev=allClients.filter(c=>c.arrivee?.startsWith(y)).reduce((s,c)=>s+(Number(c.prix)||0),0);
-    const cnt=allClients.filter(c=>c.arrivee?.startsWith(y)).length;
+    const rev=pastClients.filter(c=>c.arrivee?.startsWith(y)).reduce((s,c)=>s+(Number(c.prix)||0),0);
+    const cnt=pastClients.filter(c=>c.arrivee?.startsWith(y)).length;
     const pct=Math.round(rev/maxRev*100);
     return '<div class="revenue-year-row">'+
       '<span style="font-weight:700;min-width:40px">'+y+'</span>'+
@@ -1230,7 +1350,7 @@ function renderStats(){
       '<span style="font-weight:700;min-width:90px;text-align:right">'+fmtPrix(rev)+'</span>'+
       '<span style="color:var(--text3);font-size:.72rem;min-width:60px;text-align:right">'+cnt+' s\u00e9j.</span>'+
     '</div>';
-  }).join('');
+  }).join('') || '<p style="font-size:.8rem;color:var(--text3);padding:8px 0">Aucun séjour passé</p>';
 }
 
 function renderTaxeTable(allC){
