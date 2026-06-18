@@ -387,7 +387,6 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       <button class="cal-nav-btn" onclick="navCal(1)">&#8250;</button>
     </div>
     <div class="cal-maisons-grid" id="cal-content"></div>
-    <a class="cal-btn-devis" href="#" onclick="openDevisModal();return false;">+ Cr&#233;er un devis</a>
   </div>
 
   <!-- STATS VIEW -->
@@ -832,24 +831,29 @@ function renderCal(){
   const labels={rosalina:'ROSALINA',rosa:'ROSA',lina:'LINA'};
   let html='';
   maisons.forEach(m=>{
-    // ROSALINA = ses propres réservations + celles de ROSA et LINA (Rosa+Lina bloquent Rosalina)
     let clients;
     if(m==='rosalina'){
-      clients=allClients.filter(c=>{
-        const mv=(c.maison||'').toUpperCase();
-        return mv==='ROSALINA'||mv==='ROSA'||mv==='LINA';
-      });
+      clients=allClients.filter(c=>{const mv=(c.maison||'').toUpperCase();return mv==='ROSALINA'||mv==='ROSA'||mv==='LINA';});
     } else {
       clients=allClients.filter(c=>(c.maison||'').toUpperCase()===m.toUpperCase());
     }
+    // Prix du 1er du mois
+    const firstDay=new Date(calYear,calMonth,1);
+    const saison=getSaison(firstDay);
+    const prix=getPrixNuit(m,firstDay);
+    const saisonLabel=saison==='haute'?'Haute saison':'Basse saison';
     html+='<div class="cal-maison-card">'+
       '<div class="cal-maison-name '+m+'">'+labels[m]+'</div>'+
-      buildCalMonth(calYear,calMonth,clients)+
+      '<div style="font-size:.65rem;color:var(--text3);margin-bottom:6px;display:flex;align-items:center;gap:6px">'+
+        '<span style="font-weight:600;color:var(--text2)">'+fmtPrixCourt(prix)+' / nuit</span>'+
+        '<span style="padding:1px 6px;border-radius:8px;background:'+(saison==='haute'?'rgba(200,149,108,.15)':'rgba(90,154,90,.12)')+';color:'+(saison==='haute'?'var(--rose)':'var(--green)')+';font-size:.58rem;letter-spacing:.06em;text-transform:uppercase">'+saisonLabel+'</span>'+
+      '</div>'+
+      buildCalMonth(calYear,calMonth,clients,m)+
     '</div>';
   });
   document.getElementById('cal-content').innerHTML=html;
 }
-function buildCalMonth(yr,m,clients){
+function buildCalMonth(yr,m,clients,maison){
   const firstDay=new Date(yr,m,1);
   const lastDay=new Date(yr,m+1,0).getDate();
   let dow=firstDay.getDay();dow=(dow===0)?6:dow-1;// Mon=0
@@ -1179,48 +1183,48 @@ function renderStats(){
   }).join('');
 }
 
-let taxeYear='all';
+// ══ SAISONNALITÉ ══
+const TARIFS={ROSALINA:{basse:1100,haute:1200},ROSA:{basse:900,haute:1000},LINA:{basse:400,haute:500}};
+function getSaison(date){const m=date.getMonth()+1,d=date.getDate();if(m>=4&&m<=8)return'haute';if(m===12&&d>=22)return'haute';if(m===1&&d<=4)return'haute';return'basse';}
+function getPrixNuit(maison,date){const s=getSaison(date);return(TARIFS[maison?.toUpperCase()]||TARIFS.ROSALINA)[s];}
+function fmtPrixCourt(n){return Number(n).toLocaleString('fr-FR')+'\u00a0\u20ac';}
+function fmtDateCourt(s){
+  if(!s)return'\u2014';
+  const[y,m,d]=s.split('-');
+  return d+'.'+m+'.'+y.slice(2);
+}
 function renderTaxeTable(allC){
-  // Clients qui ont une taxe
   const withTaxe=allC.filter(c=>c.taxe>0);
-  // All years
   const years=[...new Set(withTaxe.map(c=>c.arrivee?.slice(0,4)).filter(Boolean))].sort();
-  // Year pills
   const pillsEl=document.getElementById('taxe-year-pills');
   if(!pillsEl)return;
-  const allYears=['all',...years];
-  pillsEl.innerHTML=allYears.map(y=>
-    '<button class="year-pill'+(y===taxeYear?' active':'')+'" onclick="setTaxeYear(\''+y+'\',this)">'+
+  pillsEl.innerHTML=['all',...years].map(y=>
+    '<button class="year-pill'+(y===taxeYear?' active':'')+'" onclick="setTaxeYear(\''+y+'\')">'+
     (y==='all'?'Tout':y)+'</button>'
   ).join('');
-  // Filter
   const filtered=taxeYear==='all'?withTaxe:withTaxe.filter(c=>c.arrivee?.startsWith(taxeYear));
   const total=filtered.reduce((s,c)=>s+(Number(c.taxe)||0),0);
   const wrap=document.getElementById('taxe-table-wrap');
   if(!wrap)return;
-  if(!filtered.length){wrap.innerHTML='<p style="text-align:center;color:var(--text3);font-size:.8rem;padding:18px 0">Aucune taxe de séjour renseignée</p>';return;}
-  const rows=filtered.sort((a,b)=>(a.arrivee||'').localeCompare(b.arrivee||'')).map(c=>
-    '<tr>'+
-    '<td>'+esc(c.arrivee?fmtLong(c.arrivee):'\u2014')+'</td>'+
-    '<td>'+esc([c.prenom,c.nom].filter(Boolean).join(' ')||'\u2014')+'</td>'+
-    '<td>'+esc(c.maison||'\u2014')+'</td>'+
-    '<td>'+fmtPrix(c.taxe)+'</td>'+
-    '</tr>'
-  ).join('');
-  wrap.innerHTML=
-    '<table class="taxe-table">'+
-    '<thead><tr><th>Arriv\u00e9e</th><th>Client</th><th>Maison</th><th>Taxe</th></tr></thead>'+
-    '<tbody>'+rows+
-    '<tr class="taxe-total-row"><td colspan="3">Total '+(taxeYear==='all'?'':taxeYear)+'</td><td>'+fmtPrix(total)+'</td></tr>'+
-    '</tbody></table>';
+  if(!filtered.length){wrap.innerHTML='<p style="text-align:center;color:var(--text3);font-size:.75rem;padding:14px 0">Aucune taxe renseignée</p>';return;}
+  const sorted=filtered.slice().sort((a,b)=>(a.arrivee||'').localeCompare(b.arrivee||''));
+  wrap.innerHTML=sorted.map(c=>
+    '<div class="source-bar" style="cursor:pointer;border-radius:6px;padding:5px 4px" onclick="openModalById(\''+esc(c.id)+'\')">'+
+      '<div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">'+
+        '<span style="font-size:.7rem;color:var(--text3);white-space:nowrap;flex-shrink:0">'+fmtDateCourt(c.arrivee)+'</span>'+
+        '<span style="font-size:.78rem;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(c.prenom||'\u2014')+'</span>'+
+      '</div>'+
+      '<span style="font-size:.78rem;font-weight:600;color:var(--text);flex-shrink:0;margin-left:8px">'+fmtPrix(c.taxe)+'</span>'+
+    '</div>'
+  ).join('')+
+  '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1.5px solid var(--border)">'+
+    '<span style="font-size:.7rem;font-weight:600;color:var(--text2);letter-spacing:.06em;text-transform:uppercase">Total '+(taxeYear==='all'?'':taxeYear)+'</span>'+
+    '<span style="font-size:.85rem;font-weight:700;color:var(--rose)">'+fmtPrix(total)+'</span>'+
+  '</div>';
 }
 function setTaxeYear(y){
   taxeYear=y;
-  // Rebuild with current clients
-  renderTaxeTable(allClients.filter(c=>{
-    if(statsTab==='global')return true;
-    return c.arrivee?.startsWith(statsTab);
-  }));
+  renderTaxeTable(allClients.filter(c=>statsTab==='global'?true:c.arrivee?.startsWith(statsTab)));
 }
 
 function renderMonthChart(clients){

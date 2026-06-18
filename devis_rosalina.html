@@ -46,6 +46,7 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 .date-input-btn .clear-btn:hover{color:#C8956C}
 .cal-popup{position:absolute;top:calc(100% + 8px);left:0;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.18);padding:20px;width:300px;display:none}
 .cal-popup.open{display:block}
+#cal-sortie{left:auto;right:0}
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .cal-nav{background:none;border:none;cursor:pointer;padding:6px 12px;border-radius:8px;font-size:1.2rem;color:#555;transition:background .15s;line-height:1;font-weight:300}
 .cal-nav:hover{background:#F5EFE8;color:#2C3D2C}
@@ -118,6 +119,14 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
   .section-card{padding:22px 18px}
   .reduc-sep{display:none}
   .reduc-wrap{gap:10px}
+  /* Pas de zoom iOS au focus (police >=16px) */
+  .field input,.field select,.finance-table .ft-input input,.reduc-wrap input,.date-input-btn,#notion-token-input{font-size:16px}
+  /* "Offert (0 €)" et "Caution remboursable" sur une seule ligne */
+  .offert-row span{white-space:nowrap}
+  .row-caution .ft-label{white-space:nowrap}
+  .finance-table td{padding:11px 8px}
+  .finance-table .ft-input input{width:84px}
+  .finance-table .ft-label{font-size:.83rem}
 }
 </style>
 </head>
@@ -159,13 +168,13 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
     <div class="section-title">1. Maison &amp; Dates</div>
     <div class="maison-selector">
       <div class="maison-btn active" id="btn-rosa-lina" onclick="selectMaison('rosa-lina')">
-        <div class="mb-name">Rosa + Lina</div><div class="mb-cap">Jusqu'à 38 personnes</div>
+        <div class="mb-name">ROSALINA</div><div class="mb-cap">Jusqu'à 38 personnes</div>
       </div>
       <div class="maison-btn" id="btn-rosa" onclick="selectMaison('rosa')">
-        <div class="mb-name">Rosa</div><div class="mb-cap">Jusqu'à 24 personnes</div>
+        <div class="mb-name">ROSA</div><div class="mb-cap">Jusqu'à 24 personnes</div>
       </div>
       <div class="maison-btn" id="btn-lina" onclick="selectMaison('lina')">
-        <div class="mb-name">Lina</div><div class="mb-cap">Jusqu'à 14 personnes</div>
+        <div class="mb-name">LINA</div><div class="mb-cap">Jusqu'à 14 personnes</div>
       </div>
     </div>
     <div class="field-grid" style="margin-bottom:16px">
@@ -200,12 +209,7 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
       <div class="field"><label>Adultes</label><select id="nb-adultes" onchange="calcAll()"><option value="">— —</option></select></div>
       <div class="field">
         <label>Enfants</label>
-        <select id="nb-enfants" onchange="calcAll()">
-          <option value="0">0</option><option value="1">1</option><option value="2">2</option>
-          <option value="3">3</option><option value="4">4</option><option value="5">5</option>
-          <option value="6">6</option><option value="7">7</option><option value="8">8</option>
-          <option value="9">9</option><option value="10">10</option>
-        </select>
+        <select id="nb-enfants" onchange="calcAll()"></select>
       </div>
     </div>
   </div>
@@ -251,7 +255,7 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
     <table class="finance-table">
       <tr>
         <td class="ft-label"><strong>Prix du séjour</strong></td>
-        <td class="ft-input"><input type="number" id="prix-sejour" min="0" placeholder="0" oninput="calcAll()"><span class="euro">€</span></td>
+        <td class="ft-input"><input type="number" id="prix-sejour" min="0" placeholder="0" oninput="this.dataset.manual='1';calcAll()"><span class="euro">€</span></td>
       </tr>
       <tr>
         <td class="ft-label">
@@ -316,11 +320,26 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 </div>
 
 <script>
+// ══ SAISONNALITÉ ══
+const TARIFS_SAISON={'rosa-lina':{basse:1100,haute:1200},'rosa':{basse:900,haute:1000},'lina':{basse:400,haute:500}};
+function getSaison(date){const m=date.getMonth()+1,d=date.getDate();if(m>=4&&m<=8)return'haute';if(m===12&&d>=22)return'haute';if(m===1&&d<=4)return'haute';return'basse';}
+function getPrixNuitS(maison,date){const s=getSaison(date);return(TARIFS_SAISON[maison]||TARIFS_SAISON['rosa-lina'])[s];}
+function autoFillPrix(){
+  const dE=CAL.entree.date,dS=CAL.sortie.date;
+  const input=document.getElementById('prix-sejour');
+  if(!dE||!dS||dS<=dE)return;
+  if(input.dataset.manual)return; // ne pas écraser si modifié manuellement
+  const nuits=Math.round((dS-dE)/86400000);
+  let base=0;
+  for(let i=0;i<nuits;i++){const d=new Date(dE);d.setDate(d.getDate()+i);base+=getPrixNuitS(currentMaison,d);}
+  input.value=base;
+}
+
 // ══ CONFIG ══
 const MAISONS = {
-  'rosa-lina':{ label:'Rosa + Lina', detail:'45 voyageurs, 15 chambres, 12 salles d\'eau', maxA:45, caution:1500, menage:300 },
-  'rosa':     { label:'Maison Rosa', detail:'30 voyageurs, 10 chambres, 7 salles d\'eau',  maxA:30, caution:1000, menage:250 },
-  'lina':     { label:'Maison Lina', detail:'15 voyageurs, 5 chambres, 4 salles d\'eau',   maxA:15, caution:600,  menage:150 },
+  'rosa-lina':{ label:'ROSALINA', detail:'45 voyageurs, 15 chambres, 12 salles d\'eau', maxA:45, caution:1500, menage:300, notion:'ROSALINA' },
+  'rosa':     { label:'ROSA', detail:'30 voyageurs, 10 chambres, 7 salles d\'eau',  maxA:30, caution:1000, menage:250, notion:'ROSA' },
+  'lina':     { label:'LINA', detail:'15 voyageurs, 5 chambres, 4 salles d\'eau',   maxA:15, caution:600,  menage:150, notion:'LINA' },
 };
 const TAXE_RATE = 1.65;
 const MOIS_FR   = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
@@ -469,6 +488,7 @@ function pickDay(w,y,m,d){
     closeAllCals();
   }
   calcAll();
+  autoFillPrix();
 }
 
 function updateDisplay(w){
@@ -518,12 +538,24 @@ function selectMaison(m){
 
 function updateAdultesOptions(){
   const sel=document.getElementById('nb-adultes');
-  const max=MAISONS[currentMaison].maxA;
+  const max=38;
   const cur=parseInt(sel.value)||0;
   sel.innerHTML='<option value="">— —</option>';
   for(let i=1;i<=max;i++){
     const o=document.createElement('option');
     o.value=i; o.textContent=i+' adulte'+(i>1?'s':'');
+    if(i===cur) o.selected=true;
+    sel.appendChild(o);
+  }
+}
+
+function buildEnfantsOptions(){
+  const sel=document.getElementById('nb-enfants');
+  const cur=parseInt(sel.value)||0;
+  sel.innerHTML='';
+  for(let i=0;i<=30;i++){
+    const o=document.createElement('option');
+    o.value=i; o.textContent=i;
     if(i===cur) o.selected=true;
     sel.appendChild(o);
   }
@@ -916,7 +948,7 @@ function getNotionToken() {
 // ══ NOTION INTEGRATION ══
 const NOTION_TOKEN = document.getElementById('notion-token-input')?.value?.trim() || localStorage.getItem('notion_token') || '';
 const NOTION_DB_ID = '249a8c29d0568122a40ccf7180e98935';
-const NOTION_PROXY = 'https://notion-proxy.vercel.app/api/notion'; // proxy CORS
+const WORKER = 'https://notion-proxy.sowonboxx.workers.dev'; // ton Worker Cloudflare (même que le dashboard)
 
 async function saveToNotion() {
   const NOTION_TOKEN = getNotionToken();
@@ -964,13 +996,12 @@ async function saveToNotion() {
   const payload = {
     parent: { database_id: NOTION_DB_ID },
     properties: {
-      // Nom (title)
-      'Nom': {
-        title: [{ text: { content: nomComplet } }]
-      },
-      // Maison (select)
+      // Prénom = propriété TITRE de la base ; Nom = rich_text
+      'Prénom': { title: [{ text: { content: prenom || nomComplet } }] },
+      ...(nom ? { 'Nom': { rich_text: [{ text: { content: nom } }] } } : {}),
+      // Maison (select) — nom exact de l'option Notion
       'Maison': {
-        select: { name: m.label }
+        select: { name: m.notion }
       },
       // Arrivée (date)
       ...(dE ? { 'Arrivée': { date: { start: isoDate(dE) } } } : {}),
@@ -982,10 +1013,8 @@ async function saveToNotion() {
       'Nbr de nuits': { number: nuits },
       // Organisme
       ...(asso ? { 'Organisme': { rich_text: [{ text: { content: asso } }] } } : {}),
-      // Adresse
-      ...(adresse ? { 'Adresse': { rich_text: [{ text: { content: adresse } }] } } : {}),
-      // Place (CP + ville)
-      ...((cp||ville) ? { 'Place': { rich_text: [{ text: { content: [cp, ville].filter(Boolean).join(' ') } }] } } : {}),
+      // Adresse complète (rue + CP + ville) — "Place" est un champ location non écrivable par l'API, on l'évite
+      ...((adresse||cp||ville) ? { 'Adresse': { rich_text: [{ text: { content: [adresse, [cp,ville].filter(Boolean).join(' ')].filter(Boolean).join(' - ') } }] } } : {}),
       // Email
       ...(email ? { 'Email': { email: email } } : {}),
       // Tel
@@ -998,59 +1027,36 @@ async function saveToNotion() {
       ...(source ? { 'Source': { multi_select: [{ name: source }] } } : {}),
       // Prix
       'Prix': { number: total },
-      // Statut par défaut
-      'Statut': { select: { name: 'Devis envoyé' } },
+      // Statut par défaut (multi_select)
+      'Statut': { multi_select: [{ name: 'Devis envoyé' }] },
     }
   };
 
-  // Envoyer à Notion via proxy CORS
+  // Envoyer via ton Worker Cloudflare (racine = création de fiche, format {token, payload})
   btn.disabled = true;
-  showStatus('loading', '⏳ Sauvegarde dans Notion en cours…');
+  showStatus('loading', '⏳ Ajout dans Notion en cours…');
 
   try {
-    // Essai 1 : allorigins
-    let res = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent('https://api.notion.com/v1/pages')}`, {
+    const res = await fetch(WORKER, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${NOTION_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': '2022-06-28',
-      },
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: NOTION_TOKEN, payload: payload })
     });
-
-    // Essai 2 si le premier échoue : corsproxy.io
-    if (!res.ok && res.status === 0) {
-      res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://api.notion.com/v1/pages')}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${NOTION_TOKEN}`,
-          'Content-Type': 'application/json',
-          'Notion-Version': '2022-06-28',
-        },
-        body: JSON.stringify(payload)
-      });
-    }
 
     const data = await res.json();
 
-    if (res.ok) {
+    if (res.ok && data.id) {
       showStatus('success', `✅ Ajouté dans Notion ! Fiche créée pour ${nomComplet}.`);
       const gen = document.getElementById('btn-generate');
       gen.disabled = false;
       document.getElementById('generate-note').textContent = 'Réservation ajoutée ✓ — vous pouvez générer le PDF';
     } else {
       console.error('Notion error:', data);
-      // Si le DB_ID n'est pas rempli
-      if (NOTION_DB_ID === 'COLLE_TON_ID_DE_BASE_ICI') {
-        showStatus('error', '⚠️ ID de base Notion manquant — remplace COLLE_TON_ID_DE_BASE_ICI dans le code avec ton ID de base.');
-      } else {
-        showStatus('error', `❌ Erreur Notion : ${data.message || 'Vérifie que la base est connectée à l\'intégration.'}`);
-      }
+      showStatus('error', `❌ Erreur Notion : ${(data && data.message) || 'Vérifie que la base est connectée à ton intégration Notion.'}`);
     }
   } catch(e) {
     console.error(e);
-    showStatus('error', '❌ Erreur réseau — vérifie ta connexion internet.');
+    showStatus('error', '❌ Erreur réseau — impossible de joindre le Worker Cloudflare.');
   } finally {
     btn.disabled = false;
   }
@@ -1075,6 +1081,7 @@ function isoDate(d) {
 // ══ INIT ══
 initCalViews();
 updateAdultesOptions();
+buildEnfantsOptions();
 document.getElementById('caution').value=MAISONS['rosa-lina'].caution;
 document.getElementById('menage').value=MAISONS['rosa-lina'].menage;
 calcAll();

@@ -144,14 +144,17 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
       <div class="maison-btn active" id="mbtn-rosalina" onclick="selectMaison('ROSALINA')">
         <div class="mb-name">ROSALINA</div>
         <div class="mb-cap">Jusqu'à 38 personnes</div>
+        <div class="mb-cap" id="prix-rosalina" style="color:#C8956C;font-weight:600;margin-top:3px"></div>
       </div>
       <div class="maison-btn" id="mbtn-rosa" onclick="selectMaison('ROSA')">
         <div class="mb-name">ROSA</div>
         <div class="mb-cap">Jusqu'à 24 personnes</div>
+        <div class="mb-cap" id="prix-rosa" style="color:#C8956C;font-weight:600;margin-top:3px"></div>
       </div>
       <div class="maison-btn" id="mbtn-lina" onclick="selectMaison('LINA')">
         <div class="mb-name">LINA</div>
         <div class="mb-cap">Jusqu'à 14 personnes</div>
+        <div class="mb-cap" id="prix-lina" style="color:#C8956C;font-weight:600;margin-top:3px"></div>
       </div>
     </div>
 
@@ -208,9 +211,9 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
     <table class="grille-table" id="grille-table">
       <thead><tr><th>Maison</th><th>Prix / nuit</th><th>Ménage</th><th>Taxe / adulte / nuit</th></tr></thead>
       <tbody>
-        <tr><td>ROSALINA</td><td class="v">1 300 €</td><td class="v">300 €</td><td class="v">1,65 €</td></tr>
-        <tr><td>ROSA</td><td class="v">1 000 €</td><td class="v">250 €</td><td class="v">1,65 €</td></tr>
-        <tr><td>LINA</td><td class="v">500 €</td><td class="v">150 €</td><td class="v">1,65 €</td></tr>
+        <tr><td>ROSALINA</td><td class="v">1 100 – 1 200 €</td><td class="v">300 €</td><td class="v">1,65 €</td></tr>
+        <tr><td>ROSA</td><td class="v">900 – 1 000 €</td><td class="v">250 €</td><td class="v">1,65 €</td></tr>
+        <tr><td>LINA</td><td class="v">400 – 500 €</td><td class="v">150 €</td><td class="v">1,65 €</td></tr>
       </tbody>
     </table>
     <p style="font-size:.62rem;color:#bbb;text-align:center;margin-top:8px">Tarifs 2026–2027 · Même prix toute l'année · Taxe de séjour adultes uniquement</p>
@@ -291,9 +294,14 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 </div>
 
 <script>
+// ══ SAISONNALITÉ ══
+const TARIFS_S={ROSALINA:{basse:1100,haute:1200},ROSA:{basse:900,haute:1000},LINA:{basse:400,haute:500}};
+function getSaison(date){const m=date.getMonth()+1,d=date.getDate();if(m>=4&&m<=8)return'haute';if(m===12&&d>=22)return'haute';if(m===1&&d<=4)return'haute';return'basse';}
+function getPrixNuit(maison,date){const s=getSaison(date);return(TARIFS_S[maison?.toUpperCase()]||TARIFS_S.ROSALINA)[s];}
+
 // ══ CONFIG ══
 const MAISONS = {
-  ROSALINA:{ prix:1300, menage:300, taxe:1.65, max:38,
+  ROSALINA:{ menage:300, taxe:1.65, max:38,
     lien:'https://domainerosalina.com/maison-rosalina',
     body:`Informations pratiques :
 • Draps et serviettes fournis et inclus dans le prix
@@ -307,7 +315,7 @@ Pour plus d'informations, n'hésitez pas à nous contacter par email : domainero
 
 Bien cordialement,
 Aline et Eugène` },
-  ROSA:    { prix:1000, menage:250, taxe:1.65, max:24,
+  ROSA:    { menage:250, taxe:1.65, max:24,
     lien:'https://domainerosalina.com/maison-rosa',
     body:`Informations pratiques :
 • Draps et serviettes fournis et inclus dans le prix
@@ -321,7 +329,7 @@ Pour plus d'informations, n'hésitez pas à nous contacter par email : domainero
 
 Bien cordialement,
 Aline et Eugène` },
-  LINA:    { prix:500,  menage:150, taxe:1.65, max:14,
+  LINA:    { menage:150, taxe:1.65, max:14,
     lien:'https://domainerosalina.com/maison-lina',
     body:`Informations pratiques :
 • Draps et serviettes fournis et inclus dans le prix
@@ -445,10 +453,28 @@ function selectMaison(m){
 // ── CALC ──
 function fmt(n){return Number(n).toLocaleString('fr-FR',{minimumFractionDigits:Number.isInteger(n)?0:2,maximumFractionDigits:2})+' €';}
 
+function updateCardPrices(){
+  ['ROSALINA','ROSA','LINA'].forEach(m=>{
+    const el=document.getElementById('prix-'+m.toLowerCase());
+    if(!el)return;
+    const dE=CAL.entree.date;
+    if(dE){
+      const p=getPrixNuit(m,dE);
+      const s=getSaison(dE);
+      el.textContent=p.toLocaleString('fr-FR')+' € / nuit · '+(s==='haute'?'Haute':'Basse')+' saison';
+    } else {
+      const t=TARIFS_S[m];
+      el.textContent=t.basse.toLocaleString('fr-FR')+' – '+t.haute.toLocaleString('fr-FR')+' € / nuit';
+    }
+  });
+}
+
 function calc(){
   const dE=CAL.entree.date;const dS=CAL.sortie.date;
   const m=MAISONS[curMaison];
   const nA=parseInt(document.getElementById('nb-adultes').value)||0;
+
+  updateCardPrices();
 
   if(!dE||!dS||dS<=dE){
     nuits=0;totalTTC=0;
@@ -464,13 +490,18 @@ function calc(){
   document.getElementById('nb-jours').value=jours;
   document.getElementById('nb-nuits').value=nuits;
 
-  const base=m.prix*nuits;
+  // Calcul nuit par nuit (saisonnalité)
+  let base=0;
+  for(let i=0;i<nuits;i++){
+    const d=new Date(dE);d.setDate(d.getDate()+i);
+    base+=getPrixNuit(curMaison,d);
+  }
   const taxe=Math.round(m.taxe*nA*nuits*100)/100;
   const menage=m.menage;
   totalTTC=base+taxe+menage;
   const acompte=Math.round(totalTTC/2*100)/100;
 
-  document.getElementById('lbl-base').textContent=`Location (${nuits} nuit${nuits>1?'s':''} × ${fmt(m.prix)})`;
+  document.getElementById('lbl-base').textContent=`Location (${nuits} nuit${nuits>1?'s':''})`;
   document.getElementById('val-base').textContent=fmt(base);
   document.getElementById('val-taxe').textContent=nA>0?fmt(taxe):'—';
   document.getElementById('val-menage').textContent=fmt(menage);
@@ -578,6 +609,7 @@ function resetForm(){
 
 // ── INIT ──
 buildSelects();
+updateCardPrices();
 </script>
 </body>
 </html>
