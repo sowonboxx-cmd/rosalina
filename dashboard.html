@@ -525,9 +525,10 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       <div class="remind-label">Email à envoyer</div>
       <textarea class="remind-textarea" id="remind-body-text"></textarea>
       <div class="remind-actions">
-        <button class="remind-btn-send" onclick="sendRemind()">Ouvrir dans Gmail</button>
+        <button class="remind-btn-send" onclick="sendRemind('gmail')">Ouvrir dans Gmail</button>
         <button class="remind-btn-cancel" onclick="closeRemind()">Annuler</button>
       </div>
+      <button style="width:100%;margin-top:8px;padding:11px;background:transparent;border:1.5px solid var(--border);border-radius:10px;font-family:'Jost',sans-serif;font-size:.82rem;color:var(--text2);cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='var(--text2)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'" onclick="sendRemind('mailto')">Ouvrir dans le client email</button>
     </div>
   </div>
 </div>
@@ -1261,12 +1262,18 @@ Aline et Eugène`;
   document.getElementById('remind-overlay').classList.add('open');
 }
 function closeRemind(){document.getElementById('remind-overlay').classList.remove('open');}
-function sendRemind(){
+function sendRemind(mode){
   const c=remindClient;if(!c)return;
   const email=c.email||'';
   const subj=encodeURIComponent(remindType==='solde'?'Domaine Rosalina — Rappel solde de votre séjour':'Domaine Rosalina — Rappel caution de votre séjour');
   const body=encodeURIComponent(document.getElementById('remind-body-text').value);
-  window.open(`https://mail.google.com/mail/u/domainerosalina@gmail.com/?view=cm&to=${encodeURIComponent(email)}&su=${subj}&body=${body}`,'_blank');
+  if(mode==='mailto'){
+    const a=document.createElement('a');
+    a.href=`mailto:${email}?subject=${subj}&body=${body}`;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+  } else {
+    window.open(`https://mail.google.com/mail/u/domainerosalina@gmail.com/?view=cm&to=${encodeURIComponent(email)}&su=${subj}&body=${body}`,'_blank');
+  }
   closeRemind();
 }
 function fmtLong(s){if(!s)return'';const[y,m,d]=s.split('-');const mo=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];return parseInt(d)+' '+mo[parseInt(m)-1]+' '+y;}
