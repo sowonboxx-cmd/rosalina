@@ -37,7 +37,10 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
 [data-theme="dark"] .cal-month-label{color:var(--text)}
 [data-theme="dark"] .cal-day{color:var(--text2)}
 [data-theme="dark"] .finance-table td{border-bottom-color:var(--border)}
-[data-theme="dark"] .row-auto td{background:rgba(90,154,90,.18)}
+[data-theme="dark"] .field input[readonly]{background:#1E2A35;color:#8AABCC;font-weight:600}
+[data-theme="dark"] .row-auto td{background:#1E2A35}
+[data-theme="dark"] .row-auto .ft-label{color:#8AABCC}
+[data-theme="dark"] .row-caution td{background:#1E2A35;color:#8AABCC}
 [data-theme="dark"] .preview-wrap{border-color:var(--border)}
 [data-theme="dark"] .preview-header{background:var(--bg2);border-color:var(--border)}
 [data-theme="dark"] .preview-body{background:#222A22;color:var(--text)}
@@ -117,7 +120,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
 .row-auto .ft-label{color:#2C5A2C;font-size:.83rem}
 .row-total td{font-weight:700;font-size:1rem;color:#2C3D2C;border-top:2px solid #2C3D2C!important;border-bottom:2px solid #2C3D2C;padding:14px 16px}
 .row-total .ft-value{color:#C8956C;font-size:1.1rem}
-.row-caution td{background:#F9F7F4;color:#666;font-size:.83rem}
+.row-caution td{background:#C1CCD8;color:#2C3D2C;font-size:.83rem}
 
 /* ── EMAIL PREVIEW ── */
 .preview-wrap{border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-top:6px}
@@ -158,6 +161,25 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
   .field-grid.four,.field-grid.three{grid-template-columns:1fr 1fr}
   .field input,.field select,.date-input-btn{font-size:16px}
 }
+
+/* ── DARK MODE LABELS (all text elements) ── */
+[data-theme="dark"] .field label{color:#C1CCD8}
+[data-theme="dark"] .field .hint{color:#8AABCC}
+[data-theme="dark"] .finance-table .ft-label{color:#C1CCD8}
+[data-theme="dark"] .finance-table .ft-value{color:#EEE8DF}
+[data-theme="dark"] .row-auto .ft-label{color:#8AABCC}
+[data-theme="dark"] .row-total .ft-label{color:#EEE8DF}
+[data-theme="dark"] .maison-btn .mb-name{color:#EEE8DF}
+[data-theme="dark"] .maison-btn .mb-cap{color:#8AABCC}
+[data-theme="dark"] .cal-month-label{color:#EEE8DF}
+[data-theme="dark"] .cal-dow{color:#8AABCC}
+[data-theme="dark"] .preview-header{color:#8AABCC}
+[data-theme="dark"] .preview-header span{color:#C1CCD8}
+[data-theme="dark"] .grille-toggle{color:#C8956C}
+[data-theme="dark"] .reduc-sep{color:#8AABCC}
+[data-theme="dark"] .euro{color:#8AABCC}
+[data-theme="dark"] .lbl{color:#C1CCD8}
+[data-theme="dark"] #prev-to,[data-theme="dark"] #prev-subject{color:#8AABCC}
 </style>
 </head>
 <body>
@@ -312,8 +334,8 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
       <label>Aperçu de l'email</label>
       <div class="preview-wrap">
         <div class="preview-header">
-          <span>À :</span> <span id="prev-to" style="color:#888">—</span>
-          &nbsp;|&nbsp; <span>Objet :</span> <span id="prev-subject" style="color:#888">—</span>
+          <span>À :</span> <span id="prev-to">—</span>
+          &nbsp;|&nbsp; <span>Objet :</span> <span id="prev-subject">—</span>
           <span style="margin-left:auto;color:#C8956C;font-size:.65rem;letter-spacing:.06em;cursor:pointer" onclick="regenerateBody()" title="Regénérer le texte automatique">✎ modifiable · <u>regénérer</u></span>
         </div>
         <textarea class="preview-body" id="preview-body" placeholder="Sélectionne les dates pour voir l'email…" spellcheck="true" oninput="this.dataset.edited='1'"></textarea>
