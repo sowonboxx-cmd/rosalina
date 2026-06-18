@@ -1252,7 +1252,11 @@ async function loadBookedDates(){
       return{start:new Date(arrivee+'T00:00:00'),end:new Date(depart+'T00:00:00'),maison};
     }).filter(Boolean);
     // Re-render calendars to show booked days
-    if(openCal)renderCal(openCal);
+    // Re-render calendriers ouverts (devis_rosalina utilise toggleCal, pas openCal)
+    ['entree','sortie'].forEach(w=>{
+      const popup=document.getElementById('cal-'+w);
+      if(popup&&popup.classList.contains('open'))renderCal(w);
+    });
   }catch(e){console.warn('Booked dates load failed',e);}
 }
 
