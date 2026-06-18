@@ -156,10 +156,13 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .cal-nav-btn{background:var(--card);border:1px solid var(--border);border-radius:var(--r2);width:40px;height:40px;cursor:pointer;font-size:1.1rem;color:var(--text2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
 .cal-nav-btn:hover{border-color:var(--text2);}
 .cal-month-select-row{display:flex;align-items:center;gap:8px;height:40px;}
-.cal-select{border:1px solid var(--border);border-radius:var(--r2);padding:0 10px;height:40px;font-family:'Jost',sans-serif;font-size:.82rem;background:var(--bg2);color:var(--text);cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;}
+.cal-select{border:1px solid var(--border);border-radius:var(--r2);padding:0 10px;height:40px;font-family:'Jost',sans-serif;font-size:.82rem;background:#fff;color:var(--text);cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;}
 .cal-select:focus{border-color:var(--rose);}
-.cal-maisons-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-@media(max-width:600px){.cal-maisons-grid{grid-template-columns:1fr;}}
+[data-theme="dark"] .cal-select{background:var(--card);}
+.cal-maisons-grid{display:grid;grid-template-columns:1fr;gap:16px;}
+.cal-maisons-bottom{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
+@media(max-width:600px){.cal-maisons-bottom{grid-template-columns:1fr;}}
+.cal-tarif-wrap{margin-top:16px;}
 .cal-maison-card{background:var(--card);border-radius:var(--r2);padding:18px 16px;border:1px solid var(--border);}
 @media(min-width:601px){.cal-maison-card{padding:20px 18px;}}
 .cal-maison-name{font-family:'Open Sans',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid;}
@@ -392,10 +395,10 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       </div>
       <button class="cal-nav-btn" onclick="navCal(1)">&#8250;</button>
     </div>
-    <div class="cal-maisons-grid" id="cal-content"></div>
+    <div id="cal-content"></div>
 
     <!-- GRILLE TARIFAIRE -->
-    <div style="margin-top:20px;background:var(--card);border-radius:var(--r2);padding:18px 20px;border:1px solid var(--border)">
+    <div class="cal-tarif-wrap"><div style="background:var(--card);border-radius:var(--r2);padding:18px 20px;border:1px solid var(--border)">
       <div style="font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);margin-bottom:14px">Grille tarifaire</div>
       <table style="width:100%;border-collapse:collapse;font-size:.8rem;table-layout:fixed">
         <thead>
@@ -417,7 +420,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
         <span><strong style="color:var(--text2)">Basse</strong> : 05 jan → 31 mar · 01 sep → 21 déc</span>
         <span><strong style="color:var(--text2)">Haute</strong> : 01 avr → 31 aoû · 22 déc → 04 jan</span>
       </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- STATS VIEW -->
@@ -474,7 +477,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="devis-modal-title">Créer un devis</div>
     <div class="devis-modal-sub">Choisissez le type de devis à générer</div>
     <div class="devis-choice">
-      <a class="devis-choice-btn" href="https://sowonboxx-cmd.github.io/rosalina/" target="_blank" onclick="closeDevisModal()">
+      <a class="devis-choice-btn" href="devis_perso.html" target="_blank" onclick="closeDevisModal()">
         <div class="devis-choice-icon">📄</div>
         <div>
           <div class="devis-choice-label">Devis personnalisé</div>
@@ -872,20 +875,19 @@ function navCal(dir){
 function renderCal(){
   const maisons=['rosalina','rosa','lina'];
   const labels={rosalina:'ROSALINA',rosa:'ROSA',lina:'LINA'};
-  let html='';
-  maisons.forEach(m=>{
+
+  function buildCard(m){
     let clients;
     if(m==='rosalina'){
       clients=allClients.filter(c=>{const mv=(c.maison||'').toUpperCase();return mv==='ROSALINA'||mv==='ROSA'||mv==='LINA';});
     } else {
       clients=allClients.filter(c=>(c.maison||'').toUpperCase()===m.toUpperCase());
     }
-    // Prix du 1er du mois
     const firstDay=new Date(calYear,calMonth,1);
     const saison=getSaison(firstDay);
     const prix=getPrixNuit(m,firstDay);
     const saisonLabel=saison==='haute'?'Haute saison':'Basse saison';
-    html+='<div class="cal-maison-card">'+
+    return '<div class="cal-maison-card">'+
       '<div class="cal-maison-name '+m+'">'+labels[m]+'</div>'+
       '<div style="font-size:.65rem;color:var(--text3);margin-bottom:6px;display:flex;align-items:center;gap:6px">'+
         '<span style="font-weight:600;color:var(--text2)">'+fmtPrixCourt(prix)+' / nuit</span>'+
@@ -893,7 +895,12 @@ function renderCal(){
       '</div>'+
       buildCalMonth(calYear,calMonth,clients,m)+
     '</div>';
-  });
+  }
+
+  // Rosalina full width, Rosa+Lina en dessous côte à côte
+  const html=
+    '<div class="cal-maisons-grid">'+buildCard('rosalina')+'</div>'+
+    '<div class="cal-maisons-bottom">'+buildCard('rosa')+buildCard('lina')+'</div>';
   document.getElementById('cal-content').innerHTML=html;
 }
 function buildCalMonth(yr,m,clients,maison){
