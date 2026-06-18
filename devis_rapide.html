@@ -605,7 +605,11 @@ function buildBody(){
   const dateStr=(dE&&dS)?`du ${fmtDateFR(dE)} au ${fmtDateFR(dS)} `:'';
   const taxe=nA>0?Math.round(m.taxe*nA*nuits*100)/100:0;
 
-  let detail=`  • Location ${curMaison} (${nuits} nuit${nuits>1?'s':''}) : ${fmt(m.prix*nuits)}`;
+  // Recalcul base nuit par nuit (saisonnalité)
+  let baseCalc=0;
+  for(let i=0;i<nuits;i++){const d=new Date(dE);d.setDate(d.getDate()+i);baseCalc+=getPrixNuit(curMaison,d);}
+
+  let detail=`  • Location ${curMaison} (${nuits} nuit${nuits>1?'s':''}) : ${fmt(baseCalc)}`;
   if(nA>0)detail+=`\n  • Taxe de séjour (${nA} adulte${nA>1?'s':''} × ${nuits} nuit${nuits>1?'s':''}) : ${fmt(taxe)}`;
   detail+=`\n  • Ménage de fin de séjour : ${fmt(m.menage)}`;
   detail+=`\n  • Total : ${fmt(totalTTC)}`;
