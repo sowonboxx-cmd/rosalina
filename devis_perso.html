@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Domaine Rosalina — Générateur de Devis</title>
+<title>Domaine Rosalina — Devis Personnalisé</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500;600&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -13,6 +13,29 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 .screen-header h1{font-family:'Open Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;letter-spacing:.01em}
 .screen-header p{font-size:.72rem;color:rgba(255,255,255,.55);letter-spacing:.15em;text-transform:uppercase;margin-top:5px}
 .header-logo-img{height:54px;width:auto;display:block;flex-shrink:0}
+.header-controls{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hdr-btn{background:rgba(255,255,255,.12);border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.8);transition:background .2s;text-decoration:none;font-size:1rem}
+.hdr-btn:hover{background:rgba(255,255,255,.22)}
+/* Dark mode overrides */
+[data-theme="dark"] body{background:#1A1F1A;color:#E8E4DC}
+[data-theme="dark"] .section-card{background:#252B25;border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 24px rgba(0,0,0,.3)}
+[data-theme="dark"] .field input,[data-theme="dark"] .field select{background:#1E241E;border-color:rgba(255,255,255,.12);color:#E8E4DC}
+[data-theme="dark"] .field input:focus,[data-theme="dark"] .field select:focus{border-color:#C8956C;background:#222822}
+[data-theme="dark"] .finance-table td{border-bottom-color:rgba(255,255,255,.08)}
+[data-theme="dark"] .row-auto td{background:rgba(255,255,255,.04)}
+[data-theme="dark"] .row-caution td{background:rgba(255,255,255,.04)}
+[data-theme="dark"] .maison-btn{background:#1E241E;border-color:rgba(255,255,255,.12);color:#E8E4DC}
+[data-theme="dark"] .maison-btn .mb-name{color:#E8E4DC}
+[data-theme="dark"] .maison-btn.active{border-color:#C8956C;background:#2A2018}
+[data-theme="dark"] .date-input-btn{background:#1E241E;border-color:rgba(255,255,255,.12);color:#E8E4DC}
+[data-theme="dark"] .cal-popup{background:#252B25;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+[data-theme="dark"] .cal-month-label{color:#E8E4DC}
+[data-theme="dark"] .cal-day{color:#aaa}
+[data-theme="dark"] .cal-year-btn{background:#1E241E;border-color:rgba(255,255,255,.12);color:#aaa}
+[data-theme="dark"] .btn-generate{box-shadow:0 4px 20px rgba(44,61,44,.15)}
+[data-theme="dark"] .btn-notion{background:#252B25;color:#E8E4DC;border-color:rgba(255,255,255,.15)}
+[data-theme="dark"] .section-title{color:#C8956C}
+[data-theme="dark"] .section-title::after{background:rgba(255,255,255,.08)}
 .form-body{max-width:880px;margin:36px auto;padding:0 20px;display:flex;flex-direction:column;gap:28px}
 .section-card{background:#fff;border-radius:12px;padding:28px 32px;box-shadow:0 4px 24px rgba(0,0,0,.07)}
 .section-title{font-size:.64rem;letter-spacing:.28em;text-transform:uppercase;color:#C8956C;margin-bottom:22px;display:flex;align-items:center;gap:12px}
@@ -134,8 +157,12 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 
 <div class="screen-header">
   <div class="screen-header-inner">
-    <div><h1>Générateur de devis</h1><p>Domaine Rosalina</p></div>
-    <img class="header-logo-img" src="https://domainerosalina.com/wp-content/uploads/2026/06/logo-rosalina-white-transparent.png" alt="Domaine Rosalina">
+    <div><h1>Devis personnalisé</h1><p>Domaine Rosalina</p></div>
+    <div class="header-controls">
+      <a class="hdr-btn" href="dashboard.html" title="Accueil">🏠</a>
+      <button class="hdr-btn" onclick="toggleThemeDevis()" id="theme-btn-devis" title="Mode sombre/clair">🌙</button>
+      <img class="header-logo-img" src="https://domainerosalina.com/wp-content/uploads/2026/06/logo-rosalina-white-transparent.png" alt="Domaine Rosalina" onerror="this.style.display='none'">
+    </div>
   </div>
 </div>
 
@@ -372,6 +399,17 @@ const TAXE_RATE = 1.65;
 const MOIS_FR   = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 const MOIS_LONG = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 const JOURS_FR  = ['L','M','M','J','V','S','D'];
+// ══ THEME ══
+(function(){const t=localStorage.getItem('devis_theme')||'light';document.documentElement.setAttribute('data-theme',t);const btn=document.getElementById('theme-btn-devis');if(btn)btn.textContent=t==='dark'?'☀️':'🌙';})();
+function toggleThemeDevis(){
+  const cur=document.documentElement.getAttribute('data-theme')||'light';
+  const next=cur==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  localStorage.setItem('devis_theme',next);
+  const btn=document.getElementById('theme-btn-devis');
+  if(btn)btn.textContent=next==='dark'?'☀️':'🌙';
+}
+
 let currentMaison = 'rosa-lina';
 
 // Signature du bailleur (détourée, base64) — injectée plus bas

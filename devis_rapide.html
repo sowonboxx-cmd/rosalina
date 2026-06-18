@@ -15,6 +15,26 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 .screen-header h1{font-family:'Open Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;letter-spacing:.01em}
 .screen-header p{font-size:.72rem;color:rgba(255,255,255,.55);letter-spacing:.15em;text-transform:uppercase;margin-top:5px}
 .header-logo-img{height:54px;width:auto;display:block;flex-shrink:0}
+.header-controls{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hdr-btn{background:rgba(255,255,255,.12);border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.8);transition:background .2s;text-decoration:none;font-size:1rem}
+.hdr-btn:hover{background:rgba(255,255,255,.22)}
+[data-theme="dark"] body{background:#1A1F1A;color:#E8E4DC}
+[data-theme="dark"] .section-card{background:#252B25;border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 24px rgba(0,0,0,.3)}
+[data-theme="dark"] .field input,[data-theme="dark"] .field select{background:#1E241E;border-color:rgba(255,255,255,.12);color:#E8E4DC}
+[data-theme="dark"] .field input:focus,[data-theme="dark"] .field select:focus{border-color:#C8956C;background:#222822}
+[data-theme="dark"] .maison-btn{background:#1E241E;border-color:rgba(255,255,255,.12)}
+[data-theme="dark"] .maison-btn .mb-name{color:#E8E4DC}
+[data-theme="dark"] .maison-btn.active{border-color:#C8956C;background:#2A2018}
+[data-theme="dark"] .date-input-btn{background:#1E241E;border-color:rgba(255,255,255,.12);color:#E8E4DC}
+[data-theme="dark"] .cal-popup{background:#252B25;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+[data-theme="dark"] .cal-month-label{color:#E8E4DC}
+[data-theme="dark"] .cal-day{color:#aaa}
+[data-theme="dark"] .finance-table td{border-bottom-color:rgba(255,255,255,.08)}
+[data-theme="dark"] .row-auto td{background:rgba(255,255,255,.04)}
+[data-theme="dark"] .preview-wrap{border-color:rgba(255,255,255,.1)}
+[data-theme="dark"] .preview-header{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
+[data-theme="dark"] .preview-body{background:#1E241E;color:#E8E4DC}
+[data-theme="dark"] .btn-reset{background:transparent;border-color:rgba(255,255,255,.2);color:#E8E4DC}
 
 /* ── LAYOUT ── */
 .form-body{max-width:880px;margin:36px auto;padding:0 20px;display:flex;flex-direction:column;gap:28px}
@@ -130,7 +150,11 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 <div class="screen-header">
   <div class="screen-header-inner">
     <div><h1>Devis Rapide</h1><p>Domaine Rosalina</p></div>
-    <img class="header-logo-img" src="https://domainerosalina.com/wp-content/uploads/2026/06/logo-rosalina-white-transparent.png" alt="Domaine Rosalina" onerror="this.style.display='none'">
+    <div class="header-controls">
+      <a class="hdr-btn" href="dashboard.html" title="Accueil">🏠</a>
+      <button class="hdr-btn" onclick="toggleThemeDevis()" id="theme-btn-devis" title="Mode sombre/clair">🌙</button>
+      <img class="header-logo-img" src="https://domainerosalina.com/wp-content/uploads/2026/06/logo-rosalina-white-transparent.png" alt="Domaine Rosalina" onerror="this.style.display='none'">
+    </div>
   </div>
 </div>
 
@@ -294,6 +318,17 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 </div>
 
 <script>
+// ══ THEME ══
+(function(){const t=localStorage.getItem('devis_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
+function toggleThemeDevis(){
+  const cur=document.documentElement.getAttribute('data-theme')||'light';
+  const next=cur==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  localStorage.setItem('devis_theme',next);
+  const btn=document.getElementById('theme-btn-devis');
+  if(btn)btn.textContent=next==='dark'?'☀️':'🌙';
+}
+
 // ══ SAISONNALITÉ ══
 const TARIFS_S={ROSALINA:{basse:1100,haute:1200},ROSA:{basse:900,haute:1000},LINA:{basse:400,haute:500}};
 function getSaison(date){const m=date.getMonth()+1,d=date.getDate();if(m>=4&&m<=8)return'haute';if(m===12&&d>=22)return'haute';if(m===1&&d<=4)return'haute';return'basse';}
@@ -610,6 +645,8 @@ function resetForm(){
 // ── INIT ──
 buildSelects();
 updateCardPrices();
+// Sync theme button icon
+(function(){const t=localStorage.getItem('devis_theme')||'light';const btn=document.getElementById('theme-btn-devis');if(btn)btn.textContent=t==='dark'?'☀️':'🌙';})();
 </script>
 </body>
 </html>
