@@ -1283,8 +1283,8 @@ function onOverlayClick(e){if(e.target===document.getElementById('overlay'))clos
 
 async function toggleCautionCard(e,pid,cur){
   e.stopPropagation();const nv=!cur;
-  e.currentTarget.className='caution-tag '+(nv?'ok':'empty');
   const c=allClients.find(x=>x.id===pid);if(c)c.caution=nv;
+  renderCards();
   await patch(pid,{'Caution vers\u00e9e':{checkbox:nv}});
 }
 async function toggleCautionModal(){
