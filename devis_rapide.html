@@ -536,7 +536,8 @@ function sendGmail(){
   const email=document.getElementById('prospect-email').value.trim();
   const subj=encodeURIComponent(buildSubject());
   const body=encodeURIComponent(buildBody());
-  window.open(`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(email)}&su=${subj}&body=${body}`,'_blank');
+  // authuser=domainerosalina@gmail.com force l'ouverture sur le bon compte Google
+  window.open(`https://mail.google.com/mail/u/domainerosalina@gmail.com/?view=cm&to=${encodeURIComponent(email)}&su=${subj}&body=${body}`,'_blank');
 }
 
 function sendMailto(){
