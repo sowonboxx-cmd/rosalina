@@ -168,12 +168,12 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 /* Fix calendar grid gap - uniform grid no extra spacing */
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;grid-auto-rows:22px;}
 .cal-dow{font-size:.52rem;text-align:center;color:var(--text3);padding:0;height:18px;display:flex;align-items:center;justify-content:center;font-weight:600;}
-.cal-day{height:34px;min-height:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.68rem;border-radius:3px;color:var(--text2);}
-.cal-day-prix{font-size:.5rem;color:var(--text3);margin-top:1px;line-height:1;white-space:nowrap;}
-.cal-day.busy .cal-day-prix{color:rgba(192,57,43,.6);}
+.cal-day{min-height:38px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.72rem;border-radius:4px;color:var(--text2);padding:3px 2px;gap:1px;}
+.cal-day-prix{font-size:.52rem;color:var(--text3);line-height:1;white-space:nowrap;}
+.cal-day.busy .cal-day-prix{color:rgba(192,57,43,.55);}
 .cal-day.free .cal-day-prix{color:rgba(44,90,44,.55);}
-[data-theme="dark"] .cal-day.free .cal-day-prix{color:rgba(122,204,122,.5);}
-[data-theme="dark"] .cal-day.busy .cal-day-prix{color:rgba(240,128,128,.5);}
+[data-theme="dark"] .cal-day.free .cal-day-prix{color:rgba(122,204,122,.45);}
+[data-theme="dark"] .cal-day.busy .cal-day-prix{color:rgba(240,128,128,.45);}
 .cal-day.free{background:#EDF5EC;color:#2C5A2C;}
 [data-theme="dark"] .cal-day.free{background:rgba(90,154,90,.18);color:#7ACC7A;}
 .cal-day.busy{background:#FEEAEA;color:#C0392B;cursor:pointer;font-weight:700;}
@@ -531,8 +531,20 @@ const STATUTS=[
   {key:'Annul\u00e9',cls:'sb-annule'},
 ];
 const CUR_YEAR=new Date().getFullYear();
+// ══ SAISONNALITÉ ══
+const TARIFS={ROSALINA:{basse:1100,haute:1200},ROSA:{basse:900,haute:1000},LINA:{basse:400,haute:500}};
+function getSaison(date){const m=date.getMonth()+1,d=date.getDate();if(m>=4&&m<=8)return'haute';if(m===12&&d>=22)return'haute';if(m===1&&d<=4)return'haute';return'basse';}
+function getPrixNuit(maison,date){const s=getSaison(date);return(TARIFS[maison?.toUpperCase()]||TARIFS.ROSALINA)[s];}
+function fmtPrixCourt(n){return Number(n).toLocaleString('fr-FR')+'\u00a0\u20ac';}
+
 let allClients=[],modalClient=null,sortAsc=true,selectedYear='upcoming';
 let calMonth=new Date().getMonth(),calYear=CUR_YEAR;
+let taxeYear='all';
+function fmtDateCourt(s){
+  if(!s)return'\u2014';
+  const[y,m,d]=s.split('-');
+  return d+'.'+m+'.'+y.slice(2);
+}
 let theme=localStorage.getItem('dash_theme')||'dark';
 
 function initTheme(){
@@ -1188,16 +1200,6 @@ function renderStats(){
   }).join('');
 }
 
-// ══ SAISONNALITÉ ══
-const TARIFS={ROSALINA:{basse:1100,haute:1200},ROSA:{basse:900,haute:1000},LINA:{basse:400,haute:500}};
-function getSaison(date){const m=date.getMonth()+1,d=date.getDate();if(m>=4&&m<=8)return'haute';if(m===12&&d>=22)return'haute';if(m===1&&d<=4)return'haute';return'basse';}
-function getPrixNuit(maison,date){const s=getSaison(date);return(TARIFS[maison?.toUpperCase()]||TARIFS.ROSALINA)[s];}
-function fmtPrixCourt(n){return Number(n).toLocaleString('fr-FR')+'\u00a0\u20ac';}
-function fmtDateCourt(s){
-  if(!s)return'\u2014';
-  const[y,m,d]=s.split('-');
-  return d+'.'+m+'.'+y.slice(2);
-}
 function renderTaxeTable(allC){
   const withTaxe=allC.filter(c=>c.taxe>0);
   const years=[...new Set(withTaxe.map(c=>c.arrivee?.slice(0,4)).filter(Boolean))].sort();
