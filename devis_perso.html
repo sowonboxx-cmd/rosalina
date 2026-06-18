@@ -190,6 +190,16 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
 [data-theme="dark"] .euro{color:#8AABCC}
 [data-theme="dark"] .lbl{color:#C1CCD8}
 [data-theme="dark"] #prev-to,[data-theme="dark"] #prev-subject{color:#8AABCC !important}
+
+/* Jours occupés dans le calendrier de sélection */
+.cal-day.booked{background:#FEEAEA;color:#C0392B;cursor:not-allowed;pointer-events:none;font-weight:600;}
+[data-theme="dark"] .cal-day.booked{background:rgba(220,80,80,.22);color:#F08080;}
+/* Arrivée : transparent à gauche, rouge à droite (vertical au milieu) */
+.cal-day.booked-arrival{background:linear-gradient(to right, transparent 50%, #FEEAEA 50%);color:#C0392B;font-weight:600;cursor:pointer;pointer-events:all;}
+[data-theme="dark"] .cal-day.booked-arrival{background:linear-gradient(to right, transparent 50%, rgba(220,80,80,.22) 50%);}
+/* Départ : rouge à gauche, transparent à droite */
+.cal-day.booked-departure{background:linear-gradient(to right, #FEEAEA 50%, transparent 50%);color:#C0392B;font-weight:600;cursor:pointer;pointer-events:all;}
+[data-theme="dark"] .cal-day.booked-departure{background:linear-gradient(to right, rgba(220,80,80,.22) 50%, transparent 50%);}
 </style>
 </head>
 <body>
@@ -542,8 +552,12 @@ function renderCal(w){
   for(let d=1;d<=lastDay.getDate();d++){
     const t=new Date(y,m,d);
     const isPast=t<now, isFut=t>maxDate, isToday=t.getTime()===now.getTime();
+    const bookedStatus=isBookedStatus(t,currentMaison);
     let cls='cal-day';
-    if(isPast||isFut){ cls+=' disabled'; }
+    if(bookedStatus==='middle'){ cls+=' booked'; }
+    else if(bookedStatus==='arrival'){ cls+=' booked-arrival'; }
+    else if(bookedStatus==='departure'){ cls+=' booked-departure'; }
+    else if(isPast||isFut){ cls+=' disabled'; }
     else {
       if(isToday) cls+=' today';
       if(dE&&dS){
@@ -578,6 +592,8 @@ function jumpYear(w,yr){ CAL[w].viewYear=yr; renderCal(w); }
 
 function pickDay(w,y,m,d){
   const picked=new Date(y,m,d);
+  // Seuls les jours 'middle' (milieu de séjour) sont bloqués
+  if(isBookedStatus(picked,currentMaison)==='middle')return;
   CAL[w].date=picked;
   if(w==='entree'){
     if(CAL.sortie.date&&CAL.sortie.date<=picked){ CAL.sortie.date=null; updateDisplay('sortie'); }
@@ -1208,6 +1224,58 @@ if (savedToken) {
   document.getElementById('token-status').style.color = '#3D5438';
   collapseNotionCard();
 }
+
+// ── RÉSERVATIONS OCCUPÉES depuis Notion ──
+const WORKER_URL='https://notion-proxy.sowonboxx.workers.dev';
+const DB_ID='249a8c29-d056-8122-a40c-cf7180e98935';
+let bookedRanges=[];// [{start:Date, end:Date, maison:'ROSALINA'}]
+
+async function loadBookedDates(){
+  const token=localStorage.getItem('notion_token');
+  if(!token)return;
+  try{
+    let all=[],cursor=null;
+    do{
+      const body={token,database_id:DB_ID,page_size:100};
+      if(cursor)body.start_cursor=cursor;
+      const res=await fetch(WORKER_URL+'/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const data=await res.json();
+      if(data.results)all=[...all,...data.results];
+      cursor=data.has_more?data.next_cursor:null;
+    }while(cursor);
+    bookedRanges=all.map(page=>{
+      const p=page.properties;
+      const arrivee=(p['Arrivée']?.date?.start||p['Arrivée-2']?.date?.start||'');
+      const depart=(p['Départ']?.date?.start||p['Départ-2']?.date?.start||'');
+      const maison=(p['Maison']?.select?.name||'').toUpperCase();
+      if(!arrivee||!depart)return null;
+      return{start:new Date(arrivee+'T00:00:00'),end:new Date(depart+'T00:00:00'),maison};
+    }).filter(Boolean);
+    // Re-render calendars to show booked days
+    if(openCal)renderCal(openCal);
+  }catch(e){console.warn('Booked dates load failed',e);}
+}
+
+function getMaisonsToCheck(maison){
+  const m=maison.toUpperCase();
+  return m==='ROSALINA'?['ROSALINA','ROSA','LINA']:m==='ROSA'?['ROSALINA','ROSA']:m==='LINA'?['ROSALINA','LINA']:[];
+}
+function isBookedStatus(dt,maison){
+  // Returns: 'arrival' | 'departure' | 'middle' | null
+  const check=getMaisonsToCheck(maison);
+  const dtMs=dt.getTime();
+  for(const r of bookedRanges){
+    if(!check.includes(r.maison))continue;
+    const s=r.start.getTime(), e=r.end.getTime();
+    if(dtMs===s)return'arrival';
+    if(dtMs===e)return'departure';
+    if(dtMs>s&&dtMs<e)return'middle';
+  }
+  return null;
+}
+function isBooked(dt,maison){return isBookedStatus(dt,maison)!==null;}
+loadBookedDates();
+
 </script>
 </body>
 </html>

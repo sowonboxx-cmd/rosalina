@@ -1086,55 +1086,66 @@ document.addEventListener('mouseout',function(e){
 
 document.addEventListener('click',function(e){
   const cell=e.target.closest('.cal-day[data-ids]');
-  if(!cell)return;
+  const isMobile=window.matchMedia('(hover:none)').matches||window.innerWidth<=700;
+
+  // Clic en dehors d'une cellule ou du tooltip → fermer tooltip
+  if(!cell){
+    if(!e.target.closest('#cal-tooltip')){
+      calTooltip.classList.remove('visible');
+      calTooltip.style.cssText='position:fixed;';
+      window._lastCalCell=null;
+    }
+    return;
+  }
+
   const raw=cell.getAttribute('data-ids');
   if(!raw)return;
-  const isMobile=window.matchMedia('(hover:none)').matches||window.innerWidth<=700;
-  if(isMobile){
-    // 1er clic → tooltip ; 2ème clic sur même cellule → popup
-    if(cell===window._lastCalCell&&calTooltip.classList.contains('visible')){
-      // Deuxième clic : fermer tooltip + ouvrir modal
-      calTooltip.classList.remove('visible');
-      window._lastCalCell=null;
-      openModalByIds(raw.split(',').filter(Boolean));
-    } else {
-      // Premier clic : afficher tooltip centré en bas de l'écran
-      try{
-        const d=JSON.parse(cell.getAttribute('data-tip').replace(/&#39;/g,"'"));
-        document.getElementById('tt-name').textContent=d.name;
-        const orgEl=document.getElementById('tt-org');
-        if(d.org){orgEl.textContent=d.org;orgEl.style.display='block';}else orgEl.style.display='none';
-        document.getElementById('tt-maison').textContent=d.maison||'—';
-        document.getElementById('tt-dates').textContent=fmtDateTT(d.arrivee)+' → '+fmtDateTT(d.depart);
-        document.getElementById('tt-duree').textContent=d.nuits+' nuit'+(d.nuits>1?'s':'');
-        const aEl=document.getElementById('tt-adultes-row'),eEl=document.getElementById('tt-enfants-row');
-        const pEl=document.getElementById('tt-prix-row'),sEl=document.getElementById('tt-statut-row');
-        if(d.adultes){document.getElementById('tt-adultes').textContent=d.adultes;aEl.style.display='flex';}else aEl.style.display='none';
-        if(d.enfants){document.getElementById('tt-enfants').textContent=d.enfants;eEl.style.display='flex';}else eEl.style.display='none';
-        if(d.prix){document.getElementById('tt-prix').textContent=Number(d.prix).toLocaleString('fr-FR')+' €';pEl.style.display='flex';}else pEl.style.display='none';
-        if(d.statut){document.getElementById('tt-statut').textContent=d.statut;sEl.style.display='flex';}else sEl.style.display='none';
-        // Position : centré, juste au dessus du bas de l'écran
-        calTooltip.style.left='50%';
-        calTooltip.style.transform='translateX(-50%)';
-        calTooltip.style.top='auto';
-        calTooltip.style.bottom='80px';
-        calTooltip.classList.add('visible');
-        window._lastCalCell=cell;
-      }catch(err){}
-    }
-  } else {
-    // Desktop : clic direct vers modal
+
+  if(!isMobile){
+    // Desktop : clic direct → modal
     openModalByIds(raw.split(',').filter(Boolean));
+    return;
   }
-});
-// Fermer tooltip mobile en cliquant ailleurs
-document.addEventListener('click',function(e){
-  if(!e.target.closest('.cal-day[data-ids]')&&!e.target.closest('.cal-tooltip')){
+
+  // Mobile : 1er clic → tooltip près du point de contact / 2ème clic → modal
+  if(cell===window._lastCalCell&&calTooltip.classList.contains('visible')){
     calTooltip.classList.remove('visible');
-    calTooltip.style.transform='';
-    calTooltip.style.bottom='';
     window._lastCalCell=null;
+    openModalByIds(raw.split(',').filter(Boolean));
+    return;
   }
+
+  // Remplir le tooltip
+  try{
+    const d=JSON.parse(cell.getAttribute('data-tip').replace(/&#39;/g,"'"));
+    document.getElementById('tt-name').textContent=d.name;
+    const orgEl=document.getElementById('tt-org');
+    if(d.org){orgEl.textContent=d.org;orgEl.style.display='block';}else orgEl.style.display='none';
+    document.getElementById('tt-maison').textContent=d.maison||'—';
+    document.getElementById('tt-dates').textContent=fmtDateTT(d.arrivee)+' → '+fmtDateTT(d.depart);
+    document.getElementById('tt-duree').textContent=d.nuits+' nuit'+(d.nuits>1?'s':'');
+    const aEl=document.getElementById('tt-adultes-row'),eEl=document.getElementById('tt-enfants-row');
+    const pEl=document.getElementById('tt-prix-row'),sEl=document.getElementById('tt-statut-row');
+    if(d.adultes){document.getElementById('tt-adultes').textContent=d.adultes;aEl.style.display='flex';}else aEl.style.display='none';
+    if(d.enfants){document.getElementById('tt-enfants').textContent=d.enfants;eEl.style.display='flex';}else eEl.style.display='none';
+    if(d.prix){document.getElementById('tt-prix').textContent=Number(d.prix).toLocaleString('fr-FR')+' €';pEl.style.display='flex';}else pEl.style.display='none';
+    if(d.statut){document.getElementById('tt-statut').textContent=d.statut;sEl.style.display='flex';}else sEl.style.display='none';
+
+    // Position près de la cellule cliquée
+    calTooltip.style.cssText='position:fixed;';
+    calTooltip.classList.add('visible');
+    const rect=cell.getBoundingClientRect();
+    const tw=calTooltip.offsetWidth||220, th=calTooltip.offsetHeight||140;
+    const vw=window.innerWidth, vh=window.innerHeight;
+    let left=rect.left+rect.width/2-tw/2;
+    let top=rect.bottom+8;
+    if(left+tw>vw-8)left=vw-tw-8;
+    if(left<8)left=8;
+    if(top+th>vh-8)top=rect.top-th-8;
+    calTooltip.style.left=left+'px';
+    calTooltip.style.top=top+'px';
+    window._lastCalCell=cell;
+  }catch(err){}
 });
 function openModal(c, allC){
   allC=allC||[c];
