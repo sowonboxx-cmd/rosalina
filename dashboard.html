@@ -363,15 +363,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
     <div class="cal-nav-bar">
       <button class="cal-nav-btn" onclick="navCal(-1)">&#8249;</button>
       <div class="cal-month-select-row">
-        <select class="cal-select" id="cal-month-sel" onchange="onCalSel()">
-          <option value="0">Janvier</option><option value="1">F&#233;vrier</option>
-          <option value="2">Mars</option><option value="3">Avril</option>
-          <option value="4">Mai</option><option value="5">Juin</option>
-          <option value="6">Juillet</option><option value="7">Ao&#251;t</option>
-          <option value="8">Septembre</option><option value="9">Octobre</option>
-          <option value="10">Novembre</option><option value="11">D&#233;cembre</option>
-        </select>
-        <select class="cal-select" id="cal-year-sel" onchange="onCalSel()"></select>
+        <select class="cal-select" id="cal-unified-sel" onchange="onCalUnifiedSel()" style="min-width:160px"></select>
       </div>
       <button class="cal-nav-btn" onclick="navCal(1)">&#8250;</button>
     </div>
@@ -508,7 +500,7 @@ function showView(v,btn){
   document.getElementById('dashboard-view').style.display=v==='dashboard'?'block':'none';
   document.getElementById('cal-view').style.display=v==='cal'?'block':'none';
   const sv=document.getElementById('stats-view');if(sv)sv.style.display=v==='stats'?'block':'none';
-  if(v==='cal'){initCalYearSel();renderCal();}
+  if(v==='cal'){initCalUnifiedSel();renderCal();}
   if(v==='stats'){buildStatsTabs();renderStats();}
 }
 
@@ -747,29 +739,37 @@ function renderCard(c,today,showYear){
 }
 
 // CALENDAR
-function initCalYearSel(){
-  const sel=document.getElementById('cal-year-sel');
-  if(sel.options.length)return;
+const MOIS_LONG=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+function initCalUnifiedSel(){
+  const sel=document.getElementById('cal-unified-sel');
+  sel.innerHTML='';
   for(let y=CUR_YEAR-1;y<=CUR_YEAR+3;y++){
-    const o=document.createElement('option');
-    o.value=y;o.textContent=y;
-    if(y===calYear)o.selected=true;
-    sel.appendChild(o);
+    for(let m=0;m<12;m++){
+      const o=document.createElement('option');
+      o.value=y+'-'+m;
+      o.textContent=MOIS_LONG[m]+' '+y;
+      if(y===calYear&&m===calMonth)o.selected=true;
+      sel.appendChild(o);
+    }
   }
-  document.getElementById('cal-month-sel').value=calMonth;
 }
-function onCalSel(){
-  calMonth=parseInt(document.getElementById('cal-month-sel').value);
-  calYear=parseInt(document.getElementById('cal-year-sel').value);
+function onCalUnifiedSel(){
+  const v=document.getElementById('cal-unified-sel').value.split('-');
+  calYear=parseInt(v[0]);calMonth=parseInt(v[1]);
   renderCal();
+}
+function syncUnifiedSel(){
+  const sel=document.getElementById('cal-unified-sel');
+  if(!sel)return;
+  const val=calYear+'-'+calMonth;
+  const opt=Array.from(sel.options).find(o=>o.value===val);
+  if(opt)sel.value=val;
 }
 function navCal(dir){
   calMonth+=dir;
   if(calMonth>11){calMonth=0;calYear++;}
   if(calMonth<0){calMonth=11;calYear--;}
-  document.getElementById('cal-month-sel').value=calMonth;
-  const ys=document.getElementById('cal-year-sel');
-  if(ys)ys.value=calYear;
+  syncUnifiedSel();
   renderCal();
 }
 function renderCal(){
@@ -831,7 +831,7 @@ function buildCalMonth(yr,m,clients){
       const hasLina=allMaisons.some(mv=>mv==='LINA');
       const hasRosalina=allMaisons.some(mv=>mv==='ROSALINA');
       const multiBlock=(hasRosa||hasLina)&&!hasRosalina;
-      cells+='<div class="cal-day busy'+(multiBlock?' blocked-by':'')+'" onclick="openModalByIds('+JSON.stringify(busy[day].map(c=>c.id))+')" title="'+esc(names)+'">'+day+'</div>';
+      cells+='<div class="cal-day busy'+(multiBlock?' blocked-by':'')+'" data-ids="'+busy[day].map(c=>c.id).join(',')+'" title="'+esc(names)+'">'+day+'</div>';
     } else {
       cells+='<div class="cal-day free">'+day+'</div>';
     }
@@ -849,6 +849,15 @@ function openModalByIds(ids){
   if(!clients.length)return;
   openModal(clients[0], clients);
 }
+// Event delegation pour les jours occupés du calendrier
+document.addEventListener('click',function(e){
+  const cell=e.target.closest('.cal-day.busy');
+  if(!cell)return;
+  const raw=cell.getAttribute('data-ids');
+  if(!raw)return;
+  const ids=raw.split(',').filter(Boolean);
+  openModalByIds(ids);
+});
 function openModal(c, allC){
   allC=allC||[c];
   modalClient=c;
