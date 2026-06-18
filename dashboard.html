@@ -184,17 +184,17 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 [data-theme="dark"] .cal-day.busy{background:rgba(220,80,80,.25);color:#F08080;}
 .cal-day.busy:hover{opacity:.75;}
 /* Bloqué par Rosa ou Lina (pas une resa Rosalina directe) */
-/* Diagonal split: arrivée (red top-left triangle) */
-.cal-day.arrival{background:linear-gradient(135deg,#FEEAEA 50%,#EDF5EC 50%);color:#C0392B;font-weight:700;cursor:pointer;}
+/* Diagonal split: arrivée — vert en haut, rouge en bas (diagonale ↘) */
+.cal-day.arrival{background:linear-gradient(to bottom right,#EDF5EC 50%,#FEEAEA 50%);color:#2C5A2C;font-weight:700;cursor:pointer;}
 .cal-day.arrival .cal-day-prix{color:rgba(44,90,44,.7);}
-[data-theme="dark"] .cal-day.arrival{background:linear-gradient(135deg,rgba(220,80,80,.3) 50%,rgba(90,154,90,.18) 50%);}
-/* Diagonal split: départ (green top-left, red bottom-right) */
-.cal-day.departure{background:linear-gradient(135deg,#EDF5EC 50%,#FEEAEA 50%);color:#2C5A2C;font-weight:700;cursor:pointer;}
-.cal-day.departure .cal-day-prix{color:rgba(192,57,43,.7);}
-[data-theme="dark"] .cal-day.departure{background:linear-gradient(135deg,rgba(90,154,90,.18) 50%,rgba(220,80,80,.3) 50%);}
-/* Hover highlight full group */
+[data-theme="dark"] .cal-day.arrival{background:linear-gradient(to bottom right,rgba(90,154,90,.22) 50%,rgba(220,80,80,.28) 50%);}
+/* Diagonal split: départ — rouge en haut, vert en bas (diagonale ↘) */
+.cal-day.departure{background:linear-gradient(to bottom right,#FEEAEA 50%,#EDF5EC 50%);color:#C0392B;font-weight:700;cursor:pointer;}
+.cal-day.departure .cal-day-prix{color:rgba(44,90,44,.7);}
+[data-theme="dark"] .cal-day.departure{background:linear-gradient(to bottom right,rgba(220,80,80,.28) 50%,rgba(90,154,90,.22) 50%);}
+/* Hover */
 .cal-day.busy:hover,.cal-day.arrival:hover,.cal-day.departure:hover{opacity:.75;}
-.cal-day[data-group]:hover,.cal-day.busy-hover{filter:brightness(.88);}
+.cal-day.busy-hover{filter:brightness(.88);}
 /* Tooltip */
 .cal-tooltip{position:fixed;z-index:9999;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;box-shadow:0 8px 32px rgba(0,0,0,.25);pointer-events:none;display:none;max-width:230px;min-width:180px;}
 .cal-tooltip.visible{display:block;}
@@ -524,6 +524,8 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
   <div class="tt-row"><span class="tt-lbl">Durée</span><span class="tt-val" id="tt-duree"></span></div>
   <div class="tt-row" id="tt-adultes-row"><span class="tt-lbl">Adultes</span><span class="tt-val" id="tt-adultes"></span></div>
   <div class="tt-row" id="tt-enfants-row"><span class="tt-lbl">Enfants</span><span class="tt-val" id="tt-enfants"></span></div>
+  <div class="tt-row" id="tt-prix-row"><span class="tt-lbl">Prix</span><span class="tt-val" id="tt-prix"></span></div>
+  <div class="tt-row" id="tt-statut-row"><span class="tt-lbl">Statut</span><span class="tt-val" id="tt-statut"></span></div>
 </div>
 
 <div class="overlay" id="overlay" onclick="onOverlayClick(event)">
@@ -967,7 +969,8 @@ function buildCalMonth(yr,m,clients,maison){
       org:c.org||'',
       maison:allM,
       arrivee:c.arrivee||'',depart:c.depart||'',nuits,
-      adultes:c.adultes||'',enfants:c.enfants||''
+      adultes:c.adultes||'',enfants:c.enfants||'',
+      prix:c.prix||'',statut:Array.isArray(c.statut)?c.statut.join(', '):(c.statut||'')
     });
   }
 
@@ -1044,8 +1047,11 @@ document.addEventListener('mouseover',function(e){
     document.getElementById('tt-dates').textContent=fmtDateTT(d.arrivee)+' → '+fmtDateTT(d.depart);
     document.getElementById('tt-duree').textContent=d.nuits+' nuit'+(d.nuits>1?'s':'');
     const aEl=document.getElementById('tt-adultes-row'),eEl=document.getElementById('tt-enfants-row');
+    const pEl=document.getElementById('tt-prix-row'),sEl=document.getElementById('tt-statut-row');
     if(d.adultes){document.getElementById('tt-adultes').textContent=d.adultes;aEl.style.display='flex';}else aEl.style.display='none';
     if(d.enfants){document.getElementById('tt-enfants').textContent=d.enfants;eEl.style.display='flex';}else eEl.style.display='none';
+    if(d.prix){document.getElementById('tt-prix').textContent=Number(d.prix).toLocaleString('fr-FR')+' €';pEl.style.display='flex';}else pEl.style.display='none';
+    if(d.statut){document.getElementById('tt-statut').textContent=d.statut;sEl.style.display='flex';}else sEl.style.display='none';
     calTooltip.classList.add('visible');
   }catch(err){}
   // Group hover highlight
