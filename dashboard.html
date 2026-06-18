@@ -168,7 +168,12 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 /* Fix calendar grid gap - uniform grid no extra spacing */
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;grid-auto-rows:22px;}
 .cal-dow{font-size:.52rem;text-align:center;color:var(--text3);padding:0;height:18px;display:flex;align-items:center;justify-content:center;font-weight:600;}
-.cal-day{height:22px;min-height:22px;display:flex;align-items:center;justify-content:center;font-size:.68rem;border-radius:3px;color:var(--text2);}
+.cal-day{height:34px;min-height:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.68rem;border-radius:3px;color:var(--text2);}
+.cal-day-prix{font-size:.5rem;color:var(--text3);margin-top:1px;line-height:1;white-space:nowrap;}
+.cal-day.busy .cal-day-prix{color:rgba(192,57,43,.6);}
+.cal-day.free .cal-day-prix{color:rgba(44,90,44,.55);}
+[data-theme="dark"] .cal-day.free .cal-day-prix{color:rgba(122,204,122,.5);}
+[data-theme="dark"] .cal-day.busy .cal-day-prix{color:rgba(240,128,128,.5);}
 .cal-day.free{background:#EDF5EC;color:#2C5A2C;}
 [data-theme="dark"] .cal-day.free{background:rgba(90,154,90,.18);color:#7ACC7A;}
 .cal-day.busy{background:#FEEAEA;color:#C0392B;cursor:pointer;font-weight:700;}
@@ -878,21 +883,21 @@ function buildCalMonth(yr,m,clients,maison){
     const day=i-dow+1;
     if(day<1||day>lastDay){
       cells+='<div class="cal-day empty"></div>';
-    } else if(busy[day]&&busy[day].length){
-      // S'il y a plusieurs clients (ex. Rosa + Lina le même jour), on prend le premier pour le clic
-      const primary=busy[day][0];
-      const cid=esc(primary.id);
-      // Tooltip = tous les noms
-      const names=busy[day].map(c=>[c.prenom,c.nom].filter(Boolean).join(' ')).join(' · ');
-      // Couleur spéciale si blocage indirect (Rosa ou Lina dans le calendrier Rosalina)
-      const allMaisons=busy[day].map(c=>(c.maison||'').toUpperCase());
-      const hasRosa=allMaisons.some(mv=>mv==='ROSA');
-      const hasLina=allMaisons.some(mv=>mv==='LINA');
-      const hasRosalina=allMaisons.some(mv=>mv==='ROSALINA');
-      const multiBlock=(hasRosa||hasLina)&&!hasRosalina;
-      cells+='<div class="cal-day busy'+(multiBlock?' blocked-by':'')+'" data-ids="'+busy[day].map(c=>c.id).join(',')+'" title="'+esc(names)+'">'+day+'</div>';
     } else {
-      cells+='<div class="cal-day free">'+day+'</div>';
+      const dt=new Date(yr,m,day);
+      const prix=maison?getPrixNuit(maison,dt):null;
+      const prixHtml=prix?'<span class="cal-day-prix">'+fmtPrixCourt(prix)+'</span>':'';
+      if(busy[day]&&busy[day].length){
+        const names=busy[day].map(c=>[c.prenom,c.nom].filter(Boolean).join(' ')).join(' · ');
+        const allMaisons=busy[day].map(c=>(c.maison||'').toUpperCase());
+        const hasRosa=allMaisons.some(mv=>mv==='ROSA');
+        const hasLina=allMaisons.some(mv=>mv==='LINA');
+        const hasRosalina=allMaisons.some(mv=>mv==='ROSALINA');
+        const multiBlock=(hasRosa||hasLina)&&!hasRosalina;
+        cells+='<div class="cal-day busy'+(multiBlock?' blocked-by':'')+'" data-ids="'+busy[day].map(c=>c.id).join(',')+'" title="'+esc(names)+'">'+day+prixHtml+'</div>';
+      } else {
+        cells+='<div class="cal-day free">'+day+prixHtml+'</div>';
+      }
     }
   }
   const hdrs=DOW.map(d=>'<div class="cal-dow">'+d+'</div>').join('');
@@ -1140,8 +1145,8 @@ function renderStats(){
   // Taxe de séjour table
   renderTaxeTable(clients);
 
-  // Monthly chart — deferred so canvas has correct dimensions after display:block
-  requestAnimationFrame(()=>renderMonthChart(clients));
+  // Monthly chart — double rAF ensures the browser has painted layout before measuring canvas width
+  requestAnimationFrame(()=>requestAnimationFrame(()=>renderMonthChart(clients)));
 
   // Sources
   const srcMap={};
