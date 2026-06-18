@@ -7,40 +7,51 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Jost:wght@300;400;500;600&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0 0 80px}
+body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding:0 0 80px;color:var(--text);transition:background .3s,color .3s;}
 
 /* ── HEADER (identique générateur) ── */
-.screen-header{background:#2C3D2C;padding:24px 20px}
-.screen-header-inner{max-width:880px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px}
-.screen-header h1{font-family:'Open Sans',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;letter-spacing:.01em}
-.screen-header p{font-size:.72rem;color:rgba(255,255,255,.55);letter-spacing:.15em;text-transform:uppercase;margin-top:5px}
-.header-logo-img{height:54px;width:auto;display:block;flex-shrink:0}
-.header-controls{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.hdr-btn{background:rgba(255,255,255,.12);border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.8);transition:background .2s;text-decoration:none;font-size:1rem}
-.hdr-btn:hover{background:rgba(255,255,255,.22)}
-[data-theme="dark"] body{background:#1A1F1A;color:#E8E4DC}
-[data-theme="dark"] .section-card{background:#252B25;border:1px solid rgba(255,255,255,.08);box-shadow:0 4px 24px rgba(0,0,0,.3)}
-[data-theme="dark"] .field input,[data-theme="dark"] .field select{background:#1E241E;border-color:rgba(255,255,255,.12);color:#E8E4DC}
-[data-theme="dark"] .field input:focus,[data-theme="dark"] .field select:focus{border-color:#C8956C;background:#222822}
-[data-theme="dark"] .maison-btn{background:#1E241E;border-color:rgba(255,255,255,.12)}
-[data-theme="dark"] .maison-btn .mb-name{color:#E8E4DC}
-[data-theme="dark"] .maison-btn.active{border-color:#C8956C;background:#2A2018}
-[data-theme="dark"] .date-input-btn{background:#1E241E;border-color:rgba(255,255,255,.12);color:#E8E4DC}
-[data-theme="dark"] .cal-popup{background:#252B25;box-shadow:0 8px 40px rgba(0,0,0,.5)}
-[data-theme="dark"] .cal-month-label{color:#E8E4DC}
-[data-theme="dark"] .cal-day{color:#aaa}
-[data-theme="dark"] .finance-table td{border-bottom-color:rgba(255,255,255,.08)}
-[data-theme="dark"] .row-auto td{background:rgba(255,255,255,.04)}
-[data-theme="dark"] .preview-wrap{border-color:rgba(255,255,255,.1)}
-[data-theme="dark"] .preview-header{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
-[data-theme="dark"] .preview-body{background:#1E241E;color:#E8E4DC}
-[data-theme="dark"] .btn-reset{background:transparent;border-color:rgba(255,255,255,.2);color:#E8E4DC}
+:root{--bg:#F4F0EA;--bg2:#EDEAE4;--card:#fff;--border:#E0D8CE;--green:#2C3D2C;--green2:#3D5438;--rose:#C8956C;--text:#1A1A1A;--text2:#666;--text3:#999;}
+[data-theme="dark"]{--bg:#0F1410;--bg2:#161B16;--card:#1C211C;--border:#2A312A;--text:#EEE8DF;--text2:#9A9A8A;--text3:#6A7A6A;}
+/* ── HEADER identical to dashboard ── */
+.header{background:var(--green);height:56px;display:flex;align-items:center;position:sticky;top:0;z-index:100;padding:0 16px;}
+.header-inner{max-width:880px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.header-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.header-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.logo-img{width:28px;height:28px;object-fit:contain;display:block;flex-shrink:0;}
+.logo-text{font-family:'Open Sans',sans-serif;font-size:.78rem;font-weight:700;color:#fff;letter-spacing:.14em;text-transform:uppercase;}
+.theme-btn{background:rgba(255,255,255,.12);border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:background .2s;}
+.theme-btn:hover{background:rgba(255,255,255,.22);}
+.theme-btn img{width:20px;height:20px;object-fit:contain;}
+.home-btn{background:rgba(255,255,255,.12);border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;text-decoration:none;transition:background .2s;}
+.home-btn:hover{background:rgba(255,255,255,.22);}
+/* ── DARK MODE ── */
+[data-theme="dark"] .section-card{background:var(--card);border:1px solid var(--border);box-shadow:0 4px 24px rgba(0,0,0,.3)}
+[data-theme="dark"] .field input,[data-theme="dark"] .field select{background:#222A22;border-color:var(--border);color:var(--text)}
+[data-theme="dark"] .field input:focus,[data-theme="dark"] .field select:focus{border-color:var(--rose);background:#283028}
+[data-theme="dark"] .maison-btn{background:var(--card);border-color:var(--border);color:var(--text)}
+[data-theme="dark"] .maison-btn .mb-name{color:var(--text)}
+[data-theme="dark"] .maison-btn .mb-cap{color:var(--text2)}
+[data-theme="dark"] .maison-btn.active{border-color:var(--rose);background:rgba(200,149,108,.12)}
+[data-theme="dark"] .date-input-btn{background:#222A22;border-color:var(--border);color:var(--text)}
+[data-theme="dark"] .cal-popup{background:var(--card);box-shadow:0 8px 40px rgba(0,0,0,.5)}
+[data-theme="dark"] .cal-month-label{color:var(--text)}
+[data-theme="dark"] .cal-day{color:var(--text2)}
+[data-theme="dark"] .finance-table td{border-bottom-color:var(--border)}
+[data-theme="dark"] .row-auto td{background:rgba(90,154,90,.18)}
+[data-theme="dark"] .preview-wrap{border-color:var(--border)}
+[data-theme="dark"] .preview-header{background:var(--bg2);border-color:var(--border)}
+[data-theme="dark"] .preview-body{background:#222A22;color:var(--text)}
+[data-theme="dark"] .btn-reset{background:transparent;border-color:var(--border);color:var(--text2)}
+[data-theme="dark"] .section-title{color:var(--rose)}
+[data-theme="dark"] .section-title::after{background:var(--border)}
+[data-theme="dark"] .grille-table th{background:var(--green2)}
+[data-theme="dark"] .grille-table td{border-color:var(--border);color:var(--text2)}
 
 /* ── LAYOUT ── */
 .form-body{max-width:880px;margin:36px auto;padding:0 20px;display:flex;flex-direction:column;gap:28px}
 
 /* ── CARDS (identique générateur) ── */
-.section-card{background:#fff;border-radius:12px;padding:28px 32px;box-shadow:0 4px 24px rgba(0,0,0,.07)}
+.section-card{background:var(--card);border-radius:12px;padding:28px 32px;box-shadow:0 4px 24px rgba(0,0,0,.07)}
 .section-title{font-size:.64rem;letter-spacing:.28em;text-transform:uppercase;color:#C8956C;margin-bottom:22px;display:flex;align-items:center;gap:12px}
 .section-title::after{content:'';flex:1;height:1px;background:#eee}
 
@@ -50,15 +61,15 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 .field-grid.three{grid-template-columns:1fr 1fr 1fr}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:.72rem;font-weight:500;color:#444;letter-spacing:.04em}
-.field input,.field select{border:1.5px solid #E0D8CE;border-radius:8px;padding:10px 14px;font-family:'Jost',sans-serif;font-size:.9rem;color:#1A1A1A;background:#FAFAF8;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.field input,.field select{border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;font-family:'Jost',sans-serif;font-size:.9rem;color:#1A1A1A;background:var(--card);outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
 .field input:focus,.field select:focus{border-color:#C8956C;box-shadow:0 0 0 3px rgba(200,149,108,.12);background:#fff}
-.field input[readonly]{background:#F0EDE6;color:#2C3D2C;font-weight:600;cursor:default}
+.field input[readonly]{background:#C1CCD8;color:#2C3D2C;font-weight:600;cursor:default}
 .field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
 .field .hint{font-size:.67rem;color:#aaa}
 
 /* ── MAISON SELECTOR (identique générateur) ── */
 .maison-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
-.maison-btn{border:2px solid #E0D8CE;border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;background:#FAFAF8}
+.maison-btn{border:2px solid #E0D8CE;border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;background:var(--card)}
 .maison-btn:hover{border-color:#C8956C;background:#FFF8F2}
 .maison-btn.active{border-color:#C8956C;background:#FFF8F2;box-shadow:0 0 0 3px rgba(200,149,108,.15)}
 .maison-btn .mb-name{font-weight:600;font-size:.88rem;color:#2C3D2C;letter-spacing:.04em}
@@ -66,7 +77,7 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 
 /* ── DATE FIELDS (identique générateur) ── */
 .date-field-wrap{position:relative}
-.date-input-btn{border:1.5px solid #E0D8CE;border-radius:8px;padding:10px 14px;font-family:'Jost',sans-serif;font-size:.9rem;color:#1A1A1A;background:#FAFAF8;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;min-height:42px}
+.date-input-btn{border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;font-family:'Jost',sans-serif;font-size:.9rem;color:#1A1A1A;background:var(--card);outline:none;transition:border-color .2s,box-shadow .2s;width:100%;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;min-height:42px}
 .date-input-btn:hover,.date-input-btn.open{border-color:#C8956C;box-shadow:0 0 0 3px rgba(200,149,108,.12);background:#fff}
 .date-input-btn .date-text{flex:1;font-size:.9rem}
 .date-input-btn .date-text.placeholder{color:#aaa}
@@ -92,7 +103,7 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 .cal-day.disabled{color:#ddd;cursor:default;pointer-events:none}
 .cal-day.empty{pointer-events:none}
 .cal-year-btns{display:flex;gap:6px;margin-top:14px;padding-top:12px;border-top:1px solid #f0ece6}
-.cal-year-btn{flex:1;padding:6px 4px;border:1.5px solid #E0D8CE;border-radius:8px;background:#FAFAF8;font-family:'Jost',sans-serif;font-size:.78rem;color:#555;cursor:pointer;transition:all .15s;text-align:center}
+.cal-year-btn{flex:1;padding:6px 4px;border:1.5px solid var(--border);border-radius:8px;background:var(--card);font-family:'Jost',sans-serif;font-size:.78rem;color:#555;cursor:pointer;transition:all .15s;text-align:center}
 .cal-year-btn:hover{border-color:#C8956C;color:#C8956C;background:#FFF8F2}
 .cal-year-btn.active{border-color:#2C3D2C;background:#2C3D2C;color:#fff}
 
@@ -102,14 +113,14 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 .finance-table tr:last-child td{border-bottom:none}
 .finance-table .ft-label{color:#444}
 .finance-table .ft-value{text-align:right;font-weight:600;color:#2C3D2C;white-space:nowrap}
-.row-auto td{background:#F9F7F4}
-.row-auto .ft-label{color:#888;font-size:.83rem}
+.row-auto td{background:#EDF5ED}
+.row-auto .ft-label{color:#2C5A2C;font-size:.83rem}
 .row-total td{font-weight:700;font-size:1rem;color:#2C3D2C;border-top:2px solid #2C3D2C!important;border-bottom:2px solid #2C3D2C;padding:14px 16px}
 .row-total .ft-value{color:#C8956C;font-size:1.1rem}
 .row-caution td{background:#F9F7F4;color:#666;font-size:.83rem}
 
 /* ── EMAIL PREVIEW ── */
-.preview-wrap{border:1.5px solid #E0D8CE;border-radius:10px;overflow:hidden;margin-top:6px}
+.preview-wrap{border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-top:6px}
 .preview-header{background:#F9F7F4;padding:10px 16px;border-bottom:1px solid #E0D8CE;display:flex;gap:14px;font-size:.72rem;color:#888}
 .preview-header span{color:#444;font-weight:500}
 .preview-body{width:100%;padding:18px 20px;font-size:.83rem;line-height:1.8;color:#1A1A1A;white-space:pre-wrap;word-break:break-word;min-height:280px;max-height:480px;background:#fff;border:none;outline:none;resize:vertical;font-family:'Jost',sans-serif;display:block}
@@ -124,6 +135,10 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 .btn-send svg{width:20px;height:20px;fill:#C8956C}
 .btn-reset{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:#fff;color:#1A1A1A;border:2px solid #1A1A1A;border-radius:12px;font-family:'Jost',sans-serif;font-size:.9rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s}
 .btn-reset:hover{background:#1A1A1A;color:#fff;transform:translateY(-2px)}
+.btn-send-gmail-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:#fff;color:#2C3D2C;border:2px solid #2C3D2C;border-radius:12px;font-family:'Jost',sans-serif;font-size:.9rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-send-gmail-btn:hover{background:#2C3D2C;color:#fff;transform:translateY(-2px)}
+.btn-send-gmail-btn:disabled{opacity:.42;cursor:not-allowed;transform:none}
+[data-theme="dark"] .btn-send-gmail-btn{background:transparent;border-color:var(--border);color:var(--text2)}
 .action-stack{display:flex;flex-direction:column;gap:14px}
 
 /* ── GRILLE TOGGLE ── */
@@ -147,16 +162,22 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 </head>
 <body>
 
-<div class="screen-header">
-  <div class="screen-header-inner">
-    <div><h1>Devis Rapide</h1><p>Domaine Rosalina</p></div>
-    <div class="header-controls">
-      <a class="hdr-btn" href="dashboard.html" title="Accueil">🏠</a>
-      <button class="hdr-btn" onclick="toggleThemeDevis()" id="theme-btn-devis" title="Mode sombre/clair">🌙</button>
-      <img class="header-logo-img" src="https://domainerosalina.com/wp-content/uploads/2026/06/logo-rosalina-white-transparent.png" alt="Domaine Rosalina" onerror="this.style.display='none'">
+<header class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <img class="logo-img" src="https://domainerosalina.com/wp-content/uploads/2026/06/logo-rosalina-white-transparent.png" onerror="this.style.display='none'" alt="R">
+      <span class="logo-text">DEVIS RAPIDE</span>
+    </div>
+    <div class="header-right">
+      <a class="home-btn" href="dashboard.html" title="Accueil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </a>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">
+        <img id="theme-icon" src="https://domainerosalina.com/wp-content/uploads/2026/06/icon-sun.png" alt="theme">
+      </button>
     </div>
   </div>
-</div>
+</header>
 
 <div class="form-body">
 
@@ -304,7 +325,7 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
         <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="#C8956C"/></svg>
         Envoyer par le client email
       </button>
-      <button class="btn-reset" id="btn-send-gmail" onclick="sendGmail()" disabled style="border-color:#2C3D2C;color:#2C3D2C">
+      <button class="btn-send-gmail-btn" id="btn-send-gmail" onclick="sendGmail()" disabled>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
         Ouvrir dans Gmail (web)
       </button>
@@ -318,18 +339,18 @@ body{font-family:'Jost',sans-serif;background:#EDEAE4;min-height:100vh;padding:0
 </div>
 
 <script>
-// ══ THEME ══
-(function(){const t=localStorage.getItem('devis_theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
-function toggleThemeDevis(){
-  const cur=document.documentElement.getAttribute('data-theme')||'light';
-  const next=cur==='dark'?'light':'dark';
-  document.documentElement.setAttribute('data-theme',next);
-  localStorage.setItem('devis_theme',next);
-  const btn=document.getElementById('theme-btn-devis');
-  if(btn)btn.textContent=next==='dark'?'☀️':'🌙';
+// ── THEME (identique dashboard) ──
+let theme=localStorage.getItem('dash_theme')||'dark';
+function initTheme(){
+  document.body.setAttribute('data-theme',theme);
+  const ic=document.getElementById('theme-icon');
+  if(ic)ic.src=theme==='dark'
+    ?'https://domainerosalina.com/wp-content/uploads/2026/06/icon-sun.png'
+    :'https://domainerosalina.com/wp-content/uploads/2026/06/icon-moon.png';
 }
+function toggleTheme(){theme=theme==='dark'?'light':'dark';localStorage.setItem('dash_theme',theme);initTheme();}
 
-// ══ SAISONNALITÉ ══
+// ── SAISONNALITÉ ──
 const TARIFS_S={ROSALINA:{basse:1100,haute:1200},ROSA:{basse:900,haute:1000},LINA:{basse:400,haute:500}};
 function getSaison(date){const m=date.getMonth()+1,d=date.getDate();if(m>=4&&m<=8)return'haute';if(m===12&&d>=22)return'haute';if(m===1&&d<=4)return'haute';return'basse';}
 function getPrixNuit(maison,date){const s=getSaison(date);return(TARIFS_S[maison?.toUpperCase()]||TARIFS_S.ROSALINA)[s];}
@@ -645,8 +666,7 @@ function resetForm(){
 // ── INIT ──
 buildSelects();
 updateCardPrices();
-// Sync theme button icon
-(function(){const t=localStorage.getItem('devis_theme')||'light';const btn=document.getElementById('theme-btn-devis');if(btn)btn.textContent=t==='dark'?'☀️':'🌙';})();
+initTheme();
 </script>
 </body>
 </html>
