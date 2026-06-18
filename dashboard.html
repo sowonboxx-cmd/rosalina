@@ -174,6 +174,8 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .cal-day.busy{background:#FEEAEA;color:#C0392B;cursor:pointer;font-weight:700;}
 [data-theme="dark"] .cal-day.busy{background:rgba(220,80,80,.25);color:#F08080;}
 .cal-day.busy:hover{opacity:.75;}
+/* Bloqué par Rosa ou Lina (pas une resa Rosalina directe) */
+.cal-day.blocked-by{background:repeating-linear-gradient(135deg,#FEEAEA 0px,#FEEAEA 4px,#FCDADA 4px,#FCDADA 8px);}
 .cal-day.empty{visibility:hidden;}
 .cal-btn-devis{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:var(--green);color:#fff;border:none;border-radius:var(--r2);font-family:'Jost',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;margin-top:16px;text-decoration:none;transition:background .2s;}
 .cal-btn-devis:hover{background:var(--green2);}
@@ -772,10 +774,19 @@ function navCal(dir){
 }
 function renderCal(){
   const maisons=['rosalina','rosa','lina'];
-  const labels={rosalina:'Rosalina',rosa:'Rosa',lina:'Lina'};
+  const labels={rosalina:'ROSALINA',rosa:'ROSA',lina:'LINA'};
   let html='';
   maisons.forEach(m=>{
-    const clients=allClients.filter(c=>(c.maison||'').toLowerCase()===m);
+    // ROSALINA = ses propres réservations + celles de ROSA et LINA (Rosa+Lina bloquent Rosalina)
+    let clients;
+    if(m==='rosalina'){
+      clients=allClients.filter(c=>{
+        const mv=(c.maison||'').toUpperCase();
+        return mv==='ROSALINA'||mv==='ROSA'||mv==='LINA';
+      });
+    } else {
+      clients=allClients.filter(c=>(c.maison||'').toUpperCase()===m.toUpperCase());
+    }
     html+='<div class="cal-maison-card">'+
       '<div class="cal-maison-name '+m+'">'+labels[m]+'</div>'+
       buildCalMonth(calYear,calMonth,clients)+
@@ -787,38 +798,59 @@ function buildCalMonth(yr,m,clients){
   const firstDay=new Date(yr,m,1);
   const lastDay=new Date(yr,m+1,0).getDate();
   let dow=firstDay.getDay();dow=(dow===0)?6:dow-1;// Mon=0
-  // Busy map
+  // Busy map — on garde TOUS les clients qui occupent ce jour
   const busy={};
   clients.forEach(c=>{
     if(!c.arrivee||!c.depart)return;
     const s=new Date(c.arrivee+'T12:00:00');
     const e=new Date(c.depart+'T12:00:00');
     for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
-      if(d.getMonth()===m&&d.getFullYear()===yr) busy[d.getDate()]=c;
+      if(d.getMonth()===m&&d.getFullYear()===yr){
+        const k=d.getDate();
+        if(!busy[k])busy[k]=[];
+        // Évite les doublons (même client)
+        if(!busy[k].find(x=>x.id===c.id))busy[k].push(c);
+      }
     }
   });
-  // Build a flat array of 7*N cells
   const totalCells=Math.ceil((dow+lastDay)/7)*7;
   let cells='';
   for(let i=0;i<totalCells;i++){
     const day=i-dow+1;
     if(day<1||day>lastDay){
       cells+='<div class="cal-day empty"></div>';
-    } else if(busy[day]){
-      const cid=esc(busy[day].id);
-      cells+='<div class="cal-day busy" onclick="openModalById(\''+cid+'\')" title="'+esc([busy[day].prenom,busy[day].nom].filter(Boolean).join(' '))+'">'+day+'</div>';
+    } else if(busy[day]&&busy[day].length){
+      // S'il y a plusieurs clients (ex. Rosa + Lina le même jour), on prend le premier pour le clic
+      const primary=busy[day][0];
+      const cid=esc(primary.id);
+      // Tooltip = tous les noms
+      const names=busy[day].map(c=>[c.prenom,c.nom].filter(Boolean).join(' ')).join(' · ');
+      // Couleur spéciale si blocage indirect (Rosa ou Lina dans le calendrier Rosalina)
+      const allMaisons=busy[day].map(c=>(c.maison||'').toUpperCase());
+      const hasRosa=allMaisons.some(mv=>mv==='ROSA');
+      const hasLina=allMaisons.some(mv=>mv==='LINA');
+      const hasRosalina=allMaisons.some(mv=>mv==='ROSALINA');
+      const multiBlock=(hasRosa||hasLina)&&!hasRosalina;
+      cells+='<div class="cal-day busy'+(multiBlock?' blocked-by':'')+'" onclick="openModalByIds('+JSON.stringify(busy[day].map(c=>c.id))+')" title="'+esc(names)+'">'+day+'</div>';
     } else {
       cells+='<div class="cal-day free">'+day+'</div>';
     }
   }
-  // DOW headers
   const hdrs=DOW.map(d=>'<div class="cal-dow">'+d+'</div>').join('');
   return '<div class="cal-grid">'+hdrs+cells+'</div>';
 }
 
 // MODAL
 function openModalById(id){const c=allClients.find(x=>x.id===id);if(c)openModal(c);}
-function openModal(c){
+function openModalByIds(ids){
+  if(!ids||!ids.length)return;
+  if(ids.length===1){openModalById(ids[0]);return;}
+  const clients=ids.map(id=>allClients.find(x=>x.id===id)).filter(Boolean);
+  if(!clients.length)return;
+  openModal(clients[0], clients);
+}
+function openModal(c, allC){
+  allC=allC||[c];
   modalClient=c;
   const mc=getMC(c.maison);
   const name=[c.prenom,c.nom].filter(Boolean).join(' ')||'Client';
@@ -826,7 +858,8 @@ function openModal(c){
   const jours=nuits+1;
   document.getElementById('m-name').textContent=name;
   document.getElementById('m-org').textContent=c.org||'';
-  document.getElementById('m-maison').innerHTML='<span class="maison-pill '+mc+'">'+esc(c.maison||'\u2014')+'</span>';
+  // Toutes les pastilles maison (Rosa+Lina → 2 pastilles dans le calendrier Rosalina)
+  document.getElementById('m-maison').innerHTML=allC.map(cl=>'<span class="maison-pill '+getMC(cl.maison)+'">'+esc(cl.maison||'\u2014')+'</span>').join(' ');
   document.getElementById('m-arr').textContent=c.arrivee?fmtLong(c.arrivee):'\u2014';
   document.getElementById('m-dep').textContent=c.depart?fmtLong(c.depart):'\u2014';
   document.getElementById('m-duree').textContent=nuits?jours+' jours / '+nuits+' nuits':'\u2014';
