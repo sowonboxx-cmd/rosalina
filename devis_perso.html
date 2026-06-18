@@ -1057,6 +1057,7 @@ function saveNotionToken(val) {
     document.getElementById('token-status').textContent = '✓ Token sauvegardé localement';
     document.getElementById('token-status').style.color = '#3D5438';
     document.getElementById('notion-config-badge').style.display = 'inline-block';
+    loadBookedDates(); // charger les dates occupées maintenant que le token est dispo
   } else if (val) {
     document.getElementById('token-status').textContent = 'Le token doit commencer par ntn_...';
     document.getElementById('token-status').style.color = '#C8956C';
@@ -1231,12 +1232,12 @@ const DB_ID='249a8c29-d056-8122-a40c-cf7180e98935';
 let bookedRanges=[];// [{start:Date, end:Date, maison:'ROSALINA'}]
 
 async function loadBookedDates(){
-  const token=localStorage.getItem('notion_token');
-  if(!token)return;
+  const token=getNotionToken()||localStorage.getItem('notion_token');
+  if(!token||!token.startsWith('ntn_'))return;
   try{
     let all=[],cursor=null;
     do{
-      const body={token,database_id:DB_ID,page_size:100};
+      const body={token,database_id:NOTION_DB_ID,page_size:100};
       if(cursor)body.start_cursor=cursor;
       const res=await fetch(WORKER_URL+'/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       const data=await res.json();

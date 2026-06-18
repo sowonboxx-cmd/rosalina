@@ -1034,10 +1034,13 @@ const calTooltip=document.getElementById('cal-tooltip');
 const MOIS_LONG_TT=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 function fmtDateTT(s){if(!s)return'—';const[y,mo,d]=s.split('-');return parseInt(d)+' '+MOIS_LONG_TT[parseInt(mo)-1];}
 
+// Tooltip — desktop uniquement (pas de hover sur mobile)
+const isTouch=()=>window.matchMedia('(hover:none)').matches||('ontouchstart' in window);
+
 document.addEventListener('mouseover',function(e){
+  if(isTouch())return;
   const cell=e.target.closest('.cal-day[data-tip]');
   if(!cell)return;
-  // Tooltip
   try{
     const d=JSON.parse(cell.getAttribute('data-tip').replace(/&#39;/g,"'"));
     document.getElementById('tt-name').textContent=d.name;
@@ -1054,19 +1057,18 @@ document.addEventListener('mouseover',function(e){
     if(d.statut){document.getElementById('tt-statut').textContent=d.statut;sEl.style.display='flex';}else sEl.style.display='none';
     calTooltip.classList.add('visible');
   }catch(err){}
-  // Group hover highlight
   const grp=cell.getAttribute('data-group');
   if(grp){
     const days=new Set(grp.split(',').map(Number));
     cell.closest('.cal-grid')?.querySelectorAll('.cal-day[data-group]').forEach(c=>{
       const cDays=new Set((c.getAttribute('data-group')||'').split(',').map(Number));
-      const overlap=[...days].some(d=>cDays.has(d));
-      if(overlap)c.classList.add('busy-hover');
+      if([...days].some(d=>cDays.has(d)))c.classList.add('busy-hover');
     });
   }
 });
 
 document.addEventListener('mousemove',function(e){
+  if(isTouch())return;
   if(calTooltip.classList.contains('visible')){
     const vw=window.innerWidth,vh=window.innerHeight;
     const tw=calTooltip.offsetWidth||230,th=calTooltip.offsetHeight||120;
@@ -1078,6 +1080,7 @@ document.addEventListener('mousemove',function(e){
 });
 
 document.addEventListener('mouseout',function(e){
+  if(isTouch())return;
   const cell=e.target.closest('.cal-day[data-tip]');
   if(!cell)return;
   calTooltip.classList.remove('visible');
