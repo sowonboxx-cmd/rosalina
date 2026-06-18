@@ -162,8 +162,9 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .cal-maisons-grid{display:grid;grid-template-columns:1fr;gap:16px;}
 .cal-maisons-bottom{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;}
 /* ── ALERTES PAIEMENT ── */
-.alert-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:10px;font-size:.62rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;border:none;font-family:'Jost',sans-serif;transition:all .15s;}
-.alert-badge.solde,.alert-badge.caution-alert{background:#C0392B;color:#fff;}
+.alert-badge{display:inline-flex;align-items:center;gap:5px;padding:0px 10px;border-radius:10px;font-size:.6rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;border:none;font-family:'Jost',sans-serif;transition:all .15s;line-height:20px;height:20px;white-space:nowrap;}
+.alert-badge.solde{background:rgba(192,57,43,.75);color:#fff;}
+.alert-badge.caution-alert{background:rgba(192,57,43,.75);color:#fff;}
 .alert-badge:hover{opacity:.85;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
 .alert-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:blink 1.2s ease-in-out infinite;flex-shrink:0;}
@@ -925,8 +926,8 @@ function renderCard(c,today,showYear){
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'+
         'Caution vers\u00e9e'+
       '</span>'+
+      alertBadges+
     '</div>'+
-    (alertBadges?'<div style="display:flex;gap:6px;padding:8px 16px 12px;flex-wrap:wrap;">'+alertBadges+'</div>':'')+
   '</div>';
 }
 
@@ -1215,14 +1216,16 @@ function openRemind(type,id){
   const maison=c.maison||'votre maison';
   const arr=c.arrivee?fmtLong(c.arrivee):'votre date d\'arrivée';
   const solde=c.prix?fmtPrix(Number(c.prix)/2):'le solde';
-  const caution=c.maison?.toUpperCase()==='ROSALINA'?'2 500 €':c.maison?.toUpperCase()==='ROSA'?'1 500 €':'800 €';
+  const maisonNom=c.maison?.toUpperCase()==='ROSALINA'?'au Domaine Rosalina':c.maison?.toUpperCase()==='ROSA'?'à la Maison Rosa':'à la Maison Lina';
+  const cautionMontant=c.maison?.toUpperCase()==='ROSALINA'?'1 500 €':c.maison?.toUpperCase()==='ROSA'?'1 000 €':'600 €';
+  const cautionLink=c.maison?.toUpperCase()==='ROSALINA'?'https://wannapay.fr/d/67ac70c56c401':c.maison?.toUpperCase()==='ROSA'?'https://wannapay.fr/d/6835a0eff0a9f':'https://wannapay.fr/d/6835a0a1ca8ed';
 
   let title, body;
   if(type==='solde'){
     title='Rappel — Solde à régler';
     body=`Bonjour ${prenom||name},
 
-Nous espérons que vous êtes prêt(e) pour votre séjour au Domaine Rosalina ${maison ? '— '+maison : ''} !
+Nous espérons que vous êtes prêt(e) pour votre séjour ${maisonNom} !
 
 Nous souhaitons vous rappeler que le solde de votre réservation d'un montant de ${solde} est dû avant votre arrivée prévue le ${arr}.
 
@@ -1238,11 +1241,11 @@ Aline et Eugène`;
     title='Rappel — Caution à verser';
     body=`Bonjour ${prenom||name},
 
-Votre arrivée au Domaine Rosalina ${maison ? '— '+maison : ''} approche — nous avons hâte de vous accueillir le ${arr} !
+Votre arrivée ${maisonNom} approche et nous avons hâte de vous accueillir le ${arr} !
 
-Nous souhaitons vous rappeler que la caution remboursable d'un montant de ${caution} doit être versée avant votre arrivée.
+Nous souhaitons vous rappeler que la caution remboursable d'un montant de ${cautionMontant} doit être versée avant votre arrivée. Merci de procéder au règlement dans les 24 heures.
 
-Merci de procéder au règlement dans les 24 heures.
+Dépôt de la caution : ${cautionLink}
 
 Pour toute question :
 Email : domainerosalina@gmail.com
