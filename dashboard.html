@@ -247,7 +247,26 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .source-track{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;}
 .source-fill{height:100%;border-radius:3px;background:var(--rose);}
 .source-count{font-size:.72rem;font-weight:600;color:var(--text);min-width:24px;text-align:right;}
-.heatmap-container{overflow-x:auto;}
+.devis-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:center;justify-content:center;}
+.devis-modal-overlay.open{display:flex;}
+.devis-modal{background:var(--card);border-radius:14px;padding:28px 24px;width:min(420px,92vw);box-shadow:0 16px 48px rgba(0,0,0,.25);}
+.devis-modal-title{font-family:'Open Sans',sans-serif;font-size:1rem;font-weight:700;color:var(--text);margin-bottom:6px;}
+.devis-modal-sub{font-size:.75rem;color:var(--text3);margin-bottom:20px;}
+.devis-choice{display:flex;flex-direction:column;gap:12px;}
+.devis-choice-btn{display:flex;align-items:flex-start;gap:14px;padding:16px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg2);cursor:pointer;text-decoration:none;transition:all .15s;}
+.devis-choice-btn:hover{border-color:var(--rose);background:var(--card);}
+.devis-choice-icon{font-size:1.5rem;flex-shrink:0;margin-top:1px;}
+.devis-choice-label{font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:3px;}
+.devis-choice-desc{font-size:.72rem;color:var(--text3);line-height:1.4;}
+.devis-modal-close{display:block;margin-top:16px;text-align:center;font-size:.75rem;color:var(--text3);cursor:pointer;}
+.devis-modal-close:hover{color:var(--text);}
+.taxe-table th{background:var(--green);color:#fff;padding:8px 12px;text-align:left;font-size:.68rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.taxe-table th:last-child{text-align:right}
+.taxe-table td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle}
+.taxe-table td:last-child{text-align:right;font-weight:600;color:var(--text)}
+.taxe-table tr:last-child td{border-bottom:none}
+.taxe-table .taxe-total-row td{background:var(--bg2);font-weight:700;color:var(--text);font-size:.85rem;border-top:2px solid var(--green)!important}
+.taxe-table .taxe-total-row td:last-child{color:var(--rose)}
 .heatmap-grid{display:flex;gap:2px;padding-bottom:4px;}
 .heatmap-col{display:flex;flex-direction:column;gap:2px;}
 .heatmap-cell{width:12px;height:12px;border-radius:2px;background:var(--bg2);}
@@ -277,7 +296,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       <span class="logo-text">ROSALINA</span>
     </div>
     <div class="header-right">
-      <a class="btn-devis" href="https://sowonboxx-cmd.github.io/rosalina/" target="_blank">
+      <a class="btn-devis" href="#" onclick="openDevisModal();return false;">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
         Cr&#233;er un devis
       </a>
@@ -368,7 +387,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       <button class="cal-nav-btn" onclick="navCal(1)">&#8250;</button>
     </div>
     <div class="cal-maisons-grid" id="cal-content"></div>
-    <a class="cal-btn-devis" href="https://sowonboxx-cmd.github.io/rosalina/" target="_blank">+ Cr&#233;er un devis</a>
+    <a class="cal-btn-devis" href="#" onclick="openDevisModal();return false;">+ Cr&#233;er un devis</a>
   </div>
 
   <!-- STATS VIEW -->
@@ -406,9 +425,43 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       <div class="chart-title">Revenus par ann&#233;e</div>
       <div id="revenue-by-year"></div>
     </div>
+
+    <!-- TAXE DE SÉJOUR -->
+    <div class="chart-card" style="margin-top:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+        <div class="chart-title" style="margin-bottom:0">Taxe de s&#233;jour</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="taxe-year-pills"></div>
+      </div>
+      <div id="taxe-table-wrap"></div>
+    </div>
   </div>
 
 </main>
+
+<!-- DEVIS CHOICE MODAL -->
+<div class="devis-modal-overlay" id="devis-modal-overlay" onclick="if(event.target===this)closeDevisModal()">
+  <div class="devis-modal">
+    <div class="devis-modal-title">Créer un devis</div>
+    <div class="devis-modal-sub">Choisissez le type de devis à générer</div>
+    <div class="devis-choice">
+      <a class="devis-choice-btn" href="https://sowonboxx-cmd.github.io/rosalina/" target="_blank" onclick="closeDevisModal()">
+        <div class="devis-choice-icon">📄</div>
+        <div>
+          <div class="devis-choice-label">Devis personnalisé</div>
+          <div class="devis-choice-desc">Contrat complet avec CGV, signature, enregistrement dans Notion. Pour les réservations confirmées.</div>
+        </div>
+      </a>
+      <a class="devis-choice-btn" href="https://sowonboxx-cmd.github.io/rosalina/devis_rapide.html" target="_blank" onclick="closeDevisModal()">
+        <div class="devis-choice-icon">⚡</div>
+        <div>
+          <div class="devis-choice-label">Devis rapide</div>
+          <div class="devis-choice-desc">Email d'information avec le tarif. Rapide, sans contrat. Pour répondre à une demande initiale.</div>
+        </div>
+      </a>
+    </div>
+    <div class="devis-modal-close" onclick="closeDevisModal()">Annuler</div>
+  </div>
+</div>
 
 <div class="overlay" id="overlay" onclick="onOverlayClick(event)">
   <div class="modal">
@@ -440,6 +493,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       <div class="modal-section">
         <div class="modal-section-title">Financier</div>
         <div class="modal-row"><span class="lbl">Total</span><span class="val" id="m-prix" style="color:var(--rose);font-size:1rem;font-weight:700"></span></div>
+        <div class="modal-row" id="m-taxe-row" style="display:none;opacity:.8"><span class="lbl" style="font-size:.82rem">Taxe de séjour</span><span class="val" id="m-taxe" style="font-size:.85rem">—</span></div>
         <div class="modal-row" style="opacity:.7"><span class="lbl" style="font-size:.72rem">Acompte</span><span class="val" id="m-acompte" style="font-size:.78rem">&#8212;</span></div>
         <div class="modal-row" style="opacity:.7"><span class="lbl" style="font-size:.72rem">Solde</span><span class="val" id="m-solde" style="font-size:.78rem">&#8212;</span></div>
         <div class="modal-row" id="m-contrat-row" style="display:none"><span class="lbl">Contrat</span><a class="val" id="m-contrat" href="#" target="_blank">Voir &#8594;</a></div>
@@ -553,6 +607,7 @@ function parseClient(page){
     cp:(()=>{const v=g('Code postal','num');return v!==''&&v!=null?String(v):g('Code postal','rich');})(),
     ville:g('Ville','rich')||g('Ville','select'),
     prix:g('Prix','num'),statut:g('Statut','multi'),contrat:g('Contrat','url'),
+    taxe:g('Taxe de s\u00e9jour','num'),
     nuits:g('Nbr de nuits','num'),jours:g('Nbr de jours','num'),
     source:(()=>{const prop=page.properties['Source'];if(!prop)return'';if(prop.multi_select)return prop.multi_select.map(s=>s.name).join(', ');if(prop.select)return prop.select?.name||'';if(prop.rich_text)return prop.rich_text[0]?.plain_text||'';return'';})(),
     caution:g('Caution vers\u00e9e','check'),
@@ -879,6 +934,9 @@ function openModal(c, allC){
   const tel=document.getElementById('m-tel');tel.textContent=c.tel||'\u2014';tel.href=c.tel?'tel:'+c.tel.replace(/\s/g,''):'#';
   const email=document.getElementById('m-email');email.textContent=c.email||'\u2014';email.href=c.email?'mailto:'+c.email:'#';
   document.getElementById('m-prix').textContent=c.prix?fmtPrix(c.prix):'\u2014';
+  const taxeRow=document.getElementById('m-taxe-row');
+  if(c.taxe){taxeRow.style.display='flex';document.getElementById('m-taxe').textContent=fmtPrix(c.taxe);}
+  else taxeRow.style.display='none';
   const moitie=c.prix?Number(c.prix)/2:0;
   document.getElementById('m-acompte').textContent=c.prix?fmtPrix(moitie):'\u2014';
   document.getElementById('m-solde').textContent=c.prix?fmtPrix(moitie):'\u2014';
@@ -896,6 +954,9 @@ function updateCautionBtn(v){
   document.getElementById('m-caution-label').textContent=v?'Vers\u00e9e \u2713':'Non vers\u00e9e';
   document.getElementById('m-caution-btn').className='caution-toggle-btn '+(v?'ok':'');
 }
+function openDevisModal(){document.getElementById('devis-modal-overlay').classList.add('open');}
+function closeDevisModal(){document.getElementById('devis-modal-overlay').classList.remove('open');}
+
 function closeModal(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';}
 function onOverlayClick(e){if(e.target===document.getElementById('overlay'))closeModal();}
 
@@ -1072,6 +1133,9 @@ function renderStats(){
     {l:'Dur\u00e9e moyenne',v:avgJours+'j / '+avgNuits+'n',s:''},
   ].map(k=>'<div class="kpi-card"><div class="kpi-lbl">'+k.l+'</div><div class="kpi-val">'+k.v+'</div><div class="kpi-sub">'+k.s+'</div></div>').join('');
 
+  // Taxe de séjour table
+  renderTaxeTable(clients);
+
   // Monthly chart
   renderMonthChart(clients);
 
@@ -1115,6 +1179,50 @@ function renderStats(){
   }).join('');
 }
 
+let taxeYear='all';
+function renderTaxeTable(allC){
+  // Clients qui ont une taxe
+  const withTaxe=allC.filter(c=>c.taxe>0);
+  // All years
+  const years=[...new Set(withTaxe.map(c=>c.arrivee?.slice(0,4)).filter(Boolean))].sort();
+  // Year pills
+  const pillsEl=document.getElementById('taxe-year-pills');
+  if(!pillsEl)return;
+  const allYears=['all',...years];
+  pillsEl.innerHTML=allYears.map(y=>
+    '<button class="year-pill'+(y===taxeYear?' active':'')+'" onclick="setTaxeYear(\''+y+'\',this)">'+
+    (y==='all'?'Tout':y)+'</button>'
+  ).join('');
+  // Filter
+  const filtered=taxeYear==='all'?withTaxe:withTaxe.filter(c=>c.arrivee?.startsWith(taxeYear));
+  const total=filtered.reduce((s,c)=>s+(Number(c.taxe)||0),0);
+  const wrap=document.getElementById('taxe-table-wrap');
+  if(!wrap)return;
+  if(!filtered.length){wrap.innerHTML='<p style="text-align:center;color:var(--text3);font-size:.8rem;padding:18px 0">Aucune taxe de séjour renseignée</p>';return;}
+  const rows=filtered.sort((a,b)=>(a.arrivee||'').localeCompare(b.arrivee||'')).map(c=>
+    '<tr>'+
+    '<td>'+esc(c.arrivee?fmtLong(c.arrivee):'\u2014')+'</td>'+
+    '<td>'+esc([c.prenom,c.nom].filter(Boolean).join(' ')||'\u2014')+'</td>'+
+    '<td>'+esc(c.maison||'\u2014')+'</td>'+
+    '<td>'+fmtPrix(c.taxe)+'</td>'+
+    '</tr>'
+  ).join('');
+  wrap.innerHTML=
+    '<table class="taxe-table">'+
+    '<thead><tr><th>Arriv\u00e9e</th><th>Client</th><th>Maison</th><th>Taxe</th></tr></thead>'+
+    '<tbody>'+rows+
+    '<tr class="taxe-total-row"><td colspan="3">Total '+(taxeYear==='all'?'':taxeYear)+'</td><td>'+fmtPrix(total)+'</td></tr>'+
+    '</tbody></table>';
+}
+function setTaxeYear(y){
+  taxeYear=y;
+  // Rebuild with current clients
+  renderTaxeTable(allClients.filter(c=>{
+    if(statsTab==='global')return true;
+    return c.arrivee?.startsWith(statsTab);
+  }));
+}
+
 function renderMonthChart(clients){
   const canvas=document.getElementById('chart-months');
   if(!canvas)return;
@@ -1124,9 +1232,12 @@ function renderMonthChart(clients){
     ?[...new Set(clients.map(c=>c.arrivee?.slice(0,4)).filter(Boolean))].sort().slice(-3)
     :[statsTab];
   const colors=['#C8956C','#4A7EC8','#6AA865'];
+  const dpr=window.devicePixelRatio||1;
   const W=canvas.parentElement.clientWidth-28;
   const H=180;
-  canvas.width=W;canvas.height=H;
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);
+  ctx.scale(dpr,dpr);
   const pad={t:10,r:10,b:30,l:36};
   const chartW=W-pad.l-pad.r;
   const chartH=H-pad.t-pad.b;
