@@ -1159,6 +1159,8 @@ async function saveToNotion() {
       ...(source ? { 'Source': { multi_select: [{ name: source }] } } : {}),
       // Prix
       'Prix': { number: total },
+      // Taxe de séjour
+      ...(taxe ? { 'Taxe de séjour': { number: taxe } } : {}),
       // Statut par défaut (multi_select)
       'Statut': { multi_select: [{ name: 'Devis envoyé' }] },
     }
