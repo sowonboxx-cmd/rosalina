@@ -973,9 +973,12 @@ function renderCal(){
   function buildCard(m){
     let clients;
     if(m==='rosalina'){
+      // ROSALINA bloqué par ses propres résas + celles de ROSA et LINA
       clients=allClients.filter(c=>{const mv=(c.maison||'').toUpperCase();return mv==='ROSALINA'||mv==='ROSA'||mv==='LINA';});
     } else {
-      clients=allClients.filter(c=>(c.maison||'').toUpperCase()===m.toUpperCase());
+      // ROSA et LINA bloqués par leurs propres résas + celles de ROSALINA (qui réunit les deux)
+      const mu=m.toUpperCase();
+      clients=allClients.filter(c=>{const mv=(c.maison||'').toUpperCase();return mv===mu||mv==='ROSALINA';});
     }
     const firstDay=new Date(calYear,calMonth,1);
     const saison=getSaison(firstDay);
@@ -1066,8 +1069,10 @@ function buildCalMonth(yr,m,clients,maison){
       const groupIds=anyList.map(c=>c.id).flatMap(id=>clientDays[id]||[]).filter((v,i,a)=>a.indexOf(v)===i).join(',');
       const tip=tooltipData(anyList);
       const allMaisons=anyList.map(c=>(c.maison||'').toUpperCase());
-      const hasRosa=allMaisons.some(v=>v==='ROSA'),hasLina=allMaisons.some(v=>v==='LINA'),hasRosalina=allMaisons.some(v=>v==='ROSALINA');
-      const multiBlock=(hasRosa||hasLina)&&!hasRosalina;
+      // Blocage "indirect" = la résa vient d'une AUTRE maison que celle affichée dans ce calendrier
+      // (ex: calendrier ROSALINA bloqué par une résa ROSA/LINA, ou calendrier ROSA bloqué par une résa ROSALINA)
+      const viewedMaison=(maison||'').toUpperCase();
+      const multiBlock=allMaisons.some(v=>v!==viewedMaison);
       let cls='cal-day';
       if(aList&&!bList&&!dList) cls+=' arrival';
       else if(dList&&!bList&&!aList) cls+=' departure';

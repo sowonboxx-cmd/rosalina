@@ -1263,7 +1263,11 @@ async function loadBookedDates(){
 
 function getMaisonsToCheck(maison){
   const m=maison.toUpperCase();
-  return m==='ROSALINA'?['ROSALINA','ROSA','LINA']:m==='ROSA'?['ROSALINA','ROSA']:m==='LINA'?['ROSALINA','LINA']:[];
+  // ROSALINA = Rosa + Lina réunies. Une résa sur l'une bloque toujours l'autre/les autres.
+  if(m==='ROSALINA')return['ROSALINA','ROSA','LINA'];
+  if(m==='ROSA')return['ROSALINA','ROSA'];
+  if(m==='LINA')return['ROSALINA','LINA'];
+  return[];
 }
 function isBookedStatus(dt,maison){
   // Returns: 'arrival' | 'departure' | 'middle' | null
