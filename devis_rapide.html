@@ -353,17 +353,17 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
     </div>
 
     <div class="action-stack">
+      <button class="btn-reset" id="btn-copy-email" onclick="copyEmail()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copier l'email
+      </button>
       <button class="btn-send" id="btn-send-mailto" onclick="sendMailto()" disabled>
         <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="#C8956C"/></svg>
-        Envoyer par le client email
+        Envoyer via email
       </button>
       <button class="btn-send-gmail-btn" id="btn-send-gmail" onclick="sendGmail()" disabled>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
-        Ouvrir dans Gmail (web)
-      </button>
-      <button class="btn-reset" onclick="resetForm()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
-        Réinitialiser
+        Envoyer via gmail
       </button>
     </div>
   </div>
@@ -656,6 +656,7 @@ function updatePreview(){
   const prevBody=document.getElementById('preview-body');
   const btnG=document.getElementById('btn-send-gmail');
   const btnM=document.getElementById('btn-send-mailto');
+  const btnC=document.getElementById('btn-copy-email');
 
   document.getElementById('prev-to').textContent=email||'—';
   document.getElementById('prev-subject').textContent=email?buildSubject():'—';
@@ -665,12 +666,29 @@ function updatePreview(){
     prevBody.placeholder='Sélectionne les dates pour voir l\'email…';
     if(btnG)btnG.disabled=true;
     if(btnM)btnM.disabled=true;
+    if(btnC)btnC.disabled=true;
     return;
   }
   // Regénère seulement si pas encore édité manuellement
   if(!prevBody.dataset.edited) prevBody.value=buildBody();
   if(btnG)btnG.disabled=!email;
   if(btnM)btnM.disabled=!email;
+  if(btnC)btnC.disabled=false;
+}
+
+function copyEmail(){
+  const body=document.getElementById('preview-body').value;
+  const btn=document.getElementById('btn-copy-email');
+  navigator.clipboard.writeText(body).then(()=>{
+    const original=btn.innerHTML;
+    btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copié !';
+    setTimeout(()=>{btn.innerHTML=original;},1800);
+  }).catch(()=>{
+    // Fallback pour anciens navigateurs
+    const ta=document.createElement('textarea');
+    ta.value=body;document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+  });
 }
 
 function sendGmail(){
