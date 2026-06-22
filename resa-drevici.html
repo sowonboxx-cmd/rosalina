@@ -30,17 +30,32 @@ body {
 .ph-back {
   position: absolute;
   left: 16px; top: 18px;
-  width: 36px; height: 36px; border-radius: 50%;
-  border: 1.5px solid rgba(255,255,255,0.3);
   display: flex; align-items: center; justify-content: center;
-  font-size: 16px; color: white; text-decoration: none;
-  transition: background 0.15s;
+  font-size: 22px; color: rgba(255,255,255,0.7); text-decoration: none;
+  transition: color 0.15s;
+  line-height: 1;
 }
-.ph-back:hover { background: rgba(255,255,255,0.1); }
+.ph-back:hover { color: #fff; }
 .ph-logo-img {
   height: 36px; width: auto;
   display: block; margin: 0 auto 6px;
   object-fit: contain;
+}
+.ph-top-logo {
+  display: none;
+  height: 56px; width: auto;
+  margin: 0 auto 10px;
+  object-fit: contain;
+}
+.ph-chooser {
+  display: none;
+  font-size: 12px; color: rgba(255,255,255,0.55);
+  letter-spacing: 0.08em; text-align: center;
+  margin-bottom: 10px; text-transform: uppercase;
+}
+@media (min-width: 640px) {
+  .ph-top-logo { display: block; }
+  .ph-chooser  { display: block; }
 }
 .ph-title {
   font-size: 16px; font-weight: 700; color: #fff;
@@ -263,8 +278,11 @@ body {
 <div class="ph">
   <div class="ph-inner">
     <a href="https://drevicioyster.com" class="ph-back">←</a>
+    <img src="https://drevicioyster.com/wp-content/uploads/2026/06/Logo-transparent.png"
+         alt="Logo Drevici" class="ph-top-logo">
     <img src="https://drevicioyster.com/wp-content/uploads/2026/06/Drevici-Oyster-white-HD.png"
          alt="Drevici Oyster" class="ph-logo-img">
+    <div class="ph-chooser">Choisissez votre restaurant</div>
   </div>
 </div>
 <div class="loc-tabs-wrap">
@@ -389,9 +407,10 @@ body {
 
 <script>
 /* ══ CONFIG ══ */
-const EMAILJS_PUBLIC_KEY  = 'OtZrumB6ygJnmfppg';
-const EMAILJS_SERVICE_ID  = 'service_30imgy6';
-const EMAILJS_TEMPLATE_ID = 'template_tju5op3';
+const EMAILJS_PUBLIC_KEY      = 'OtZrumB6ygJnmfppg';
+const EMAILJS_SERVICE_ID      = 'service_30imgy6';
+const EMAILJS_TEMPLATE_ID     = 'template_tju5op3';     // Template notif restaurant
+const EMAILJS_TEMPLATE_CLIENT = 'template_x60pqoj'; // Template confirmation client
 
 const DINNER      = ['17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00','22:30'];
 const FULL_SLOTS  = [];
@@ -564,7 +583,14 @@ function sendResa() {
   };
 
   if (typeof emailjs !== 'undefined') {
-    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params)
+    // Email 1 — notification restaurant
+    const send1 = emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+    // Email 2 — confirmation client (template différent)
+    const paramsClient = { ...params, to_email: clientEmail };
+    const send2 = EMAILJS_TEMPLATE_CLIENT !== 'VOTRE_TEMPLATE_CLIENT'
+      ? emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_CLIENT, paramsClient)
+      : Promise.resolve();
+    Promise.all([send1, send2])
       .then(() => showSuccess(clientEmail, ref))
       .catch(err => {
         console.error('EmailJS:', err); btn.disabled = false;
