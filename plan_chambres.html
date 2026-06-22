@@ -133,19 +133,21 @@ body{
   }
   .card-top{margin-bottom:6px;}
 
-  /* ── Titre chambre: 13px, numéro sur ligne 1, nom sur ligne 2 ── */
+  /* ── Titre chambre: une seule ligne, taille réduite ── */
   .card-title{
-    font-size:.81rem;
+    font-size:.72rem;
     margin-bottom:2px;
-    white-space:normal;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
     line-height:1.3;
   }
-  .card-title .pipe{display:none;}
+  .card-title .pipe{display:inline;}
   .card-title .room-name.rosa,
   .card-title .room-name.lina{
-    display:block;
-    font-size:.75rem;
-    margin-top:1px;
+    display:inline;
+    font-size:.72rem;
+    margin-top:0;
   }
 
   /* ── Personnes: plus petit ── */
@@ -275,7 +277,7 @@ table.san-table td.num{
   <img class="header-logo" src="https://domainerosalina.com/wp-content/uploads/2026/06/logo-rosalina-white-transparent.png" onerror="this.style.display='none'" alt="Domaine Rosalina">
   <h1>Plan des chambres</h1>
   <p class="header-sub">Domaine Rosalina — Honfleur</p>
-  <p class="header-sub mobile-stats" style="margin-top:3px;font-size:.6rem;opacity:.65">26 lits &amp; 38 couchages</p>
+  <p class="header-sub mobile-stats" style="margin-top:3px;font-size:.6rem;opacity:.65">26 lits &nbsp;·&nbsp; 38 couchages</p>
 </div>
 
 <div class="page-title">
