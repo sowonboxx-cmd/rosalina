@@ -9,11 +9,18 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --bg:#F4F0EA;--bg2:#EDEAE4;--card:#FFFFFF;--border:#E0D8CE;
-  --green:#2C3D2C;--green2:#3D5438;--rose:#C8956C;
-  --text:#1A1A1A;--text2:#666;--text3:#999;
+  --bg:#F5F2ED;
+  --white:#FFFFFF;
+  --green:#2C3D2C;
+  --green-light:#EAF0EA;
+  --rosa:#E07A9A;
+  --lina:#C8A43A;
+  --rosalina:#4A7EC8;
+  --text:#1A1A1A;
+  --text2:#666;
+  --text3:#999;
+  --border:#E0D8CE;
   --shadow:0 2px 20px rgba(0,0,0,.07);
-  --rosa:#E07A9A;--lina:#C8A43A;--rosalina:#4A7EC8;
 }
 
 body{
@@ -100,16 +107,43 @@ body{
   grid-template-columns:repeat(3,1fr);
   gap:12px;
 }
+@media(max-width:700px){
+  /* Grid: 2 colonnes fixes */
+  .chambres-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
 
-@media(max-width:700px){
+  /* Header: cacher le logo, ajouter les stats */
+  .header{padding:16px 14px;}
+  .header-logo{height:36px;}
+  .header h1{font-size:1.1rem;}
+  .header-sub.mobile-stats{display:block;}
+
+  /* Cacher le titre "Disposition des chambres" */
   .page-title{display:none;}
-  .header-mobile-stats{display:block;}
-  .card-title{font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .card-title .pipe{margin:0 4px;}
-}
-@media(min-width:701px){.header-mobile-stats{display:none;}}
-@media(max-width:700px){
-  .chambres-grid{grid-template-columns:repeat(2,1fr);}
+
+  /* Maison section padding */
+  .maison-section{padding:0 12px;}
+
+  /* Carte: plus compacte, sans casser les cartes */
+  .chambre-card{padding:10px 12px;}
+  .card-top{margin-bottom:7px;}
+
+  /* Titre chambre: plus petit, sur une ligne */
+  .card-title{
+    font-size:.75rem;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .card-title .pipe{margin:0 3px;}
+
+  /* Personnes */
+  .card-pax{font-size:.65rem;}
+
+  /* Sanitaires: 1 colonne centrée */
+  .san-section{padding:0 12px;}
+  .san-grid{grid-template-columns:1fr;gap:14px;}
+  .san-card{max-width:380px;margin:0 auto;}
+  .san-card-header{text-align:center;}
 }
 
 /* CHAMBRE CARD */
@@ -212,6 +246,8 @@ table.san-table td.num{
 
 /* ICON SVG shortcuts */
 .icon-bed{display:inline-flex;}
+/* Mobile-only elements */
+.mobile-stats{display:none;}
 </style>
 </head>
 <body>
@@ -220,7 +256,7 @@ table.san-table td.num{
   <img class="header-logo" src="https://domainerosalina.com/wp-content/uploads/2026/06/logo-rosalina-white-transparent.png" onerror="this.style.display='none'" alt="Domaine Rosalina">
   <h1>Plan des chambres</h1>
   <p class="header-sub">Domaine Rosalina — Honfleur</p>
-  <p class="header-sub header-mobile-stats" style="margin-top:4px;opacity:.7;font-size:.6rem">26 lits &amp; 38 couchages</p>
+  <p class="header-sub mobile-stats" style="margin-top:3px;font-size:.6rem;opacity:.65">26 lits &amp; 38 couchages</p>
 </div>
 
 <div class="page-title">
