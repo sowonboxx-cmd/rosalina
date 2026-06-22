@@ -108,42 +108,62 @@ body{
   gap:12px;
 }
 @media(max-width:700px){
-  /* Grid: 2 colonnes fixes */
-  .chambres-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+  /* ── Sections: padding uniforme 12px gauche ET droite ── */
+  .maison-section{padding:0 12px;}
+  .san-section{padding:0 12px;}
+  .section-sep{padding:0 12px;}
 
-  /* Header: cacher le logo, ajouter les stats */
-  .header{padding:16px 14px;}
-  .header-logo{height:36px;}
-  .header h1{font-size:1.1rem;}
-  .header-sub.mobile-stats{display:block;}
+  /* ── Grid: 2 colonnes qui prennent toute la largeur disponible ── */
+  .chambres-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+  }
 
-  /* Cacher le titre "Disposition des chambres" */
+  /* ── Titre "Disposition des chambres" masqué ── */
   .page-title{display:none;}
 
-  /* Maison section padding */
-  .maison-section{padding:0 12px;}
+  /* ── "26 lits" dans header ── */
+  .mobile-stats{display:block;}
 
-  /* Carte: plus compacte, sans casser les cartes */
-  .chambre-card{padding:10px 12px;}
-  .card-top{margin-bottom:7px;}
-
-  /* Titre chambre: plus petit, sur une ligne */
-  .card-title{
-    font-size:.75rem;
-    white-space:nowrap;
+  /* ── Cartes: padding réduit, taille fixe ── */
+  .chambre-card{
+    padding:10px 12px;
+    min-width:0;         /* évite le débordement dans la grille */
     overflow:hidden;
-    text-overflow:ellipsis;
   }
-  .card-title .pipe{margin:0 3px;}
+  .card-top{margin-bottom:6px;}
 
-  /* Personnes */
-  .card-pax{font-size:.65rem;}
+  /* ── Titre chambre: 13px, numéro sur ligne 1, nom sur ligne 2 ── */
+  .card-title{
+    font-size:.81rem;
+    margin-bottom:2px;
+    white-space:normal;
+    line-height:1.3;
+  }
+  .card-title .pipe{display:none;}
+  .card-title .room-name.rosa,
+  .card-title .room-name.lina{
+    display:block;
+    font-size:.75rem;
+    margin-top:1px;
+  }
 
-  /* Sanitaires: 1 colonne centrée */
-  .san-section{padding:0 12px;}
-  .san-grid{grid-template-columns:1fr;gap:14px;}
-  .san-card{max-width:380px;margin:0 auto;}
+  /* ── Personnes: plus petit ── */
+  .card-pax{font-size:.65rem;gap:3px;}
+
+  /* ── Sanitaires: 1 colonne, pleine largeur ── */
+  .san-grid{
+    grid-template-columns:1fr !important;
+    gap:12px;
+  }
+  .san-card{
+    max-width:100%;
+    width:100%;
+  }
   .san-card-header{text-align:center;}
+  /* Colonnes tableau bien lisibles */
+  table.san-table{font-size:.78rem;}
+  table.san-table th,table.san-table td{padding:9px 12px;}
 }
 
 /* CHAMBRE CARD */
@@ -192,12 +212,13 @@ body{
   content:'';flex:1;height:1px;background:var(--border);
 }
 
+.mobile-stats{display:none;}
+
 /* SANITAIRE SECTION */
 .san-section{
   max-width:900px;margin:28px auto 0;padding:0 20px;
 }
 .san-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-@media(max-width:600px){.san-grid{grid-template-columns:1fr;}}
 
 .san-card{
   background:var(--white);border-radius:12px;
@@ -246,8 +267,6 @@ table.san-table td.num{
 
 /* ICON SVG shortcuts */
 .icon-bed{display:inline-flex;}
-/* Mobile-only elements */
-.mobile-stats{display:none;}
 </style>
 </head>
 <body>
