@@ -9,18 +9,11 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --bg:#F5F2ED;
-  --white:#FFFFFF;
-  --green:#2C3D2C;
-  --green-light:#EAF0EA;
-  --rosa:#E07A9A;
-  --lina:#C8A43A;
-  --rosalina:#4A7EC8;
-  --text:#1A1A1A;
-  --text2:#666;
-  --text3:#999;
-  --border:#E0D8CE;
+  --bg:#F4F0EA;--bg2:#EDEAE4;--card:#FFFFFF;--border:#E0D8CE;
+  --green:#2C3D2C;--green2:#3D5438;--rose:#C8956C;
+  --text:#1A1A1A;--text2:#666;--text3:#999;
   --shadow:0 2px 20px rgba(0,0,0,.07);
+  --rosa:#E07A9A;--lina:#C8A43A;--rosalina:#4A7EC8;
 }
 
 body{
@@ -107,6 +100,14 @@ body{
   grid-template-columns:repeat(3,1fr);
   gap:12px;
 }
+
+@media(max-width:700px){
+  .page-title{display:none;}
+  .header-mobile-stats{display:block;}
+  .card-title{font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .card-title .pipe{margin:0 4px;}
+}
+@media(min-width:701px){.header-mobile-stats{display:none;}}
 @media(max-width:700px){
   .chambres-grid{grid-template-columns:repeat(2,1fr);}
 }
@@ -219,6 +220,7 @@ table.san-table td.num{
   <img class="header-logo" src="https://domainerosalina.com/wp-content/uploads/2026/06/logo-rosalina-white-transparent.png" onerror="this.style.display='none'" alt="Domaine Rosalina">
   <h1>Plan des chambres</h1>
   <p class="header-sub">Domaine Rosalina — Honfleur</p>
+  <p class="header-sub header-mobile-stats" style="margin-top:4px;opacity:.7;font-size:.6rem">26 lits &amp; 38 couchages</p>
 </div>
 
 <div class="page-title">
@@ -411,24 +413,35 @@ table.san-table td.num{
         <thead>
           <tr>
             <th>Niveau</th>
-            <th style="text-align:center">
-              <span class="san-icon"><img src="https://domainerosalina.com/wp-content/uploads/2026/06/icon-douche.png" width="15" height="15" style="display:inline-block;vertical-align:middle"> Salle d'eau</span>
-            </th>
+            <th style="text-align:center"><span class="san-icon"><img src="https://domainerosalina.com/wp-content/uploads/2026/06/icon-wc.png" width="14" height="14" style="display:inline-block;vertical-align:middle"> WC</span></th>
+            <th style="text-align:center"><span class="san-icon"><img src="https://domainerosalina.com/wp-content/uploads/2026/06/icon-douche.png" width="14" height="14" style="display:inline-block;vertical-align:middle"> Salle d'eau</span></th>
           </tr>
         </thead>
         <tbody>
+          <tr><td class="etage-label">Rez-de-jardin</td><td class="num">2</td><td class="num">2</td></tr>
+          <tr><td class="etage-label">Rez-de-chaussée</td><td class="num">1</td><td class="num">1</td></tr>
+          <tr><td class="etage-label">1er étage</td><td class="num">2</td><td class="num">3</td></tr>
+          <tr><td class="etage-label">2ème étage</td><td class="num">1</td><td class="num">1</td></tr>
+          <tr class="total-row"><td>Total</td><td class="num">6</td><td class="num">7</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- LINA SANITAIRE -->
+    <div class="san-card">
+      <div class="san-card-header lina">Maison Lina</div>
+      <table class="san-table">
+        <thead>
           <tr>
-            <td class="etage-label">Rez-de-jardin</td>
-            <td class="num">2</td><td class="num">2</td>
+            <th>Niveau</th>
+            <th style="text-align:center"><span class="san-icon"><img src="https://domainerosalina.com/wp-content/uploads/2026/06/icon-wc.png" width="14" height="14" style="display:inline-block;vertical-align:middle"> WC</span></th>
+            <th style="text-align:center"><span class="san-icon"><img src="https://domainerosalina.com/wp-content/uploads/2026/06/icon-douche.png" width="14" height="14" style="display:inline-block;vertical-align:middle"> Salle d'eau</span></th>
           </tr>
-          <tr>
-            <td class="etage-label">1er étage</td>
-            <td class="num">1</td><td class="num">0</td>
-          </tr>
-          <tr class="total-row">
-            <td>Total</td>
-            <td class="num">3</td><td class="num">2</td>
-          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="etage-label">Rez-de-jardin</td><td class="num">2</td><td class="num">2</td></tr>
+          <tr><td class="etage-label">1er étage</td><td class="num">1</td><td class="num">0</td></tr>
+          <tr class="total-row"><td>Total</td><td class="num">3</td><td class="num">2</td></tr>
         </tbody>
       </table>
     </div>
