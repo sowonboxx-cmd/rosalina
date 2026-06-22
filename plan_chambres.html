@@ -135,8 +135,8 @@ body{
 
   /* ── Titre chambre: une seule ligne, taille réduite ── */
   .card-title{
-    font-size:12px !important;
-    font-weight:900;
+    font-size:11px !important;
+    font-weight:700;
     margin-bottom:2px;
     white-space:nowrap;
     overflow:hidden;
@@ -147,7 +147,7 @@ body{
   .card-title .room-name.rosa,
   .card-title .room-name.lina{
     display:inline;
-    font-size:10px !important;
+    font-size:11px !important;
     font-weight:400;
     margin-top:0;
   }
@@ -271,6 +271,39 @@ table.san-table td.num{
 
 /* ICON SVG shortcuts */
 .icon-bed{display:inline-flex;}
+
+/* MOBILE TABS */
+.mobile-tabs{display:none;}
+@media(max-width:700px){
+  .mobile-tabs{
+    display:flex;
+    background:var(--green);
+    padding:0 12px 12px;
+    gap:8px;
+  }
+  .mobile-tab{
+    flex:1;
+    padding:8px 4px;
+    border-radius:8px;
+    border:none;
+    background:rgba(255,255,255,.12);
+    color:rgba(255,255,255,.6);
+    font-family:'Jost',sans-serif;
+    font-size:.72rem;
+    font-weight:500;
+    letter-spacing:.06em;
+    cursor:pointer;
+    transition:background .2s,color .2s;
+  }
+  .mobile-tab.active{
+    background:#fff;
+    color:var(--green);
+    font-weight:600;
+  }
+  /* Sections masquées par défaut sur mobile, JS gère l'affichage */
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+}
 </style>
 </head>
 <body>
@@ -281,6 +314,15 @@ table.san-table td.num{
   <p class="header-sub">Domaine Rosalina — Honfleur</p>
   <p class="header-sub mobile-stats" style="margin-top:3px;font-size:.6rem;opacity:.65">26 lits &nbsp;·&nbsp; 38 couchages</p>
 </div>
+
+<!-- MOBILE TABS -->
+<div class="mobile-tabs">
+  <button class="mobile-tab active" onclick="switchTab('rosalina')">Rosalina</button>
+  <button class="mobile-tab" onclick="switchTab('rosa')" style="color:var(--rosa);--tab-active-color:var(--rosa)">Rosa</button>
+  <button class="mobile-tab" onclick="switchTab('lina')" style="color:rgba(200,164,58,.8);--tab-active-color:var(--lina)">Lina</button>
+</div>
+
+<div class="tab-content active" id="tab-rosalina">
 
 <div class="page-title">
   <h2>Disposition des chambres</h2>
@@ -508,5 +550,240 @@ table.san-table td.num{
   </div>
 </div>
 
+</div><!-- end tab-rosalina -->
+
+<!-- ═══════════════════════ TAB ROSA ═══════════════════════ -->
+<div class="tab-content" id="tab-rosa">
+
+<div class="maison-section" style="margin-top:20px">
+  <div class="maison-header rosa">
+    <span class="maison-name rosa">Maison Rosa</span>
+    <div class="maison-stats">16 lits &amp; 24 couchages<br>10 chambres</div>
+  </div>
+
+  <div class="chambres-grid">
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-double-v2.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">RDJ</span>
+      </div>
+      <div class="card-title">Chambre 1 <span class="pipe">|</span> <span class="room-name rosa">Châtaignier</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>2 personnes</div>
+    </div>
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-double-v2.png" width="18" height="18" style="display:inline-block;vertical-align:middle"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-simple.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">RDJ</span>
+      </div>
+      <div class="card-title">Chambre 2 <span class="pipe">|</span> <span class="room-name rosa">Marronier</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>3 personnes</div>
+    </div>
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-superpose.png" width="18" height="18" style="display:inline-block;vertical-align:middle"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-simple.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">RDJ</span>
+      </div>
+      <div class="card-title">Chambre 3 <span class="pipe">|</span> <span class="room-name rosa">Noisetier</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>4 personnes</div>
+    </div>
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-double-v2.png" width="18" height="18" style="display:inline-block;vertical-align:middle"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/shower.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">RDC</span>
+      </div>
+      <div class="card-title">Chambre 4 <span class="pipe">|</span> <span class="room-name rosa">Honfleur</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>2 personnes</div>
+    </div>
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-simple.png" width="18" height="18" style="display:inline-block;vertical-align:middle"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/shower.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">1er étage</span>
+      </div>
+      <div class="card-title">Chambre 5 <span class="pipe">|</span> <span class="room-name rosa">Deauville</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>2 personnes</div>
+    </div>
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-simple.png" width="18" height="18" style="display:inline-block;vertical-align:middle"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/shower.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">1er étage</span>
+      </div>
+      <div class="card-title">Chambre 6 <span class="pipe">|</span> <span class="room-name rosa">Cabourg</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>2 personnes</div>
+    </div>
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-simple.png" width="18" height="18" style="display:inline-block;vertical-align:middle"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-simple.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">1er étage</span>
+      </div>
+      <div class="card-title">Chambre 7 <span class="pipe">|</span> <span class="room-name rosa">Houlgate</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>2 personnes</div>
+    </div>
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-superpose.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">1er étage</span>
+      </div>
+      <div class="card-title">Chambre 8 <span class="pipe">|</span> <span class="room-name rosa">Étretat</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>3 personnes</div>
+    </div>
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-double-v2.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">2e étage</span>
+      </div>
+      <div class="card-title">Chambre 9 <span class="pipe">|</span> <span class="room-name rosa">Ouistreham</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>2 personnes</div>
+    </div>
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-simple.png" width="18" height="18" style="display:inline-block;vertical-align:middle"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-simple.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">2e étage</span>
+      </div>
+      <div class="card-title">Chambre 10 <span class="pipe">|</span> <span class="room-name rosa">Pont l'Évêque</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>2 personnes</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section-sep" style="margin-top:28px">
+  <div class="sep-line">Toilettes &amp; salles d'eau</div>
+</div>
+<div class="san-section">
+  <div class="san-grid" style="grid-template-columns:1fr">
+    <div class="san-card">
+      <div class="san-card-header rosa">Maison Rosa</div>
+      <table class="san-table">
+        <thead>
+          <tr>
+            <th>Niveau</th>
+            <th style="text-align:center"><span class="san-icon"><img src="https://domainerosalina.com/wp-content/uploads/2026/06/icon-wc.png" width="14" height="14" style="display:inline-block;vertical-align:middle"> WC</span></th>
+            <th style="text-align:center"><span class="san-icon"><img src="https://domainerosalina.com/wp-content/uploads/2026/06/icon-douche.png" width="14" height="14" style="display:inline-block;vertical-align:middle"> Salle d'eau</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="etage-label">Rez-de-jardin</td><td class="num">2</td><td class="num">2</td></tr>
+          <tr><td class="etage-label">Rez-de-chaussée</td><td class="num">1</td><td class="num">1</td></tr>
+          <tr><td class="etage-label">1er étage</td><td class="num">2</td><td class="num">3</td></tr>
+          <tr><td class="etage-label">2ème étage</td><td class="num">1</td><td class="num">1</td></tr>
+          <tr class="total-row"><td>Total</td><td class="num">6</td><td class="num">7</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- end tab-rosa -->
+
+<!-- ═══════════════════════ TAB LINA ═══════════════════════ -->
+<div class="tab-content" id="tab-lina">
+
+<div class="maison-section" style="margin-top:20px">
+  <div class="maison-header lina">
+    <span class="maison-name lina">Maison Lina</span>
+    <div class="maison-stats">10 lits &amp; 14 couchages<br>5 chambres</div>
+  </div>
+
+  <div class="chambres-grid">
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-double-v2.png" width="18" height="18" style="display:inline-block;vertical-align:middle"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-simple.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">RDJ</span>
+      </div>
+      <div class="card-title">Chambre 1 <span class="pipe">|</span> <span class="room-name lina">Magnolia</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>3 personnes</div>
+    </div>
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-double-v2.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">RDJ</span>
+      </div>
+      <div class="card-title">Chambre 2 <span class="pipe">|</span> <span class="room-name lina">Géranium</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>2 personnes</div>
+    </div>
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-double-v2.png" width="18" height="18" style="display:inline-block;vertical-align:middle"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-simple.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">1er étage</span>
+      </div>
+      <div class="card-title">Chambre 3 <span class="pipe">|</span> <span class="room-name lina">Rose BM</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>3 personnes</div>
+    </div>
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-superpose.png" width="18" height="18" style="display:inline-block;vertical-align:middle"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-simple.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">1er étage</span>
+      </div>
+      <div class="card-title">Chambre 4 <span class="pipe">|</span> <span class="room-name lina">Camélia</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>4 personnes</div>
+    </div>
+
+    <div class="chambre-card">
+      <div class="card-top">
+        <div class="card-icons"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-simple.png" width="18" height="18" style="display:inline-block;vertical-align:middle"><img src="https://domainerosalina.com/wp-content/uploads/2024/08/lit-simple.png" width="18" height="18" style="display:inline-block;vertical-align:middle"></div>
+        <span class="card-floor">1er étage</span>
+      </div>
+      <div class="card-title">Chambre 5 <span class="pipe">|</span> <span class="room-name lina">Capucine</span></div>
+      <div class="card-pax"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.45;vertical-align:middle;margin-right:3px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>2 personnes</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section-sep" style="margin-top:28px">
+  <div class="sep-line">Toilettes &amp; salles d'eau</div>
+</div>
+<div class="san-section">
+  <div class="san-grid" style="grid-template-columns:1fr">
+    <div class="san-card">
+      <div class="san-card-header lina">Maison Lina</div>
+      <table class="san-table">
+        <thead>
+          <tr>
+            <th>Niveau</th>
+            <th style="text-align:center"><span class="san-icon"><img src="https://domainerosalina.com/wp-content/uploads/2026/06/icon-wc.png" width="14" height="14" style="display:inline-block;vertical-align:middle"> WC</span></th>
+            <th style="text-align:center"><span class="san-icon"><img src="https://domainerosalina.com/wp-content/uploads/2026/06/icon-douche.png" width="14" height="14" style="display:inline-block;vertical-align:middle"> Salle d'eau</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="etage-label">Rez-de-jardin</td><td class="num">2</td><td class="num">2</td></tr>
+          <tr><td class="etage-label">1er étage</td><td class="num">1</td><td class="num">0</td></tr>
+          <tr class="total-row"><td>Total</td><td class="num">3</td><td class="num">2</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- end tab-lina -->
+
+<script>
+function switchTab(name) {
+  // Tabs
+  document.querySelectorAll('.mobile-tab').forEach(function(btn) {
+    btn.classList.remove('active');
+  });
+  event.currentTarget.classList.add('active');
+  // Contents
+  document.querySelectorAll('.tab-content').forEach(function(el) {
+    el.classList.remove('active');
+  });
+  document.getElementById('tab-' + name).classList.add('active');
+}
+</script>
 </body>
 </html>
