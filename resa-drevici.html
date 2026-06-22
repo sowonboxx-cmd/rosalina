@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Réservation — Drevici Oyster</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,39 +24,73 @@ body {
 }
 .ph-inner {
   max-width: 600px; margin: 0 auto;
-  padding: 18px 16px 0;
+  padding: 20px 16px 16px;
   display: flex; flex-direction: column;
   align-items: center; position: relative;
 }
+
+/* Back arrow */
 .ph-back {
   position: absolute;
-  left: 16px; top: 18px;
+  left: 16px;
+  top: 50%; transform: translateY(-50%);
   display: flex; align-items: center; justify-content: center;
   font-size: 22px; color: rgba(255,255,255,0.7); text-decoration: none;
-  transition: color 0.15s;
-  line-height: 1;
+  transition: color 0.15s; line-height: 1;
 }
 .ph-back:hover { color: #fff; }
+
+/* Mobile anchor logo (small, above title) */
+.ph-anchor-logo {
+  height: 36px; width: auto;
+  display: block; margin: 0 auto 8px;
+  object-fit: contain;
+}
+
+/* Mobile title */
+.ph-mobile-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 700;
+  color: #fff; letter-spacing: 0.08em;
+  text-align: center; line-height: 1.1;
+}
+.ph-mobile-sub {
+  font-family: 'Jost', sans-serif;
+  font-size: 11px; font-weight: 300;
+  color: rgba(255,255,255,0.55);
+  text-align: center; letter-spacing: 0.1em;
+  text-transform: uppercase; margin-top: 5px;
+}
+
+/* Desktop logo image (hidden on mobile) */
 .ph-logo-img {
   height: 36px; width: auto;
-  display: block; margin: 0 auto 6px;
+  display: none; margin: 0 auto 6px;
   object-fit: contain;
 }
 .ph-top-logo {
-  display: none;
   height: 56px; width: auto;
-  margin: 0 auto 10px;
+  display: none; margin: 0 auto 10px;
   object-fit: contain;
 }
 .ph-chooser {
   display: none;
-  font-size: 12px; color: rgba(255,255,255,0.55);
-  letter-spacing: 0.08em; text-align: center;
-  margin-bottom: 10px; text-transform: uppercase;
+  font-family: 'Jost', sans-serif;
+  font-size: 11px; font-weight: 300;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.1em; text-align: center;
+  margin-top: 5px; text-transform: uppercase;
 }
+
+/* On desktop: show image logo, hide text title */
 @media (min-width: 640px) {
-  .ph-top-logo { display: block; }
-  .ph-chooser  { display: block; }
+  .ph-anchor-logo   { display: none; }
+  .ph-mobile-title  { display: none; }
+  .ph-mobile-sub    { display: none; }
+  .ph-top-logo      { display: block; }
+  .ph-logo-img      { display: block; }
+  .ph-chooser       { display: block; }
+  .ph-back          { top: 24px; transform: none; }
 }
 .ph-title {
   font-size: 16px; font-weight: 700; color: #fff;
@@ -69,18 +104,43 @@ body {
   border-bottom: 1px solid rgba(0,0,0,0.07);
 }
 .loc-tabs {
-  display: flex; gap: 0;
+  display: flex; gap: 8px;
   max-width: 600px; margin: 0 auto;
+  padding: 10px 16px;
 }
 .loc-tab {
-  flex: 1; padding: 12px 16px; text-align: center;
-  font-size: 14px; font-weight: 500; color: #aaa;
-  cursor: pointer; border-bottom: 2px solid transparent;
+  flex: 1; padding: 10px 16px; text-align: center;
+  font-size: 13px; font-weight: 600; color: #999;
+  cursor: pointer; border-radius: 50px;
+  background: #f0ede8;
   transition: all 0.2s;
   letter-spacing: 0.02em;
   white-space: nowrap;
+  border: none;
 }
-.loc-tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+.loc-tab.active {
+  background: var(--navy); color: #fff;
+}
+
+/* On desktop: revert to underline tabs */
+@media (min-width: 640px) {
+  .loc-tabs {
+    padding: 0;
+    gap: 0;
+  }
+  .loc-tab {
+    border-radius: 0;
+    background: none;
+    border-bottom: 2px solid transparent;
+    padding: 12px 16px;
+    color: #aaa;
+  }
+  .loc-tab.active {
+    background: none;
+    color: var(--navy);
+    border-bottom-color: var(--navy);
+  }
+}
 
 /* ── Wrap ── */
 .wrap {
@@ -278,6 +338,14 @@ body {
 <div class="ph">
   <div class="ph-inner">
     <a href="https://drevicioyster.com" class="ph-back">←</a>
+
+    <!-- Mobile: anchor logo + text title -->
+    <img src="https://drevicioyster.com/wp-content/uploads/2026/06/Logo-transparent.png"
+         alt="Logo Drevici" class="ph-anchor-logo">
+    <div class="ph-mobile-title">DREVICI OYSTER</div>
+    <div class="ph-mobile-sub">Choisissez votre restaurant</div>
+
+    <!-- Desktop: image logos -->
     <img src="https://drevicioyster.com/wp-content/uploads/2026/06/Logo-transparent.png"
          alt="Logo Drevici" class="ph-top-logo">
     <img src="https://drevicioyster.com/wp-content/uploads/2026/06/Drevici-Oyster-white-HD.png"
@@ -410,7 +478,7 @@ body {
 const EMAILJS_PUBLIC_KEY      = 'OtZrumB6ygJnmfppg';
 const EMAILJS_SERVICE_ID      = 'service_30imgy6';
 const EMAILJS_TEMPLATE_ID     = 'template_tju5op3';     // Template notif restaurant
-const EMAILJS_TEMPLATE_CLIENT = 'template_x60pqoj'; // Template confirmation client
+const EMAILJS_TEMPLATE_CLIENT = 'VOTRE_TEMPLATE_CLIENT'; // Template confirmation client
 
 const DINNER      = ['17:00','17:30','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00','22:30'];
 const FULL_SLOTS  = [];
