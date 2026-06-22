@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Réservations — Drevici Oyster</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #10285E; --red: #B31217; --gold: #C6A24A;
+  --r: 10px; --rs: 6px;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #F4F0EA; min-height: 100vh;
+}
+
+/* ── Header ── */
+.ph { background: var(--navy); width: 100%; }
+.ph-inner {
+  max-width: 800px; margin: 0 auto;
+  padding: 20px 16px 16px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.ph-anchor-logo {
+  height: 52px; width: auto;
+  display: block; margin: 0 auto 8px; object-fit: contain;
+}
+.ph-mobile-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 700;
+  color: #fff; letter-spacing: 0.08em; text-align: center;
+}
+.ph-mobile-sub {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px; font-weight: 300;
+  color: rgba(255,255,255,0.45);
+  text-align: center; letter-spacing: 0.12em;
+  text-transform: uppercase; margin-top: 4px;
+}
+@media (min-width: 640px) {
+  .ph-anchor-logo  { height: 64px; }
+  .ph-mobile-title { font-size: 28px; }
+}
+
+/* ── Tabs ── */
+.loc-tabs-wrap { background: var(--navy); width: 100%; }
+.loc-tabs {
+  display: flex; gap: 8px;
+  max-width: 800px; margin: 0 auto;
+  padding: 10px 16px 14px;
+}
+.loc-tab {
+  flex: 1; padding: 10px 16px; text-align: center;
+  font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer; border-radius: 50px;
+  background: rgba(255,255,255,0.12);
+  transition: all 0.2s; white-space: nowrap; border: none;
+}
+.loc-tab.active { background: #fff; color: var(--navy); }
+
+/* ── Content ── */
+.wrap {
+  max-width: 800px; margin: 0 auto;
+  padding: 16px 16px 40px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+/* ── Stats bar ── */
+.stats {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+.stat-card {
+  background: #fff; border-radius: var(--r);
+  border: 1px solid rgba(0,0,0,0.07);
+  padding: 14px 16px; text-align: center;
+}
+.stat-n {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 700; color: var(--navy);
+}
+.stat-l { font-size: 10px; color: #aaa; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; }
+
+/* ── Search & filter ── */
+.toolbar {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
+.search-input {
+  flex: 1; min-width: 180px; padding: 10px 14px;
+  border: 1px solid #e0e0e0; border-radius: var(--rs);
+  font-size: 14px; background: #fff; font-family: inherit;
+  -webkit-appearance: none;
+}
+.search-input:focus { outline: none; border-color: var(--navy); }
+.clear-btn {
+  padding: 10px 16px; border-radius: var(--rs);
+  border: 1px solid #e0e0e0; background: #fff;
+  font-size: 12px; color: #888; cursor: pointer;
+  font-family: inherit; white-space: nowrap;
+}
+.clear-btn:hover { background: #f5f3f0; }
+.export-btn {
+  padding: 10px 16px; border-radius: var(--rs);
+  border: none; background: var(--navy); color: #fff;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: inherit; white-space: nowrap;
+}
+.export-btn:hover { background: #0a1a3e; }
+
+/* ── Table ── */
+.table-wrap {
+  background: #fff; border-radius: var(--r);
+  border: 1px solid rgba(0,0,0,0.07);
+  overflow: hidden;
+}
+.table-head {
+  display: grid;
+  grid-template-columns: 90px 1fr 1fr 120px 80px 90px;
+  gap: 0;
+  background: #f7f5f2;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  padding: 10px 16px;
+}
+.th {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #aaa;
+}
+.table-body { }
+.table-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 1fr 120px 80px 90px;
+  gap: 0; padding: 13px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  align-items: center; transition: background 0.1s;
+}
+.table-row:last-child { border-bottom: none; }
+.table-row:hover { background: #faf8f5; }
+.td { font-size: 13px; color: #1a1a1a; padding-right: 8px; }
+.td-sub { font-size: 11px; color: #aaa; margin-top: 1px; }
+.td-ref { font-size: 10px; font-weight: 600; color: var(--navy); letter-spacing: 0.08em; }
+.td-phone { font-size: 12px; color: #555; }
+.td-covers {
+  display: inline-block; background: var(--navy);
+  color: #fff; font-size: 11px; font-weight: 600;
+  padding: 3px 9px; border-radius: 20px;
+}
+.td-slot { font-size: 13px; font-weight: 500; color: var(--navy); }
+
+/* Mobile: card view */
+@media (max-width: 600px) {
+  .table-head { display: none; }
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 4px; padding: 14px 16px;
+  }
+  .td::before {
+    content: attr(data-label) ' ';
+    font-size: 10px; color: #aaa; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .stats { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Empty state ── */
+.empty {
+  text-align: center; padding: 48px 20px;
+  color: #bbb; font-size: 14px;
+}
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+
+/* ── Delete btn ── */
+.del-btn {
+  background: none; border: none; cursor: pointer;
+  color: #ddd; font-size: 16px; padding: 4px;
+  transition: color 0.15s; line-height: 1;
+}
+.del-btn:hover { color: var(--red); }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #1a1a1a; color: #fff; padding: 10px 20px;
+  border-radius: 30px; font-size: 13px; opacity: 0;
+  transition: opacity 0.3s; pointer-events: none; z-index: 99;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="loginScreen" style="
+  position:fixed; inset:0; background:#F4F0EA;
+  display:flex; align-items:center; justify-content:center;
+  z-index:999; padding:20px;
+">
+  <div style="
+    background:#fff; border-radius:12px;
+    border:1px solid rgba(0,0,0,0.08);
+    padding:32px 28px; width:100%; max-width:340px;
+    text-align:center;
+  ">
+    <img src="https://drevicioyster.com/wp-content/uploads/2026/06/Logo-transparent.png"
+         style="height:52px; margin-bottom:16px; filter:invert(18%) sepia(60%) saturate(800%) hue-rotate(200deg);">
+    <div style="font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:700; color:#10285E; margin-bottom:4px;">DREVICI OYSTER</div>
+    <div style="font-size:11px; color:#aaa; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:24px;">Dashboard réservations</div>
+
+    <div style="margin-bottom:12px; text-align:left;">
+      <label style="font-size:11px; color:#666; display:block; margin-bottom:5px;">Identifiant</label>
+      <input id="loginUser" type="text" placeholder="Username"
+             style="width:100%; padding:11px 13px; border:1px solid #e0e0e0; border-radius:6px; font-size:16px; font-family:inherit; -webkit-appearance:none;"
+             onkeydown="if(event.key==='Enter') tryLogin()">
+    </div>
+    <div style="margin-bottom:20px; text-align:left;">
+      <label style="font-size:11px; color:#666; display:block; margin-bottom:5px;">Mot de passe</label>
+      <input id="loginPass" type="password" placeholder="••••••••"
+             style="width:100%; padding:11px 13px; border:1px solid #e0e0e0; border-radius:6px; font-size:16px; font-family:inherit; -webkit-appearance:none;"
+             onkeydown="if(event.key==='Enter') tryLogin()">
+    </div>
+    <div id="loginErr" style="font-size:12px; color:#B31217; margin-bottom:12px; display:none;">
+      ⚠ Identifiants incorrects
+    </div>
+    <button onclick="tryLogin()" style="
+      width:100%; background:#10285E; color:#fff;
+      border:none; border-radius:6px; padding:13px;
+      font-size:14px; font-weight:600; cursor:pointer;
+      font-family:inherit; letter-spacing:0.06em;
+    ">Connexion →</button>
+  </div>
+</div>
+
+<!-- Dashboard (hidden until login) -->
+<div id="dashContent" style="display:none;">
+
+<!-- Header -->
+<div class="ph">
+  <div class="ph-inner">
+    <a href="https://drevicioyster.com" style="text-decoration:none; display:flex; flex-direction:column; align-items:center;">
+      <img src="https://drevicioyster.com/wp-content/uploads/2026/06/Logo-transparent.png"
+           alt="Drevici Oyster" class="ph-anchor-logo">
+      <div class="ph-mobile-title">DREVICI OYSTER</div>
+    </a>
+    <div class="ph-mobile-sub">Dashboard réservations</div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="loc-tabs-wrap">
+  <div class="loc-tabs">
+    <div class="loc-tab active" id="tabParis" onclick="switchLoc('Paris')">Paris</div>
+    <div class="loc-tab" id="tabSurzur" onclick="switchLoc('Surzur')">Surzur</div>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="wrap">
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-n" id="statTotal">0</div>
+      <div class="stat-l">Réservations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-n" id="statCouverts">0</div>
+      <div class="stat-l">Couverts</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-n" id="statAujourdhui">0</div>
+      <div class="stat-l">Aujourd'hui</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input class="search-input" id="searchInput" type="text"
+           placeholder="Rechercher un nom, email, téléphone…"
+           oninput="renderTable()">
+    <button class="clear-btn" onclick="clearSearch()">Effacer</button>
+    <button class="export-btn" onclick="exportCSV()">⬇ Exporter CSV</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <div class="table-head">
+      <div class="th">Réf.</div>
+      <div class="th">Client</div>
+      <div class="th">Contact</div>
+      <div class="th">Date</div>
+      <div class="th">Couverts</div>
+      <div class="th">Heure</div>
+    </div>
+    <div class="table-body" id="tableBody"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentLoc = 'Paris';
+
+function getAll() {
+  try {
+    return JSON.parse(localStorage.getItem('drevici_reservations') || '[]');
+  } catch(e) { return []; }
+}
+
+function getFiltered() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  return getAll().filter(r => {
+    if (r.location !== currentLoc) return false;
+    if (!q) return true;
+    return (r.name||'').toLowerCase().includes(q) ||
+           (r.email||'').toLowerCase().includes(q) ||
+           (r.phone||'').toLowerCase().includes(q) ||
+           (r.ref||'').toLowerCase().includes(q);
+  });
+}
+
+function switchLoc(loc) {
+  currentLoc = loc;
+  document.getElementById('tabParis').classList.toggle('active', loc === 'Paris');
+  document.getElementById('tabSurzur').classList.toggle('active', loc === 'Surzur');
+  document.getElementById('searchInput').value = '';
+  renderTable();
+}
+
+function renderTable() {
+  const rows = getFiltered();
+  const body = document.getElementById('tableBody');
+  const all  = getAll().filter(r => r.location === currentLoc);
+
+  // Stats
+  const today = new Date().toDateString();
+  const todayCount = all.filter(r => {
+    try { return new Date(r.ts).toDateString() === today; } catch(e) { return false; }
+  }).length;
+  const totalCouverts = all.reduce((s, r) => s + (parseInt(r.covers) || 0), 0);
+
+  document.getElementById('statTotal').textContent     = all.length;
+  document.getElementById('statCouverts').textContent  = totalCouverts;
+  document.getElementById('statAujourdhui').textContent = todayCount;
+
+  if (rows.length === 0) {
+    body.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">🦪</div>
+        ${all.length === 0
+          ? 'Aucune réservation pour ' + currentLoc + ' pour l\'instant.'
+          : 'Aucun résultat pour cette recherche.'}
+      </div>`;
+    return;
+  }
+
+  body.innerHTML = rows.map((r, i) => `
+    <div class="table-row">
+      <div class="td" data-label="Réf.">
+        <div class="td-ref">${r.ref || '—'}</div>
+        <div class="td-sub">${r.ts ? new Date(r.ts).toLocaleDateString('fr-FR') : ''}</div>
+      </div>
+      <div class="td" data-label="Client">
+        <div>${r.name || '—'}</div>
+        ${r.note ? `<div class="td-sub" title="${r.note}">📝 ${r.note.substring(0,28)}${r.note.length>28?'…':''}</div>` : ''}
+      </div>
+      <div class="td" data-label="Contact">
+        <div style="font-size:12px; color:#333;">${r.email || '—'}</div>
+        <div class="td-phone">${r.phone || ''}</div>
+      </div>
+      <div class="td" data-label="Date">
+        <div>${r.date || '—'}</div>
+      </div>
+      <div class="td" data-label="Couverts">
+        <span class="td-covers">${r.covers || '—'}</span>
+      </div>
+      <div class="td" data-label="Heure" style="display:flex; align-items:center; justify-content:space-between;">
+        <span class="td-slot">${r.slot || '—'}</span>
+        <button class="del-btn" onclick="deleteResa('${r.ref}')" title="Supprimer">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function deleteResa(ref) {
+  if (!confirm('Supprimer cette réservation ?')) return;
+  try {
+    const stored = getAll().filter(r => r.ref !== ref);
+    localStorage.setItem('drevici_reservations', JSON.stringify(stored));
+    renderTable();
+    showToast('Réservation supprimée');
+  } catch(e) {}
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  renderTable();
+}
+
+function exportCSV() {
+  const rows = getAll().filter(r => r.location === currentLoc);
+  if (!rows.length) { showToast('Aucune donnée à exporter'); return; }
+  const header = ['Référence','Restaurant','Nom','Email','Téléphone','Date','Heure','Couverts','Note','Enregistré le'];
+  const lines  = rows.map(r => [
+    r.ref, r.location, r.name, r.email, r.phone,
+    r.date, r.slot, r.covers, r.note,
+    r.ts ? new Date(r.ts).toLocaleString('fr-FR') : ''
+  ].map(v => '"'+(v||'').toString().replace(/"/g,'""')+'"').join(','));
+  const csv = [header.join(','), ...lines].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'reservations-'+currentLoc.toLowerCase()+'-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('Export CSV téléchargé');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Demo data if empty (remove in production)
+function addDemoData() {
+  const existing = getAll();
+  if (existing.length > 0) return;
+  const demos = [
+    { ref:'DRV-A1B2C', location:'Paris', name:'Marie Dupont', email:'marie@gmail.com', phone:'+33 6 12 34 56 78', covers:2, date:'mercredi 25 juin 2026', slot:'20:00', note:'Anniversaire', ts: new Date(Date.now()-3600000).toISOString() },
+    { ref:'DRV-D3E4F', location:'Paris', name:'Jean Martin', email:'jean@outlook.fr', phone:'+33 7 98 76 54 32', covers:4, date:'jeudi 26 juin 2026', slot:'19:30', note:'', ts: new Date(Date.now()-7200000).toISOString() },
+    { ref:'DRV-G5H6I', location:'Paris', name:'Sophie Bernard', email:'sophie@yahoo.fr', phone:'+33 6 55 44 33 22', covers:6, date:'vendredi 27 juin 2026', slot:'21:00', note:'Sans gluten', ts: new Date(Date.now()-10800000).toISOString() },
+    { ref:'DRV-J7K8L', location:'Surzur', name:'Paul Leclerc', email:'paul@gmail.com', phone:'+33 6 11 22 33 44', covers:3, date:'mercredi 25 juin 2026', slot:'19:00', note:'', ts: new Date(Date.now()-14400000).toISOString() },
+  ];
+  localStorage.setItem('drevici_reservations', JSON.stringify(demos));
+}
+
+addDemoData();
+
+// ── Auth ──
+const CREDENTIALS = { user: 'Pazur', pass: 'Surris' };
+
+function tryLogin() {
+  const u = document.getElementById('loginUser').value;
+  const p = document.getElementById('loginPass').value;
+  if (u === CREDENTIALS.user && p === CREDENTIALS.pass) {
+    sessionStorage.setItem('drv_auth', '1');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashContent').style.display = 'block';
+    renderTable();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginPass').focus();
+  }
+}
+
+// Auto-login if already authenticated in this session
+if (sessionStorage.getItem('drv_auth') === '1') {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('dashContent').style.display = 'block';
+  renderTable();
+}
+</script>
+</div><!-- /#dashContent -->
+</body>
+</html>
