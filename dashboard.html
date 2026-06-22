@@ -335,6 +335,18 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .duration-row:last-child{border-bottom:none;}
 .duration-lbl{color:var(--text2);}
 .duration-val{font-weight:700;color:var(--text);}
+/* DIVERS */
+.divers-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border);}
+.divers-label{font-size:.83rem;font-weight:500;color:var(--text);flex:1;min-width:0;}
+.divers-btns{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.divers-open{display:inline-flex;align-items:center;padding:6px 14px;background:var(--green);color:#fff;border-radius:8px;font-size:.72rem;font-weight:600;text-decoration:none;white-space:nowrap;letter-spacing:.04em;transition:background .15s;}
+.divers-open:hover{background:var(--green2);}
+.divers-copy{background:var(--bg2);border:1px solid var(--border);border-radius:7px;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .15s;flex-shrink:0;}
+.divers-copy:hover{border-color:var(--text2);color:var(--text);}
+.divers-copy.copied{background:var(--green);border-color:var(--green);color:#fff;}
+/* CHART TOOLTIP */
+.chart-tooltip{position:fixed;z-index:500;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-size:.75rem;font-weight:600;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.15);pointer-events:none;display:none;white-space:nowrap;}
+.chart-tooltip.visible{display:block;}
 </style>
 </head>
 <body data-theme="dark">
@@ -364,7 +376,8 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
   <div class="subnav">
     <button class="subnav-tab active" onclick="showView('dashboard',this)">Accueil</button>
     <button class="subnav-tab" onclick="showView('cal',this)">Calendrier</button>
-    <button class="subnav-tab" onclick="showView('stats',this)">Statistiques</button>
+    <button class="subnav-tab" onclick="showView('stats',this)">Stats</button>
+    <button class="subnav-tab" onclick="showView('divers',this)">Divers</button>
     <button class="subnav-refresh" onclick="loadData()" id="refresh-btn">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
       Actualiser
@@ -509,6 +522,17 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       <div id="taxe-table-wrap"></div>
     </div>
   </div>
+
+<!-- DIVERS VIEW -->
+<div id="divers-view" style="display:none;padding:8px 0">
+  <div style="background:var(--card);border-radius:var(--r2);border:1px solid var(--border);overflow:hidden">
+    <div style="padding:14px 18px 10px;font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)">Liens utiles</div>
+    <div class="divers-row"><span class="divers-label">Planning des maisons (site)</span><div class="divers-btns"><a class="divers-open" href="https://domainerosalina.com/planning" target="_blank">Ouvrir ↗</a><button class="divers-copy" onclick="diversCopy('https://domainerosalina.com/planning',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
+    <div class="divers-row"><span class="divers-label">Plan des chambres</span><div class="divers-btns"><a class="divers-open" href="https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png" target="_blank">Ouvrir ↗</a><button class="divers-copy" onclick="diversCopy('https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
+    <div class="divers-row"><span class="divers-label">Plan des chambres (asso)</span><div class="divers-btns"><a class="divers-open" href="https://domainerosalina.com/wp-content/uploads/2025/11/Page-Maison-%E2%80%93-Desktop-Chambres-Pop-up-Rosalina-Associations-scaled.png" target="_blank">Ouvrir ↗</a><button class="divers-copy" onclick="diversCopy('https://domainerosalina.com/wp-content/uploads/2025/11/Page-Maison-%E2%80%93-Desktop-Chambres-Pop-up-Rosalina-Associations-scaled.png',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
+    <div class="divers-row" style="border-bottom:none"><span class="divers-label">Facture Wannapay</span><div class="divers-btns"><a class="divers-open" href="https://www.dropbox.com/scl/fo/qeevfa27clk2b6oa65fqd/AFu1wneuRlfq5YXpRSdrivs?rlkey=es4asda7n1mq0l340o0tsttap&st=mdvsi2hv&dl=0" target="_blank">Ouvrir ↗</a><button class="divers-copy" onclick="diversCopy('https://www.dropbox.com/scl/fo/qeevfa27clk2b6oa65fqd/AFu1wneuRlfq5YXpRSdrivs?rlkey=es4asda7n1mq0l340o0tsttap&st=mdvsi2hv&dl=0',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
+  </div>
+</div>
 
 </main>
 
@@ -674,6 +698,7 @@ function showView(v,btn){
   document.getElementById('dashboard-view').style.display=v==='dashboard'?'block':'none';
   document.getElementById('cal-view').style.display=v==='cal'?'block':'none';
   const sv=document.getElementById('stats-view');if(sv)sv.style.display=v==='stats'?'block':'none';
+  const dv=document.getElementById('divers-view');if(dv)dv.style.display=v==='divers'?'block':'none';
   if(v==='cal'){initCalUnifiedSel();renderCal();}
   if(v==='stats'){buildStatsTabs();renderStats();}
 }
@@ -1210,6 +1235,17 @@ function updateCautionBtn(v){
   document.getElementById('m-caution-label').textContent=v?'Vers\u00e9e \u2713':'Non vers\u00e9e';
   document.getElementById('m-caution-btn').className='caution-toggle-btn '+(v?'ok':'');
 }
+// ── DIVERS ──
+function diversCopy(url,btn){
+  navigator.clipboard.writeText(url).then(()=>{
+    btn.classList.add('copied');
+    setTimeout(()=>btn.classList.remove('copied'),1600);
+  }).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=url;
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+  });
+}
+
 function openDevisModal(){document.getElementById('devis-modal-overlay').classList.add('open');}
 function closeDevisModal(){document.getElementById('devis-modal-overlay').classList.remove('open');}
 
@@ -1556,14 +1592,16 @@ function renderMonthChart(clients){
   const colors=['#C8956C','#4A7EC8','#6AA865'];
   const dpr=window.devicePixelRatio||1;
   const W=canvas.parentElement.clientWidth-28;
-  const H=180;
+  const legendH=years.length>1?22:0;
+  const H=220+legendH;
   canvas.style.width=W+'px';canvas.style.height=H+'px';
   canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);
   ctx.scale(dpr,dpr);
-  const pad={t:10,r:10,b:30,l:36};
+  const pad={t:legendH+10,r:14,b:30,l:36};
   const chartW=W-pad.l-pad.r;
   const chartH=H-pad.t-pad.b;
-  // Get data
+  const barW=chartW/12;
+  // Data
   const datasets=years.map((y,i)=>{
     const data=Array(12).fill(0);
     clients.filter(c=>c.arrivee?.startsWith(y)).forEach(c=>{
@@ -1574,50 +1612,93 @@ function renderMonthChart(clients){
   });
   const maxVal=Math.max(...datasets.flatMap(d=>d.data),1);
   const isDark=document.body.getAttribute('data-theme')==='dark';
-  const textColor=isDark?'#9A9A8A':'#999';
+  const textColor=isDark?'#9A9A8A':'#888';
   const gridColor=isDark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
   ctx.clearRect(0,0,W,H);
-  // Grid
+  // Legend — properly spaced
+  if(years.length>1){
+    let lx=pad.l;
+    datasets.forEach(({y,color})=>{
+      ctx.fillStyle=color;
+      ctx.beginPath();ctx.arc(lx+5,8,4,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=textColor;ctx.font=`${11*dpr/dpr}px Jost`;ctx.textAlign='left';
+      ctx.fillText(y,lx+13,12);
+      lx+=13+ctx.measureText(y).width+18;
+    });
+  }
+  // Grid lines
   for(let i=0;i<=4;i++){
     const y=pad.t+chartH-(chartH*i/4);
     ctx.strokeStyle=gridColor;ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
     ctx.fillStyle=textColor;ctx.font='10px Jost';ctx.textAlign='right';
-    ctx.fillText(Math.round(maxVal*i/4),pad.l-4,y+3);
+    ctx.fillText(Math.round(maxVal*i/4),pad.l-6,y+4);
   }
   // Month labels
-  const barW=chartW/12;
   MOIS_SHORT.forEach((m,i)=>{
-    ctx.fillStyle=textColor;ctx.font='9px Jost';ctx.textAlign='center';
+    ctx.fillStyle=textColor;ctx.font='10px Jost';ctx.textAlign='center';
     ctx.fillText(m,pad.l+barW*i+barW/2,H-8);
   });
-  // Lines
-  datasets.forEach(({data,color})=>{
+  // Lines + dots — store dot positions for click detection
+  const dotPositions=[];
+  datasets.forEach(({y,data,color})=>{
     ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.lineJoin='round';
     ctx.beginPath();
     data.forEach((v,i)=>{
       const x=pad.l+barW*i+barW/2;
-      const y=pad.t+chartH-(v/maxVal*chartH);
-      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      const cy=pad.t+chartH-(v/maxVal*chartH);
+      i===0?ctx.moveTo(x,cy):ctx.lineTo(x,cy);
     });
     ctx.stroke();
-    // Dots
     data.forEach((v,i)=>{
       const x=pad.l+barW*i+barW/2;
-      const y=pad.t+chartH-(v/maxVal*chartH);
+      const cy=pad.t+chartH-(v/maxVal*chartH);
       ctx.fillStyle=color;
-      ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.arc(x,cy,4,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,cy,1.5,0,Math.PI*2);ctx.fill();
+      dotPositions.push({x,y:cy,v,year:y,mois:MOIS_SHORT[i],color});
     });
   });
-  // Legend
-  if(datasets.length>1){
-    datasets.forEach(({y,color},i)=>{
-      ctx.fillStyle=color;ctx.fillRect(pad.l+i*50,2,12,3);
-      ctx.fillStyle=textColor;ctx.font='9px Jost';ctx.textAlign='left';
-      ctx.fillText(y,pad.l+i*50+16,6);
-    });
-  }
+  // Store dot positions on canvas for click handler
+  canvas._dots=dotPositions;
+  canvas._pad=pad;
 }
+
+// Chart click — show tooltip near dot
+(function(){
+  let chartTip=null;
+  function getOrCreateTip(){
+    if(chartTip)return chartTip;
+    chartTip=document.createElement('div');
+    chartTip.className='chart-tooltip';
+    document.body.appendChild(chartTip);
+    return chartTip;
+  }
+  document.addEventListener('click',function(e){
+    const canvas=document.getElementById('chart-months');
+    if(!canvas||!canvas._dots)return;
+    const rect=canvas.getBoundingClientRect();
+    if(e.clientX<rect.left||e.clientX>rect.right||e.clientY<rect.top||e.clientY>rect.bottom){
+      const t=getOrCreateTip();t.classList.remove('visible');return;
+    }
+    const scaleX=canvas.offsetWidth/rect.width;
+    const mx=(e.clientX-rect.left)*scaleX;
+    const my=(e.clientY-rect.top)*scaleX;
+    let closest=null,minD=Infinity;
+    canvas._dots.forEach(d=>{
+      const dist=Math.sqrt((d.x-mx)**2+(d.y-my)**2);
+      if(dist<minD){minD=dist;closest=d;}
+    });
+    if(closest&&minD<20){
+      const t=getOrCreateTip();
+      t.textContent=closest.mois+' '+closest.year+' — '+closest.v+' réservation'+(closest.v!==1?'s':'');
+      t.style.borderLeft='3px solid '+closest.color;
+      t.style.left=(e.clientX+12)+'px';
+      t.style.top=(e.clientY-32)+'px';
+      t.classList.add('visible');
+    }
+  });
+})();
 
 function renderHeatmap(clients){
   const container=document.getElementById('heatmap-container');
