@@ -1,0 +1,365 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#1a2744;--bg2:#0f1c38;--bg3:#162040;--border:rgba(255,255,255,0.1);
+--text:#f0ece4;--text2:rgba(240,236,228,0.55);--text3:rgba(240,236,228,0.3);
+--accent:#c8a96e;--btn-bg:rgba(255,255,255,0.07);--btn-border:rgba(255,255,255,0.18);
+--tab-active:#f0ece4;--tab-bar:#0f1c38;--logo-filter:brightness(0) invert(1);
+--view-bg:#162040;--card-bg:#1a2744;--card-border:rgba(255,255,255,0.08);
+--bev-border:rgba(255,255,255,0.07);--tag-text:rgba(240,236,228,0.6);
+--hero-bg:#0f1c38;--dropdown-bg:#1a2744;--mode-icon:ti-moon
+}
+.light{
+--bg:#f4f6fb;--bg2:#e8ecf5;--bg3:#eef1f8;--border:rgba(26,39,68,0.1);
+--text:#1a2744;--text2:rgba(26,39,68,0.55);--text3:rgba(26,39,68,0.3);
+--accent:#1a4a8a;--btn-bg:rgba(26,39,68,0.06);--btn-border:rgba(26,39,68,0.18);
+--tab-active:#1a2744;--tab-bar:#ffffff;--logo-filter:none;
+--view-bg:#eef1f8;--card-bg:#ffffff;--card-border:rgba(26,39,68,0.1);
+--bev-border:rgba(26,39,68,0.08);--tag-text:rgba(26,39,68,0.5);
+--hero-bg:#e8ecf5;--dropdown-bg:#ffffff;--mode-icon:ti-sun
+}
+.wrap{background:var(--bg);min-height:100vh;padding-bottom:80px;color:var(--text);transition:background .25s,color .25s}
+.header{background:var(--bg2);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border);gap:8px}
+.header-left{display:flex;align-items:center;gap:8px}
+.mode-btn{background:var(--btn-bg);border:0.5px solid var(--btn-border);border-radius:6px;padding:6px 8px;cursor:pointer;color:var(--text2);font-size:14px;line-height:1;display:flex;align-items:center}
+.logo{height:34px;object-fit:contain;filter:var(--logo-filter);transition:filter .25s}
+.logo-fallback{font-size:11px;font-weight:500;color:var(--text);letter-spacing:.1em;text-align:center;line-height:1.2;display:none}
+.lang-wrap{position:relative}
+.lang-selected{display:flex;align-items:center;gap:4px;padding:5px 10px;border:0.5px solid var(--btn-border);border-radius:6px;cursor:pointer;background:var(--btn-bg);color:var(--text);font-size:12px;font-family:var(--font-sans);letter-spacing:.06em;font-weight:500;white-space:nowrap}
+.lang-selected i{font-size:12px;color:var(--text2)}
+.lang-dropdown{position:absolute;right:0;top:calc(100% + 4px);background:var(--dropdown-bg);border:0.5px solid var(--border);border-radius:8px;overflow:hidden;z-index:200;display:none;min-width:100px}
+.lang-dropdown.open{display:block}
+.lang-option{padding:9px 14px;font-size:12px;color:var(--text2);cursor:pointer;letter-spacing:.05em;font-family:var(--font-sans);white-space:nowrap;transition:background .1s}
+.lang-option:hover{background:var(--btn-bg)}
+.lang-option.active{color:var(--text);font-weight:500}
+.hero{background:var(--hero-bg);padding:22px 20px 18px;text-align:center;border-bottom:0.5px solid var(--border)}
+.hero-sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text2);margin-top:6px}
+.reserve-bar{display:flex;gap:8px;padding:14px 16px;background:var(--bg2);border-bottom:0.5px solid var(--border)}
+.reserve-btn{flex:1;padding:10px 8px;border-radius:10px;font-size:12px;font-weight:500;letter-spacing:.04em;cursor:pointer;text-align:center;font-family:var(--font-sans);transition:opacity .15s;border:none}
+.reserve-btn.primary{background:#1a2744;color:#fff}
+.light .reserve-btn.primary{background:#1a2744;color:#fff}
+.reserve-btn.secondary{background:var(--btn-bg);color:var(--text2);border:0.5px solid var(--btn-border)}
+.sticky-nav{position:sticky;top:0;z-index:99;background:var(--tab-bar);border-bottom:0.5px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;transition:background .25s}
+.sticky-nav::-webkit-scrollbar{display:none}
+.nav-tab{flex:none;padding:13px 14px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:1.5px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s}
+.nav-tab.active{color:var(--tab-active);border-bottom-color:var(--accent)}
+.view-bar{position:sticky;top:42px;z-index:98;background:var(--view-bg);padding:9px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border);transition:background .25s}
+.view-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
+.view-btns{display:flex;gap:4px}
+.view-btn{padding:5px 10px;font-size:13px;border:0.5px solid var(--btn-border);border-radius:6px;cursor:pointer;background:transparent;color:var(--text2);font-family:var(--font-sans);transition:all .15s;display:flex;align-items:center}
+.view-btn.active{background:var(--btn-bg);color:var(--text);border-color:var(--text2)}
+.tab-content{display:none;padding:16px}
+.tab-content.active{display:block}
+.dish-list{display:flex;flex-direction:column}
+.dish-row{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:0.5px solid var(--bev-border)}
+.dish-row:first-child{padding-top:0}
+.dish-row:last-child{border-bottom:none}
+.dish-text{flex:1;min-width:0}
+.dish-name{font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px}
+.dish-desc{font-size:12px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dish-price{font-size:12px;color:var(--accent);margin-top:5px;letter-spacing:.04em}
+.dish-img{width:78px;height:78px;border-radius:8px;object-fit:cover;flex:none;background:var(--bg3)}
+.dish-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.dish-card{background:var(--card-bg);border:0.5px solid var(--card-border);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .15s}
+.dish-card-img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--bg3)}
+.dish-card-body{padding:10px 11px 12px}
+.dish-card-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.dish-card-desc{font-size:11px;color:var(--text2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dish-card-price{font-size:12px;color:var(--accent);margin-top:5px}
+.section-hdr{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin:18px 0 10px;padding-bottom:8px;border-bottom:0.5px solid var(--bev-border)}
+.section-hdr:first-child{margin-top:0}
+.sub-variants{margin-top:6px;display:flex;flex-direction:column;gap:4px}
+.variant-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px dashed var(--bev-border)}
+.variant-row:last-child{border-bottom:none}
+.variant-name{font-size:12px;color:var(--text2)}
+.variant-price{font-size:12px;color:var(--accent);font-weight:500}
+.bev-section{margin-bottom:16px}
+.bev-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid var(--bev-border)}
+.bev-row:last-child{border-bottom:none}
+.bev-name{font-size:13px;color:var(--text)}
+.bev-price{font-size:13px;color:var(--accent);font-weight:500}
+.tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:20px;border:0.5px solid;color:var(--tag-text);border-color:var(--btn-border);margin-left:5px;vertical-align:middle;letter-spacing:.03em}
+.footer-reserve{padding:16px;border-top:0.5px solid var(--border)}
+.footer-btn{width:100%;padding:14px;background:#1a2744;color:#f0ece4;border:none;border-radius:10px;font-size:13px;font-weight:500;letter-spacing:.06em;cursor:pointer;font-family:var(--font-sans)}
+.light .footer-btn{background:#1a2744;color:#fff}
+</style>
+
+<h2 style="position:absolute;left:-9999px">Drevici Oyster — Menu</h2>
+
+<div class="wrap" id="app">
+
+  <div class="header">
+    <div class="header-left">
+      <button class="mode-btn" id="modeBtn" aria-label="Basculer mode sombre/clair" onclick="toggleMode()"><i class="ti ti-moon" id="modeIcon" aria-hidden="true"></i></button>
+    </div>
+    <img class="logo" id="logo" src="https://drevicioyster.com/wp-content/uploads/2026/06/Drevici-Oyster-white-HD.png" alt="Drevici Oyster" onerror="this.style.display='none';document.getElementById('logoFb').style.display='block'"/>
+    <div id="logoFb" class="logo-fallback">DREVICI<br>OYSTER</div>
+    <div class="lang-wrap">
+      <div class="lang-selected" id="langSelected" onclick="toggleDropdown()">
+        <span id="langCurrent">FR</span>
+        <i class="ti ti-chevron-down" aria-hidden="true"></i>
+      </div>
+      <div class="lang-dropdown" id="langDropdown">
+        <div class="lang-option active" data-lang="fr" onclick="setLang('fr')">FR — Français</div>
+        <div class="lang-option" data-lang="en" onclick="setLang('en')">EN — English</div>
+        <div class="lang-option" data-lang="es" onclick="setLang('es')">ES — Español</div>
+        <div class="lang-option" data-lang="it" onclick="setLang('it')">IT — Italiano</div>
+        <div class="lang-option" data-lang="kr" onclick="setLang('kr')">KR — 한국어</div>
+        <div class="lang-option" data-lang="jp" onclick="setLang('jp')">JP — 日本語</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <img class="logo" style="height:52px;filter:var(--logo-filter)" src="https://drevicioyster.com/wp-content/uploads/2026/06/Drevici-Oyster-white-HD.png" alt=""/>
+    <div class="hero-sub" id="heroSub">Fruits de mer · Bretagne · Paris</div>
+  </div>
+
+  <div class="reserve-bar">
+    <button class="reserve-btn primary" id="resParis" onclick="openLink('https://drevicioyster.com')">Réservation Paris</button>
+    <button class="reserve-btn secondary" id="resSurzur" onclick="openLink('https://drevicioyster.com')">Réservation Surzur</button>
+  </div>
+
+  <nav class="sticky-nav" id="nav">
+    <div class="nav-tab active" data-tab="huitres" data-lbl='{"fr":"Huîtres","en":"Oysters","es":"Ostras","it":"Ostriche","kr":"굴","jp":"牡蠣"}'></div>
+    <div class="nav-tab" data-tab="mer" data-lbl='{"fr":"Fruits de mer","en":"Seafood","es":"Mariscos","it":"Frutti di mare","kr":"해산물","jp":"シーフード"}'></div>
+    <div class="nav-tab" data-tab="tartinades" data-lbl='{"fr":"Tartinades","en":"Spreads","es":"Untables","it":"Paté","kr":"스프레드","jp":"スプレッド"}'></div>
+    <div class="nav-tab" data-tab="boissons" data-lbl='{"fr":"Boissons","en":"Drinks","es":"Bebidas","it":"Bevande","kr":"음료","jp":"飲み物"}'></div>
+  </nav>
+
+  <div class="view-bar" id="viewBar">
+    <span class="view-label" id="viewLabel"></span>
+    <div class="view-btns">
+      <button class="view-btn active" id="btnList" onclick="setView('list')" aria-label="Liste"><i class="ti ti-list" aria-hidden="true"></i></button>
+      <button class="view-btn" id="btnGrid" onclick="setView('grid')" aria-label="Grille"><i class="ti ti-layout-grid" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <div class="tab-content active" id="tab-huitres">
+    <div class="dish-list" id="list-huitres">
+      <div class="dish-row">
+        <div class="dish-text">
+          <div class="dish-name" data-lbl='{"fr":"Huîtres nature n°4","en":"Natural oysters n°4","es":"Ostras naturales n°4","it":"Ostriche naturali n°4","kr":"자연산 굴 n°4","jp":"天然牡蠣 n°4"}'></div>
+          <div class="dish-desc" data-lbl='{"fr":"Fraîches, iodées, servies sur lit de glace avec pain de seigle et beurre salé","en":"Fresh, briny, served on ice with rye bread and salted butter","es":"Frescas, sobre hielo con pan de centeno y mantequilla","it":"Fresche, su ghiaccio con pane di segale e burro salato","kr":"신선한 굴, 얼음 위에 호밀빵과 가염버터 제공","jp":"新鮮な牡蠣、氷の上でライ麦パンと有塩バター添え"}'></div>
+          <div class="dish-price">les 6 — 12€ · les 12 — 22€</div>
+        </div>
+        <img class="dish-img" src="https://drevicioyster.com/wp-content/uploads/2026/05/Artboard-%E2%80%93-3-1000x1000.webp" alt="" loading="lazy"/>
+      </div>
+      <div class="dish-row">
+        <div class="dish-text">
+          <div class="dish-name" data-lbl='{"fr":"Huîtres gratinées","en":"Gratin oysters","es":"Ostras gratinadas","it":"Ostriche gratinate","kr":"그라탱 굴","jp":"グラタン牡蠣"}'></div>
+          <div class="dish-desc" data-lbl='{"fr":"Gratinées au four, beurre herbé, chapelure croustillante, servies chaudes","en":"Oven-gratinated, herb butter, crunchy breadcrumbs, served hot","es":"Gratinadas al horno, mantequilla de hierbas, pan rallado","it":"Gratinate al forno, burro alle erbe, pangrattato croccante","kr":"오븐 그라탱, 허브 버터, 바삭한 빵가루, 따뜻하게 제공","jp":"オーブングラタン、ハーブバター、パン粉、温かいまま"}'></div>
+          <div class="dish-price">les 3 — 9€ · les 6 — 17€</div>
+        </div>
+        <img class="dish-img" src="https://drevicioyster.com/wp-content/uploads/2026/05/gratines-1.webp" alt="" loading="lazy"/>
+      </div>
+    </div>
+    <div class="dish-grid" id="grid-huitres" style="display:none">
+      <div class="dish-card">
+        <img class="dish-card-img" src="https://drevicioyster.com/wp-content/uploads/2026/05/Artboard-%E2%80%93-3-1000x1000.webp" alt="" loading="lazy"/>
+        <div class="dish-card-body">
+          <div class="dish-card-name" data-lbl='{"fr":"Huîtres nature n°4","en":"Natural oysters n°4","es":"Ostras naturales n°4","it":"Ostriche naturali n°4","kr":"자연산 굴 n°4","jp":"天然牡蠣 n°4"}'></div>
+          <div class="dish-card-desc" data-lbl='{"fr":"Fraîches, iodées, sur lit de glace","en":"Fresh, briny, on ice","es":"Frescas sobre hielo","it":"Fresche su ghiaccio","kr":"신선하고 짭조름한 굴","jp":"新鮮な牡蠣、氷の上"}'></div>
+          <div class="dish-card-price">6 → 12€ · 12 → 22€</div>
+        </div>
+      </div>
+      <div class="dish-card">
+        <img class="dish-card-img" src="https://drevicioyster.com/wp-content/uploads/2026/05/gratines-1.webp" alt="" loading="lazy"/>
+        <div class="dish-card-body">
+          <div class="dish-card-name" data-lbl='{"fr":"Huîtres gratinées","en":"Gratin oysters","es":"Ostras gratinadas","it":"Ostriche gratinate","kr":"그라탱 굴","jp":"グラタン牡蠣"}'></div>
+          <div class="dish-card-desc" data-lbl='{"fr":"Beurre herbé, chapelure, chaud","en":"Herb butter, breadcrumbs, hot","es":"Mantequilla, pan rallado","it":"Burro alle erbe, pangrattato","kr":"허브버터, 빵가루, 따뜻하게","jp":"ハーブバター、パン粉、熱々"}'></div>
+          <div class="dish-card-price">3 → 9€ · 6 → 17€</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-mer">
+    <div class="dish-list" id="list-mer">
+      <div class="dish-row">
+        <div class="dish-text">
+          <div class="dish-name" data-lbl='{"fr":"Planche de charcuterie","en":"Charcuterie board","es":"Tabla de embutidos","it":"Tagliere di salumi","kr":"샤퀴테리 플레이트","jp":"シャルキュトリーボード"}'></div>
+          <div class="dish-desc" data-lbl='{"fr":"Sélection de charcuteries artisanales, cornichons, pain grillé et condiments maison","en":"Selection of artisan cured meats, gherkins, toast and house condiments","es":"Selección de embutidos artesanales, pepinillos, pan tostado","it":"Selezione di salumi artigianali, cetrioli, pane tostato","kr":"수제 샤퀴테리 모듬, 코르니숑, 구운 빵, 홈메이드 소스","jp":"自家製シャルキュトリーの盛り合わせ、ピクルス、トースト"}'></div>
+          <div class="dish-price">19€</div>
+        </div>
+        <img class="dish-img" src="https://drevicioyster.com/wp-content/uploads/2026/05/charcute-x.webp" alt="" loading="lazy"/>
+      </div>
+      <div class="dish-row">
+        <div class="dish-text">
+          <div class="dish-name" data-lbl='{"fr":"6 gambas de Madagascar","en":"6 Madagascar prawns","es":"6 gambas de Madagascar","it":"6 gamberi del Madagascar","kr":"마다가스카르 왕새우 6마리","jp":"マダガスカル海老 6尾"}'></div>
+          <div class="dish-desc" data-lbl='{"fr":"Gambas sauvages, grillées à la plancha, beurre de corail, citron vert et fleur de sel","en":"Wild prawns, grilled on the plancha, coral butter, lime and fleur de sel","es":"Gambas salvajes a la plancha, mantequilla de coral, lima","it":"Gamberi selvatici alla piastra, burro di corallo, lime","kr":"야생 왕새우, 플란차 구이, 코럴 버터, 라임과 플뢰르 드 셀","jp":"天然海老の鉄板焼き、コーラルバター、ライムとフルール・ド・セル"}'></div>
+          <div class="dish-price">12€</div>
+        </div>
+        <img class="dish-img" src="https://drevicioyster.com/wp-content/uploads/2026/05/gambas-1000x1000.webp" alt="" loading="lazy"/>
+      </div>
+    </div>
+    <div class="dish-grid" id="grid-mer" style="display:none">
+      <div class="dish-card">
+        <img class="dish-card-img" src="https://drevicioyster.com/wp-content/uploads/2026/05/charcute-x.webp" alt="" loading="lazy"/>
+        <div class="dish-card-body">
+          <div class="dish-card-name" data-lbl='{"fr":"Planche charcuterie","en":"Charcuterie board","es":"Tabla embutidos","it":"Tagliere salumi","kr":"샤퀴테리 플레이트","jp":"シャルキュトリー"}'></div>
+          <div class="dish-card-desc" data-lbl='{"fr":"Artisanale, cornichons, pain grillé","en":"Artisan, gherkins, toast","es":"Artesanal, pepinillos","it":"Artigianale, cetrioli","kr":"수제, 코르니숑, 빵","jp":"自家製、ピクルス"}'></div>
+          <div class="dish-card-price">19€</div>
+        </div>
+      </div>
+      <div class="dish-card">
+        <img class="dish-card-img" src="https://drevicioyster.com/wp-content/uploads/2026/05/gambas-1000x1000.webp" alt="" loading="lazy"/>
+        <div class="dish-card-body">
+          <div class="dish-card-name" data-lbl='{"fr":"6 gambas Madagascar","en":"6 Madagascar prawns","es":"6 gambas Madagascar","it":"6 gamberi Madagascar","kr":"왕새우 6마리","jp":"海老 6尾"}'></div>
+          <div class="dish-card-desc" data-lbl='{"fr":"Plancha, beurre de corail, citron","en":"Grilled, coral butter, lime","es":"Plancha, mantequilla coral","it":"Piastra, burro di corallo","kr":"플란차, 코럴 버터","jp":"鉄板焼き、コーラルバター"}'></div>
+          <div class="dish-card-price">12€</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-tartinades">
+    <div class="section-hdr" data-lbl='{"fr":"Tartares d'algues","en":"Seaweed tartare","es":"Tartares de algas","it":"Tartare di alghe","kr":"해조류 타르타르","jp":"海藻のタルタル"}'></div>
+    <div class="dish-row" style="padding-top:0">
+      <div class="dish-text">
+        <div class="dish-name" data-lbl='{"fr":"Tartare d'algues — 4 saveurs","en":"Seaweed tartare — 4 flavours","es":"Tartar de algas — 4 sabores","it":"Tartare di alghe — 4 gusti","kr":"해조류 타르타르 — 4가지 맛","jp":"海藻タルタル — 4種類"}'></div>
+        <div class="dish-desc" data-lbl='{"fr":"Pomme et miel · Poivrons grillés et paprika · Caviar de nori · Nature","en":"Apple & honey · Roasted pepper & paprika · Nori caviar · Plain","es":"Manzana y miel · Pimientos y páprika · Caviar de nori · Natural","it":"Mela e miele · Peperoni e paprika · Caviale di nori · Naturale","kr":"사과와 꿀 · 구운 피망과 파프리카 · 노리 캐비아 · 플레인","jp":"りんごと蜂蜜 · 焼きパプリカ · 海苔キャビア · プレーン"}'></div>
+        <div class="dish-price">9€ <span class="tag" data-lbl='{"fr":"au choix","en":"your pick","es":"a elegir","it":"a scelta","kr":"선택","jp":"お好み"}'></span></div>
+      </div>
+      <img class="dish-img" src="https://drevicioyster.com/wp-content/uploads/2026/06/ALG02-1000x1000.webp" alt="" loading="lazy"/>
+    </div>
+
+    <div class="section-hdr" data-lbl='{"fr":"Rillettes d'algues","en":"Seaweed rillettes","es":"Rillettes de algas","it":"Rillettes di alghe","kr":"해조류 리예트","jp":"海藻のリエット"}'></div>
+    <div class="dish-row" style="padding-top:0">
+      <div class="dish-text">
+        <div class="dish-name" data-lbl='{"fr":"Rillettes d'algues — 3 saveurs","en":"Seaweed rillettes — 3 flavours","es":"Rillettes de algas — 3 sabores","it":"Rillettes di alghe — 3 gusti","kr":"해조류 리예트 — 3가지 맛","jp":"海藻リエット — 3種類"}'></div>
+        <div class="sub-variants">
+          <div class="variant-row">
+            <span class="variant-name" data-lbl='{"fr":"Truite de Bretagne","en":"Breton trout","es":"Trucha de Bretaña","it":"Trota di Bretagna","kr":"브르타뉴 송어","jp":"ブルターニュトラウト"}'></span>
+            <span class="variant-price">9€</span>
+          </div>
+          <div class="variant-row">
+            <span class="variant-name" data-lbl='{"fr":"Maquereau au poivre de Sichuan","en":"Mackerel with Sichuan pepper","es":"Caballa con pimienta de Sichuan","it":"Sgombro al pepe del Sichuan","kr":"쓰촨 후추 고등어","jp":"四川山椒のサバ"}'></span>
+            <span class="variant-price">9€</span>
+          </div>
+          <div class="variant-row">
+            <span class="variant-name" data-lbl='{"fr":"Saint-Jacques à la bretonne","en":"Scallop à la bretonne","es":"Vieira a la bretona","it":"Capasanta alla bretone","kr":"브르타뉴 가리비","jp":"ブルターニュ風ホタテ"}'></span>
+            <span class="variant-price">9€</span>
+          </div>
+        </div>
+      </div>
+      <img class="dish-img" src="https://drevicioyster.com/wp-content/uploads/2026/06/rillettes-2.webp" alt="" loading="lazy"/>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-boissons">
+    <div class="bev-section">
+      <div class="section-hdr" data-lbl='{"fr":"Vins blancs","en":"White wines","es":"Vinos blancos","it":"Vini bianchi","kr":"화이트 와인","jp":"白ワイン"}'></div>
+      <div class="bev-row"><span class="bev-name">Muscadet Sèvre et Maine</span><span class="bev-price">7€</span></div>
+      <div class="bev-row"><span class="bev-name">Chablis 1er cru</span><span class="bev-price">12€</span></div>
+      <div class="bev-row"><span class="bev-name">Picpoul de Pinet</span><span class="bev-price">8€</span></div>
+    </div>
+    <div class="bev-section">
+      <div class="section-hdr" data-lbl='{"fr":"Bulles","en":"Sparkling","es":"Espumosos","it":"Bollicine","kr":"스파클링","jp":"スパークリング"}'></div>
+      <div class="bev-row"><span class="bev-name" data-lbl='{"fr":"Champagne brut","en":"Champagne brut","es":"Champán brut","it":"Champagne brut","kr":"샴페인 브뤼","jp":"シャンパーニュ ブリュット"}'></span><span class="bev-price">14€</span></div>
+      <div class="bev-row"><span class="bev-name" data-lbl='{"fr":"Crémant d'Alsace","en":"Crémant d'Alsace","es":"Crémant de Alsacia","it":"Crémant d'Alsazia","kr":"크레망 달자스","jp":"クレマン ダルザス"}'></span><span class="bev-price">9€</span></div>
+    </div>
+    <div class="bev-section">
+      <div class="section-hdr" data-lbl='{"fr":"Softs","en":"Soft drinks","es":"Sin alcohol","it":"Analcolici","kr":"논알코올","jp":"ノンアルコール"}'></div>
+      <div class="bev-row"><span class="bev-name" data-lbl='{"fr":"Eau minérale","en":"Mineral water","es":"Agua mineral","it":"Acqua minerale","kr":"미네랄 워터","jp":"ミネラルウォーター"}'></span><span class="bev-price">3€</span></div>
+      <div class="bev-row"><span class="bev-name" data-lbl='{"fr":"Café / Espresso","en":"Coffee / Espresso","es":"Café","it":"Caffè","kr":"커피","jp":"コーヒー"}'></span><span class="bev-price">2€</span></div>
+    </div>
+  </div>
+
+  <div class="footer-reserve">
+    <button class="footer-btn" id="footerReserve" onclick="openLink('https://drevicioyster.com')">Réserver une table →</button>
+  </div>
+
+</div>
+
+<script>
+let lang = 'fr';
+let view = 'list';
+let currentTab = 'huitres';
+let isDark = true;
+
+function toggleMode() {
+  isDark = !isDark;
+  document.getElementById('app').classList.toggle('light', !isDark);
+  document.getElementById('modeIcon').className = isDark ? 'ti ti-moon' : 'ti ti-sun';
+  const logo = document.getElementById('logo');
+  if(logo) logo.style.filter = isDark ? 'brightness(0) invert(1)' : 'none';
+}
+
+function toggleDropdown() {
+  document.getElementById('langDropdown').classList.toggle('open');
+}
+
+document.addEventListener('click', function(e) {
+  if(!e.target.closest('.lang-wrap')) {
+    document.getElementById('langDropdown').classList.remove('open');
+  }
+});
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('langCurrent').textContent = l.toUpperCase();
+  document.querySelectorAll('.lang-option').forEach(o => o.classList.toggle('active', o.dataset.lang === l));
+  document.getElementById('langDropdown').classList.remove('open');
+  document.querySelectorAll('[data-lbl]').forEach(el => {
+    try {
+      const v = JSON.parse(el.dataset.lbl)[l];
+      if(v) el.textContent = v;
+    } catch(e){}
+  });
+  const rsvLabels = {fr:['Réservation Paris','Réservation Surzur'],en:['Book Paris','Book Surzur'],es:['Reservar París','Reservar Surzur'],it:['Prenota Parigi','Prenota Surzur'],kr:['파리 예약','쉬르주르 예약'],jp:['パリ予約','スュルズュール予約']};
+  const footLabels = {fr:'Réserver une table →',en:'Book a table →',es:'Reservar mesa →',it:'Prenota un tavolo →',kr:'테이블 예약 →',jp:'テーブルを予約 →'};
+  const heroLabels = {fr:'Fruits de mer · Bretagne · Paris',en:'Seafood · Brittany · Paris',es:'Mariscos · Bretaña · París',it:'Frutti di mare · Bretagna · Parigi',kr:'해산물 · 브르타뉴 · 파리',jp:'シーフード · ブルターニュ · パリ'};
+  if(rsvLabels[l]) {
+    document.getElementById('resParis').textContent = rsvLabels[l][0];
+    document.getElementById('resSurzur').textContent = rsvLabels[l][1];
+  }
+  if(footLabels[l]) document.getElementById('footerReserve').textContent = footLabels[l];
+  if(heroLabels[l]) document.getElementById('heroSub').textContent = heroLabels[l];
+  updateViewLabel();
+}
+
+const tabLblMap = {
+  huitres:{fr:'Huîtres',en:'Oysters',es:'Ostras',it:'Ostriche',kr:'굴',jp:'牡蠣'},
+  mer:{fr:'Fruits de mer',en:'Seafood',es:'Mariscos',it:'Frutti di mare',kr:'해산물',jp:'シーフード'},
+  tartinades:{fr:'Tartinades',en:'Spreads',es:'Untables',it:'Paté',kr:'스프레드',jp:'スプレッド'},
+  boissons:{fr:'Boissons',en:'Drinks',es:'Bebidas',it:'Bevande',kr:'음료',jp:'飲み物'}
+};
+
+function updateViewLabel() {
+  const el = document.getElementById('viewLabel');
+  if(el && tabLblMap[currentTab]) el.textContent = tabLblMap[currentTab][lang] || '';
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    try { const v = JSON.parse(t.dataset.lbl)[lang]; if(v) t.textContent = v; } catch(e){}
+  });
+}
+
+document.querySelectorAll('.nav-tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    currentTab = t.dataset.tab;
+    document.getElementById('tab-' + currentTab).classList.add('active');
+    const hasView = ['huitres','mer'].includes(currentTab);
+    document.getElementById('viewBar').style.display = hasView ? 'flex' : 'none';
+    updateViewLabel();
+    setView(view);
+  });
+});
+
+function setView(v) {
+  view = v;
+  document.getElementById('btnList').classList.toggle('active', v==='list');
+  document.getElementById('btnGrid').classList.toggle('active', v==='grid');
+  ['huitres','mer'].forEach(tab => {
+    const l = document.getElementById('list-'+tab);
+    const g = document.getElementById('grid-'+tab);
+    if(l) l.style.display = v==='list' ? 'flex' : 'none';
+    if(g) g.style.display = v==='grid' ? 'grid' : 'none';
+  });
+}
+
+setLang('fr');
+</script>
