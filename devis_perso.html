@@ -185,6 +185,19 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
 [data-theme="dark"] .cal-dow{color:#8AABCC}
 [data-theme="dark"] .preview-header{color:#8AABCC}
 [data-theme="dark"] .preview-header span{color:#C1CCD8}
+/* ── EMAIL PREVIEW ── */
+.preview-wrap{border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-top:6px}
+.preview-header{background:#F9F7F4;padding:10px 16px;border-bottom:1px solid #E0D8CE;display:flex;gap:14px;font-size:.72rem;color:#888}
+.preview-header span{color:#444;font-weight:500}
+.preview-body{width:100%;padding:18px 20px;font-size:.83rem;line-height:1.8;color:#1A1A1A;white-space:pre-wrap;word-break:break-word;min-height:260px;max-height:460px;background:#fff;border:none;outline:none;resize:vertical;font-family:'Jost',sans-serif;display:block}
+.preview-body::placeholder{color:#bbb;font-style:italic}
+[data-theme="dark"] .preview-body{background:var(--card);color:var(--text)}
+[data-theme="dark"] .preview-wrap{border-color:var(--border)}
+[data-theme="dark"] .preview-header{background:var(--card);border-color:var(--border)}
+.btn-reset{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:#fff;color:#1A1A1A;border:2px solid #1A1A1A;border-radius:12px;font-family:'Jost',sans-serif;font-size:.9rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-reset:hover{background:#1A1A1A;color:#fff;transform:translateY(-2px)}
+.btn-reset:disabled{opacity:.42;cursor:not-allowed;transform:none}
+[data-theme="dark"] .btn-reset{background:transparent;border-color:var(--border);color:var(--text2)}
 [data-theme="dark"] .grille-toggle{color:#C8956C}
 [data-theme="dark"] .reduc-sep{color:#8AABCC}
 [data-theme="dark"] .euro{color:#8AABCC}
@@ -403,6 +416,41 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
     <p class="preview-note" id="generate-note">Ajoutez d'abord la réservation dans Notion, puis générez le PDF</p>
   </div>
 
+</div>
+
+<!-- 4. EMAIL AU CLIENT -->
+<div class="section-card">
+  <div class="section-title">4. Email au client</div>
+
+  <div class="field-grid" style="margin-bottom:18px">
+    <div class="field">
+      <label>Email du prospect <span style="color:#C0392B">*</span></label>
+      <input type="email" id="prospect-email" placeholder="ex : contact@exemple.fr" oninput="updateEmailPreview()">
+    </div>
+    <div class="field">
+      <label>Prénom (optionnel)</label>
+      <input type="text" id="prospect-prenom" placeholder="ex : Marie" oninput="updateEmailPreview()">
+    </div>
+  </div>
+
+  <div class="field" style="margin-bottom:20px">
+    <label>Aperçu de l'email</label>
+    <div class="preview-wrap">
+      <div class="preview-header">
+        <span>À :</span> <span id="prev-to">—</span>
+        &nbsp;|&nbsp; <span>Objet :</span> <span id="prev-subject">—</span>
+        <span style="margin-left:auto;color:#C8956C;font-size:.65rem;letter-spacing:.06em;cursor:pointer" onclick="regenerateEmailBody()" title="Regénérer le texte automatique">✎ modifiable · <u>regénérer</u></span>
+      </div>
+      <textarea class="preview-body" id="preview-body" placeholder="Remplissez les dates et les infos client pour voir l'email…" spellcheck="true" oninput="this.dataset.edited='1'"></textarea>
+    </div>
+  </div>
+
+  <div class="action-stack">
+    <button class="btn-reset" id="btn-copy-email" onclick="copyEmailPerso()" disabled>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copier l'email
+    </button>
+  </div>
 </div>
 
 <script>
@@ -665,6 +713,7 @@ function selectMaison(m){
   updateAdultesOptions();
   autoFillPrix();
   calcAll();
+  if(typeof updateEmailPreview === 'function') updateEmailPreview();
 }
 
 function updateAdultesOptions(){
@@ -766,6 +815,7 @@ function calcAll(){
   document.getElementById('arrhes-display').textContent=fmt(arrhes);
   document.getElementById('solde-display').textContent=fmt(solde);
   document.getElementById('total-display').textContent=fmt(total);
+  if(typeof updateEmailPreview === 'function') updateEmailPreview();
 }
 
 function fmt(n){
@@ -1289,6 +1339,120 @@ loadBookedDates();
 
 
 // Charger les dates occupées après toutes les définitions
+
+// ── EMAIL AU CLIENT ──
+const EMAIL_MAISONS = {
+  'rosa-lina': {
+    label: 'ROSALINA',
+    subject: 'Maisons Rosa & Lina',
+    photos: 'https://domainerosalina.com/photos-rosalina/',
+    info: 'Séjour de 50m², 38 personnes assises',
+  },
+  'rosa': {
+    label: 'ROSA',
+    subject: 'Maison Rosa',
+    photos: 'https://domainerosalina.com/photos-rosa/',
+    info: 'Séjour de 50m², 38 personnes assises',
+  },
+  'lina': {
+    label: 'LINA',
+    subject: 'Maison Lina',
+    photos: 'https://domainerosalina.com/photos-lina',
+    info: 'Double séjour de 40m², 14 personnes assises',
+  },
+};
+
+function buildEmailSubject(){
+  const m = EMAIL_MAISONS[currentMaison] || EMAIL_MAISONS['rosa-lina'];
+  return `Domaine Rosalina — Votre demande de séjour : ${m.subject}`;
+}
+
+function buildEmailBody(){
+  const m = EMAIL_MAISONS[currentMaison] || EMAIL_MAISONS['rosa-lina'];
+  const cfg = MAISONS[currentMaison] || MAISONS['rosa-lina'];
+  const prenom = document.getElementById('prospect-prenom').value.trim();
+  const dE = CAL.entree.date, dS = CAL.sortie.date;
+  const nA = parseInt(document.getElementById('nb-adultes')?.value) || 0;
+
+  const salut = prenom ? `Bonjour ${prenom},` : 'Bonjour,';
+
+  // Calcul nuits
+  let nuits = 0;
+  if(dE && dS) nuits = Math.round((dS - dE) / 86400000);
+
+  // Calcul base nuit par nuit
+  let base = 0;
+  for(let i = 0; i < nuits; i++){
+    const d = new Date(dE); d.setDate(d.getDate() + i);
+    base += getPrixNuitS(currentMaison, d);
+  }
+
+  // Remise
+  const reducEl = document.getElementById('reduc');
+  const reduc = parseFloat(reducEl?.value) || 0;
+  const total = Math.max(0, base - reduc);
+
+  // Taxe
+  const taxe = nA > 0 ? Math.round(TAXE_RATE * nA * nuits * 100) / 100 : 0;
+  const menage = cfg.menage;
+  const totalTTC = total + taxe + menage;
+
+  const dateStr = (dE && dS) ? `du ${fmtDateFR(dE)} au ${fmtDateFR(dS)} ` : '';
+
+  let detail = `  • Location ${m.label} (${nuits} nuit${nuits>1?'s':''}) : ${fmt(base)}`;
+  if(reduc > 0) detail += `\n  • Remise : − ${fmt(reduc)}`;
+  if(nA > 0) detail += `\n  • Taxe de séjour (${nA} adulte${nA>1?'s':''} × ${nuits} nuit${nuits>1?'s':''}) : ${fmt(taxe)}`;
+  detail += `\n  • Ménage de fin de séjour : ${fmt(menage)}`;
+  detail += `\n  • Total : ${fmt(totalTTC)}`;
+
+  return `${salut}
+
+Suite à notre échange :
+
+Votre séjour ${dateStr}comprend :
+${detail}
+
+Informations pratiques :
+  • Draps et serviettes fournis et inclus dans le prix
+  • ${m.info}
+  • Photos : ${m.photos}
+  • Plan des chambres : https://sowonboxx-cmd.github.io/rosalina/plan_chambres.html
+
+Bien cordialement,
+Aline et Eugène`;
+}
+
+function updateEmailPreview(){
+  const email = document.getElementById('prospect-email').value.trim();
+  const prevBody = document.getElementById('preview-body');
+  const btnC = document.getElementById('btn-copy-email');
+
+  document.getElementById('prev-to').textContent = email || '—';
+  document.getElementById('prev-subject').textContent = email ? buildEmailSubject() : '—';
+
+  if(!prevBody.dataset.edited) prevBody.value = buildEmailBody();
+  if(btnC) btnC.disabled = !email;
+}
+
+function regenerateEmailBody(){
+  const prevBody = document.getElementById('preview-body');
+  delete prevBody.dataset.edited;
+  prevBody.value = buildEmailBody();
+}
+
+function copyEmailPerso(){
+  const body = document.getElementById('preview-body').value;
+  const btn = document.getElementById('btn-copy-email');
+  navigator.clipboard.writeText(body).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copié !';
+    setTimeout(() => { btn.innerHTML = original; }, 1800);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = body; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  });
+}
 </script>
 </body>
 </html>
