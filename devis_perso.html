@@ -329,7 +329,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
       <div class="field"><label>Téléphone</label><input type="tel" id="tel" placeholder="ex : 06 12 34 56 78"></div>
       <div class="field"><label>Email</label><input type="email" id="email" placeholder="ex : contact@exemple.fr"></div>
       <div class="field" style="grid-column:1/-1">
-        <label>Source <span style="color:#C0392B">*</span> <span style="color:#aaa;font-weight:400">(d'où vient le client — remonte dans le dashboard)</span></label>
+        <label>Source <span style="color:#aaa;font-weight:400">(d'où vient le client — remonte dans le dashboard)</span></label>
         <select id="source" required>
           <option value="">— Sélectionner —</option>
           <option value="Abritel">Abritel</option>
@@ -427,7 +427,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
     </div>
     <div class="field">
       <label>Prénom (optionnel)</label>
-      <input type="text" id="prospect-prenom" placeholder="ex : Marie" oninput="updateEmailPreview()">
+      <input type="text" id="prospect-prenom" placeholder="ex : Marie" oninput="updateEmailPreview(true)">
     </div>
   </div>
 
@@ -1421,7 +1421,7 @@ Bien cordialement,
 Aline et Eugène`;
 }
 
-function updateEmailPreview(){
+function updateEmailPreview(forceRegen){
   const email = document.getElementById('prospect-email').value.trim();
   const prevBody = document.getElementById('preview-body');
   const btnC = document.getElementById('btn-copy-email');
@@ -1429,7 +1429,7 @@ function updateEmailPreview(){
   document.getElementById('prev-to').textContent = email || '—';
   document.getElementById('prev-subject').textContent = email ? buildEmailSubject() : '—';
 
-  if(!prevBody.dataset.edited) prevBody.value = buildEmailBody();
+  if(!prevBody.dataset.edited || forceRegen) prevBody.value = buildEmailBody();
   if(btnC) btnC.disabled = !email;
 }
 
