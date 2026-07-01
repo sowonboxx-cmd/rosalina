@@ -182,6 +182,10 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .remind-btn-send{flex:1;padding:13px;background:var(--green);color:#fff;border:none;border-radius:10px;font-family:'Jost',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;}
 .remind-btn-send:hover{background:var(--green2);}
 .remind-btn-cancel{padding:13px 18px;background:transparent;color:var(--text2);border:1.5px solid var(--border);border-radius:10px;font-family:'Jost',sans-serif;font-size:.85rem;cursor:pointer;}
+.remind-btn-copy{display:flex;align-items:center;gap:7px;padding:13px 16px;background:transparent;color:var(--text2);border:1.5px solid var(--border);border-radius:10px;font-family:'Jost',sans-serif;font-size:.85rem;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.remind-btn-copy:hover{border-color:var(--text2);color:var(--text);}
+.remind-btn-mailto{flex:1;padding:13px;background:transparent;border:1.5px solid var(--border);border-radius:10px;font-family:'Jost',sans-serif;font-size:.82rem;color:var(--text2);cursor:pointer;transition:all .15s;}
+.remind-btn-mailto:hover{border-color:var(--text2);color:var(--text);}
 
 @media(max-width:600px){.cal-maisons-bottom{grid-template-columns:1fr;}}
 .cal-tarif-wrap{margin-top:16px;}
@@ -550,9 +554,15 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       <textarea class="remind-textarea" id="remind-body-text"></textarea>
       <div class="remind-actions">
         <button class="remind-btn-send" onclick="sendRemind('gmail')">Ouvrir dans Gmail</button>
-        <button class="remind-btn-cancel" onclick="closeRemind()">Annuler</button>
+        <button class="remind-btn-copy" id="remind-btn-copy" onclick="copyRemind()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copier l'email
+        </button>
       </div>
-      <button style="width:100%;margin-top:8px;padding:11px;background:transparent;border:1.5px solid var(--border);border-radius:10px;font-family:'Jost',sans-serif;font-size:.82rem;color:var(--text2);cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='var(--text2)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'" onclick="sendRemind('mailto')">Ouvrir dans le client email</button>
+      <div class="remind-actions" style="margin-top:8px;">
+        <button class="remind-btn-cancel" onclick="closeRemind()">Annuler</button>
+        <button class="remind-btn-mailto" onclick="sendRemind('mailto')">Ouvrir dans le client email</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1306,6 +1316,19 @@ Aline et Eugène`;
   document.getElementById('remind-overlay').classList.add('open');
 }
 function closeRemind(){document.getElementById('remind-overlay').classList.remove('open');}
+function copyRemind(){
+  const body=document.getElementById('remind-body-text').value;
+  const btn=document.getElementById('remind-btn-copy');
+  navigator.clipboard.writeText(body).then(()=>{
+    const orig=btn.innerHTML;
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copié !';
+    btn.style.color='#5A9A5A';btn.style.borderColor='#5A9A5A';
+    setTimeout(()=>{btn.innerHTML=orig;btn.style.color='';btn.style.borderColor='';},1800);
+  }).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=body;
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+  });
+}
 function sendRemind(mode){
   const c=remindClient;if(!c)return;
   const email=c.email||'';
