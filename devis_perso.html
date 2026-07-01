@@ -416,8 +416,6 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
     <p class="preview-note" id="generate-note">Ajoutez d'abord la réservation dans Notion, puis générez le PDF</p>
   </div>
 
-</div>
-
 <!-- 4. EMAIL AU CLIENT -->
 <div class="section-card">
   <div class="section-title">4. Email au client</div>
@@ -452,6 +450,8 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
     </button>
   </div>
 </div>
+
+</div><!-- /form-body -->
 
 <script>
 // ══ SAISONNALITÉ ══
@@ -1128,7 +1128,11 @@ function getNotionToken() {
 }
 
 // ══ NOTION INTEGRATION ══
-const NOTION_TOKEN = document.getElementById('notion-token-input')?.value?.trim() || localStorage.getItem('notion_token') || '';
+function getNotionToken(){
+  return document.getElementById('notion-token-input')?.value?.trim()
+      || localStorage.getItem('notion_token')
+      || '';
+}
 const NOTION_DB_ID = '249a8c29d0568122a40ccf7180e98935';
 const WORKER = 'https://notion-proxy.sowonboxx.workers.dev'; // ton Worker Cloudflare (même que le dashboard)
 
