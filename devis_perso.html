@@ -248,7 +248,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
         <div class="field" style="grid-column:1/-1">
           <label>Token d'intégration Notion <span style="color:#aaa;font-weight:400">(sauvegardé localement, jamais partagé)</span></label>
           <div style="display:flex;gap:10px;align-items:center">
-            <input type="password" id="notion-token-input" placeholder="ntn_..." style="flex:1"
+            <input type="password" id="notion-token-input" placeholder="ntn_..." autocomplete="new-password" style="flex:1"
               oninput="saveNotionToken(this.value)">
             <button onclick="toggleTokenVisibility()" style="padding:10px 14px;border:1.5px solid #E0D8CE;border-radius:8px;background:#FAFAF8;cursor:pointer;font-size:.85rem;white-space:nowrap" id="token-eye">👁 Voir</button>
           </div>
@@ -713,7 +713,7 @@ function selectMaison(m){
   updateAdultesOptions();
   autoFillPrix();
   calcAll();
-  if(typeof updateEmailPreview === 'function') updateEmailPreview();
+  try{ if(typeof updateEmailPreview==='function') updateEmailPreview(); }catch(e){}
 }
 
 function updateAdultesOptions(){
@@ -815,7 +815,7 @@ function calcAll(){
   document.getElementById('arrhes-display').textContent=fmt(arrhes);
   document.getElementById('solde-display').textContent=fmt(solde);
   document.getElementById('total-display').textContent=fmt(total);
-  if(typeof updateEmailPreview === 'function') updateEmailPreview();
+  try{ if(typeof updateEmailPreview==='function') updateEmailPreview(); }catch(e){}
 }
 
 function fmt(n){
@@ -1128,11 +1128,6 @@ function getNotionToken() {
 }
 
 // ══ NOTION INTEGRATION ══
-function getNotionToken(){
-  return document.getElementById('notion-token-input')?.value?.trim()
-      || localStorage.getItem('notion_token')
-      || '';
-}
 const NOTION_DB_ID = '249a8c29d0568122a40ccf7180e98935';
 const WORKER = 'https://notion-proxy.sowonboxx.workers.dev'; // ton Worker Cloudflare (même que le dashboard)
 
