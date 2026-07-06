@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Ménage — Domaine Rosalina</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F0EA;--bg2:#EDEAE4;--card:#fff;--border:#E0D8CE;
+  --green:#2C3D2C;--green2:#3D5438;--rose:#C8956C;
+  --text:#1A1A1A;--text2:#666;--text3:#999;
+  --shadow:0 2px 12px rgba(0,0,0,.07);--shadow-lg:0 8px 40px rgba(0,0,0,.13);
+  --r:14px;--r2:8px;
+}
+[data-theme="dark"]{
+  --bg:#0F1410;--bg2:#161B16;--card:#1C211C;--border:#2A312A;
+  --text:#EEE8DF;--text2:#9A9A8A;--text3:#c2cdd9;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* HEADER */
+.header{background:var(--green);height:56px;display:flex;align-items:center;padding:0 16px;position:sticky;top:0;z-index:100;}
+.header-inner{max-width:860px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+.header-left{display:flex;align-items:center;gap:10px;}
+.back-btn{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.7);font-size:.78rem;font-weight:500;text-decoration:none;letter-spacing:.04em;transition:color .15s;}
+.back-btn:hover{color:#fff;}
+.header-title{font-family:'Open Sans',sans-serif;font-size:.82rem;font-weight:700;color:#fff;letter-spacing:.14em;text-transform:uppercase;}
+.theme-btn{background:rgba(255,255,255,.12);border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;transition:background .2s;}
+.theme-btn:hover{background:rgba(255,255,255,.22);}
+.theme-btn svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:1.8;}
+
+/* MONTH TABS */
+.month-nav{background:var(--card);border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.month-nav::-webkit-scrollbar{display:none;}
+.month-tabs{display:flex;max-width:860px;margin:0 auto;gap:0;}
+.month-tab{padding:13px 16px;border:none;background:transparent;color:var(--text2);font-family:'Jost',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;opacity:.7;transition:all .2s;}
+.month-tab:hover{color:var(--text);opacity:1;}
+.month-tab.active{color:var(--green);border-bottom-color:var(--green);opacity:1;}
+[data-theme="dark"] .month-tab.active{color:var(--rose);border-bottom-color:var(--rose);}
+
+/* MAIN */
+.main{max-width:860px;margin:0 auto;padding:20px 16px 60px;}
+
+/* ADD ROW */
+.add-card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:20px;border:1px solid var(--border);}
+.add-title{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
+.add-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto auto auto;gap:10px;align-items:end;}
+.time-pair{display:flex;gap:5px;}
+.time-pair select{flex:1;min-width:0;}
+.tarif-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:9px 12px;background:var(--bg2);border-radius:var(--r2);border:1px solid var(--border);}
+.tarif-row label{font-size:.75rem;font-weight:500;color:var(--text2);}
+.tarif-input{width:64px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-size:.85rem;font-weight:600;text-align:center;outline:none;transition:border-color .15s;}
+.tarif-input:focus{border-color:var(--rose);}
+.tarif-saved{font-size:.72rem;color:#5A9A5A;opacity:0;transition:opacity .3s;}
+@media(max-width:600px){
+  .add-grid{grid-template-columns:1fr 1fr;gap:10px;}
+  .add-grid .span2{grid-column:1/-1;}
+}
+.field-label{font-size:.72rem;font-weight:500;color:var(--text2);margin-bottom:5px;letter-spacing:.04em;}
+.field input,.field select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--r2);background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus{border-color:var(--rose);}
+[data-theme="dark"] .field input,[data-theme="dark"] .field select{background:var(--bg2);}
+.calc-chip{background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r2);padding:9px 12px;font-size:.85rem;color:var(--text);white-space:nowrap;min-width:64px;text-align:center;}
+.calc-chip.highlight{background:rgba(44,61,44,.08);border-color:var(--green);color:var(--green);font-weight:600;}
+[data-theme="dark"] .calc-chip.highlight{background:rgba(44,61,44,.3);}
+.btn-add{padding:9px 18px;background:var(--green);color:#fff;border:none;border-radius:var(--r2);font-family:'Jost',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s;display:flex;align-items:center;gap:6px;}
+.btn-add:hover{background:var(--green2);}
+
+/* TABLE */
+.entries-card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden;}
+.entries-empty{padding:40px;text-align:center;color:var(--text3);font-size:.85rem;}
+table{width:100%;border-collapse:collapse;}
+thead th{background:var(--green);color:#fff;padding:9px 14px;text-align:left;font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;}
+thead th:last-child{text-align:center;width:48px;}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg2);}
+tbody td{padding:11px 14px;font-size:.83rem;color:var(--text);}
+.td-date{font-weight:500;white-space:nowrap;}
+.td-hours{color:var(--text2);white-space:nowrap;}
+.td-duree{font-weight:600;color:var(--green);}
+[data-theme="dark"] .td-duree{color:#8FC18F;}
+.td-prix{font-weight:600;color:var(--rose);}
+.btn-del{background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;display:flex;align-items:center;transition:color .15s;}
+.btn-del:hover{color:#C0392B;}
+
+/* TOTAL */
+.total-bar{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);border:1px solid var(--border);padding:16px 20px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.total-nums{display:flex;gap:24px;align-items:center;flex-wrap:wrap;}
+.total-item{text-align:center;}
+.total-item .lbl{font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:2px;}
+.total-item .val{font-size:1.1rem;font-weight:600;color:var(--text);}
+.total-item .val.green{color:var(--green);}
+[data-theme="dark"] .total-item .val.green{color:#8FC18F;}
+.total-item .val.rose{color:var(--rose);}
+.paid-wrap{display:flex;align-items:center;gap:10px;}
+.paid-label{font-size:.82rem;font-weight:500;color:var(--text2);}
+.paid-toggle{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;}
+.paid-toggle input{opacity:0;width:0;height:0;}
+.paid-slider{position:absolute;inset:0;background:var(--border);border-radius:12px;cursor:pointer;transition:background .2s;}
+.paid-toggle input:checked + .paid-slider{background:#5A9A5A;}
+.paid-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:transform .2s;}
+.paid-toggle input:checked + .paid-slider::before{transform:translateX(20px);}
+.paid-status{font-size:.78rem;font-weight:600;}
+.paid-status.yes{color:#5A9A5A;}
+.paid-status.no{color:var(--text3);}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <a class="back-btn" href="dashboard.html">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Dashboard
+      </a>
+      <span style="color:rgba(255,255,255,.3);font-size:.9rem">·</span>
+      <span class="header-title">Ménage</span>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()" title="Thème">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="month-nav">
+  <div class="month-tabs" id="month-tabs"></div>
+</div>
+
+<div class="main">
+
+  <!-- FORMULAIRE AJOUT -->
+  <div class="add-card">
+    <div class="add-title">Ajouter une session de ménage</div>
+    <div class="tarif-row">
+      <label>Taux horaire :</label>
+      <input type="number" class="tarif-input" id="inp-tarif" min="1" step="0.5" value="13" onchange="saveTarif(this.value);calcDuree()">
+      <span>€ / heure</span>
+      <span class="tarif-saved" id="tarif-saved">✓ Sauvegardé</span>
+    </div>
+    <div class="add-grid">
+      <div class="field span2">
+        <div class="field-label">Date</div>
+        <input type="date" id="inp-date" onclick="try{this.showPicker()}catch(e){}" style="cursor:pointer">
+      </div>
+      <div class="field">
+        <div class="field-label">Début</div>
+        <div class="time-pair">
+          <select id="inp-debut-h" onchange="calcDuree()"></select>
+          <select id="inp-debut-m" onchange="calcDuree()"></select>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">Fin</div>
+        <div class="time-pair">
+          <select id="inp-fin-h" onchange="calcDuree()"></select>
+          <select id="inp-fin-m" onchange="calcDuree()"></select>
+        </div>
+      </div>
+      <div>
+        <div class="field-label">Durée</div>
+        <div class="calc-chip highlight" id="chip-duree">— h</div>
+      </div>
+      <div>
+        <div class="field-label">Montant</div>
+        <div class="calc-chip highlight" id="chip-prix">— €</div>
+      </div>
+      <div>
+        <div class="field-label">&nbsp;</div>
+        <button class="btn-add" onclick="addEntry()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Ajouter
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLEAU -->
+  <div class="entries-card" id="entries-card">
+    <div class="entries-empty" id="entries-empty">Aucune session ce mois-ci</div>
+    <table id="entries-table" style="display:none">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Horaires</th>
+          <th>Durée</th>
+          <th>Montant</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="entries-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- TOTAL -->
+  <div class="total-bar" id="total-bar">
+    <div class="total-nums">
+      <div class="total-item">
+        <div class="lbl">Sessions</div>
+        <div class="val" id="total-sessions">0</div>
+      </div>
+      <div class="total-item">
+        <div class="lbl">Heures totales</div>
+        <div class="val green" id="total-heures">0 h</div>
+      </div>
+      <div class="total-item">
+        <div class="lbl">Total à payer</div>
+        <div class="val rose" id="total-prix">0 €</div>
+      </div>
+    </div>
+    <div class="paid-wrap">
+      <span class="paid-label">Payé</span>
+      <label class="paid-toggle">
+        <input type="checkbox" id="paid-check" onchange="togglePaid()">
+        <span class="paid-slider"></span>
+      </label>
+      <span class="paid-status" id="paid-status">Non</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const MOIS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+// ── TARIF ──
+let TARIF = parseFloat(localStorage.getItem('menage_tarif') || '13');
+function saveTarif(val){
+  const v = parseFloat(val);
+  if(isNaN(v) || v <= 0) return;
+  TARIF = v;
+  localStorage.setItem('menage_tarif', v);
+  const s = document.getElementById('tarif-saved');
+  s.style.opacity = '1';
+  setTimeout(() => s.style.opacity = '0', 1500);
+}
+
+// ── THEME ──
+let theme = localStorage.getItem('dash_theme') || 'dark';
+function initTheme(){ document.documentElement.setAttribute('data-theme', theme); }
+function toggleTheme(){ theme = theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('dash_theme', theme); initTheme(); }
+initTheme();
+
+// ── DONNÉES ──
+function loadData(){ try{ return JSON.parse(localStorage.getItem('menage_data') || '{}'); }catch(e){ return {}; } }
+function saveData(d){ localStorage.setItem('menage_data', JSON.stringify(d)); }
+
+// ── MOIS COURANT ──
+const now = new Date();
+let currentYear = now.getFullYear();
+let currentMonth = now.getMonth();
+
+// ── TABS ──
+function buildTabs(){
+  const tabs = document.getElementById('month-tabs');
+  const data = loadData();
+  tabs.innerHTML = '';
+  const months = [];
+  for(let m = 0; m < 12; m++) months.push({ y: currentYear, m });
+  Object.keys(data).forEach(key => {
+    const [y, m] = key.split('-').map(Number);
+    if(y < currentYear && !months.find(x => x.y === y && x.m === m)) months.push({ y, m });
+  });
+  months.sort((a,b) => a.y !== b.y ? a.y - b.y : a.m - b.m);
+  months.forEach(({ y, m }) => {
+    const btn = document.createElement('button');
+    btn.className = 'month-tab' + (y === currentYear && m === currentMonth ? ' active' : '');
+    btn.textContent = MOIS_FR[m] + (y !== now.getFullYear() ? ' ' + y : '');
+    btn.onclick = () => selectMonth(y, m, btn);
+    tabs.appendChild(btn);
+  });
+  setTimeout(() => {
+    const active = tabs.querySelector('.active');
+    if(active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, 50);
+}
+
+function selectMonth(y, m, btn){
+  currentYear = y; currentMonth = m;
+  document.querySelectorAll('.month-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMonth();
+}
+
+// ── HORAIRES (h + min séparés) ──
+function buildTimeOptions(){
+  ['inp-debut-h','inp-fin-h'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '';
+    for(let h = 0; h < 24; h++){
+      sel.appendChild(new Option(h.toString().padStart(2,'0') + 'h', h));
+    }
+  });
+  ['inp-debut-m','inp-fin-m'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '';
+    [0,15,30,45].forEach(m => sel.appendChild(new Option(m.toString().padStart(2,'0'), m)));
+  });
+  document.getElementById('inp-debut-h').value = 9;
+  document.getElementById('inp-debut-m').value = 0;
+  document.getElementById('inp-fin-h').value = 14;
+  document.getElementById('inp-fin-m').value = 0;
+  calcDuree();
+}
+
+function getMinutes(prefix){
+  return parseInt(document.getElementById(prefix+'-h').value) * 60
+       + parseInt(document.getElementById(prefix+'-m').value);
+}
+
+function calcDuree(){
+  const d = getMinutes('inp-debut');
+  const f = getMinutes('inp-fin');
+  const dureeMin = f > d ? f - d : 0;
+  const dureeH = dureeMin / 60;
+  const prix = dureeH * TARIF;
+  const h = Math.floor(dureeMin / 60), m = dureeMin % 60;
+  document.getElementById('chip-duree').textContent = dureeMin > 0 ? h + (m ? 'h' + m.toString().padStart(2,'0') : 'h') : '— h';
+  document.getElementById('chip-prix').textContent = dureeMin > 0 ? fmt(prix) + ' €' : '— €';
+}
+
+// ── AJOUTER ──
+function addEntry(){
+  const dateVal = document.getElementById('inp-date').value;
+  const d = getMinutes('inp-debut');
+  const f = getMinutes('inp-fin');
+  if(!dateVal){ alert('Veuillez sélectionner une date.'); return; }
+  if(f <= d){ alert('L\'heure de fin doit être après l\'heure de début.'); return; }
+  const [y, m] = dateVal.split('-').map(Number);
+  const key = y + '-' + (m - 1);
+  const data = loadData();
+  if(!data[key]) data[key] = { entries: [], paid: false };
+  data[key].entries.push({ date: dateVal, debut: d, fin: f, id: Date.now() });
+  data[key].entries.sort((a,b) => a.date.localeCompare(b.date) || a.debut - b.debut);
+  saveData(data);
+  currentYear = y; currentMonth = m - 1;
+  buildTabs();
+  renderMonth();
+}
+
+// ── SUPPRIMER ──
+function deleteEntry(key, id){
+  const data = loadData();
+  if(!data[key]) return;
+  data[key].entries = data[key].entries.filter(e => e.id !== id);
+  saveData(data);
+  renderMonth();
+}
+
+// ── FORMAT HEURE (en minutes) ──
+function fmtTime(min){
+  const h = Math.floor(min/60), m = min%60;
+  return h.toString().padStart(2,'0') + 'h' + m.toString().padStart(2,'0');
+}
+function fmtDuree(min){
+  const h = Math.floor(min/60), m = min%60;
+  return h + (m ? 'h' + m.toString().padStart(2,'0') : 'h');
+}
+
+// ── RENDU ──
+function renderMonth(){
+  const key = currentYear + '-' + currentMonth;
+  const data = loadData();
+  const month = data[key] || { entries: [], paid: false };
+  const entries = month.entries || [];
+  const tbody = document.getElementById('entries-tbody');
+  const empty = document.getElementById('entries-empty');
+  const table = document.getElementById('entries-table');
+  tbody.innerHTML = '';
+  if(entries.length === 0){
+    empty.style.display = ''; table.style.display = 'none';
+  } else {
+    empty.style.display = 'none'; table.style.display = '';
+    entries.forEach(e => {
+      const dureeMin = e.fin - e.debut;
+      const prix = (dureeMin / 60) * TARIF;
+      const [ey, em, ed] = e.date.split('-');
+      const dateLabel = parseInt(ed) + ' ' + MOIS_FR[parseInt(em)-1].slice(0,3) + '. ' + ey;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="td-date">${dateLabel}</td>
+        <td class="td-hours">${fmtTime(e.debut)} → ${fmtTime(e.fin)}</td>
+        <td class="td-duree">${fmtDuree(dureeMin)}</td>
+        <td class="td-prix">${fmt(prix)} €</td>
+        <td style="text-align:center">
+          <button class="btn-del" onclick="deleteEntry('${key}', ${e.id})" title="Supprimer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  const totalMin = entries.reduce((s, e) => s + (e.fin - e.debut), 0);
+  const totalP = (totalMin / 60) * TARIF;
+  document.getElementById('total-sessions').textContent = entries.length;
+  document.getElementById('total-heures').textContent = fmtDuree(totalMin);
+  document.getElementById('total-prix').textContent = fmt(totalP) + ' €';
+  const paid = month.paid || false;
+  document.getElementById('paid-check').checked = paid;
+  document.getElementById('paid-status').textContent = paid ? 'Oui ✓' : 'Non';
+  document.getElementById('paid-status').className = 'paid-status ' + (paid ? 'yes' : 'no');
+}
+
+function togglePaid(){
+  const key = currentYear + '-' + currentMonth;
+  const data = loadData();
+  if(!data[key]) data[key] = { entries: [], paid: false };
+  data[key].paid = document.getElementById('paid-check').checked;
+  saveData(data);
+  renderMonth();
+}
+
+function fmt(n){ return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+
+// ── DATE PAR DÉFAUT ──
+function setDefaultDate(){
+  const d = new Date();
+  document.getElementById('inp-date').value = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+// ── INIT ──
+document.getElementById('inp-tarif').value = TARIF;
+buildTimeOptions();
+setDefaultDate();
+buildTabs();
+renderMonth();
+</script>
+</body>
+</html>
