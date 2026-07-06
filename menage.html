@@ -368,6 +368,21 @@ async function notionLoad(){
   buildTabs(); renderMonth();
 }
 
+// ── FORMAT (défini tôt car utilisé dans notionAdd) ──
+function fmtTime(min){
+  const h = Math.floor(min/60), m = min%60;
+  return h + 'h' + (m ? m.toString().padStart(2,'0') : '');
+}
+function fmtDuree(min){
+  const h = Math.floor(min/60), m = min%60;
+  return h + (m ? 'h' + m.toString().padStart(2,'0') : 'h');
+}
+function fmtDateLabel(dateStr){
+  const [ey, em, ed] = dateStr.split('-');
+  return parseInt(ed) + '.' + MOIS_FR[parseInt(em)-1].slice(0,3).toLowerCase() + '.' + ey.slice(2);
+}
+function fmt(n){ return Number(n).toLocaleString('fr-FR', { minimumFractionDigits:0, maximumFractionDigits:2 }); }
+
 // ── NOTION : ajouter une session ──
 async function notionAdd(entry){
   const token = getToken();
@@ -551,15 +566,6 @@ async function deleteEntry(key, id, notionId){
 }
 
 // ── FORMAT HEURE (en minutes) ──
-function fmtTime(min){
-  const h = Math.floor(min/60), m = min%60;
-  return h + 'h' + (m ? m.toString().padStart(2,'0') : '');
-}
-function fmtDuree(min){
-  const h = Math.floor(min/60), m = min%60;
-  return h + (m ? 'h' + m.toString().padStart(2,'0') : 'h');
-}
-
 // ── RENDU ──
 function renderMonth(){
   const key = currentYear + '-' + currentMonth;
@@ -611,13 +617,6 @@ function togglePaid(){
   data[key].paid = document.getElementById('paid-check').checked;
   saveData(data);
   renderMonth();
-}
-
-function fmt(n){ return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
-
-function fmtDateLabel(dateStr){
-  const [ey, em, ed] = dateStr.split('-');
-  return parseInt(ed) + '.' + MOIS_FR[parseInt(em)-1].slice(0,3).toLowerCase() + '.' + ey.slice(2);
 }
 
 // ── DATE PAR DÉFAUT ──
