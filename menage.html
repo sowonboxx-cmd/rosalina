@@ -355,7 +355,7 @@ async function notionLoad(){
       const [y, m] = dateStr.split('-').map(Number);
       const key = y + '-' + (m - 1);
       if(!d[key]) d[key] = { entries:[], paid:false };
-      d[key].entries.push({ date:dateStr, debut:props['Début']?.number||0, fin:props.Fin?.number||0, id:page.id, notionId:page.id });
+      d[key].entries.push({ date:dateStr, debut:props['Debut']?.number||0, fin:props.Fin?.number||0, id:page.id, notionId:page.id });
     });
     // Préserver les états "payé" du cache local
     const local = loadData();
@@ -398,9 +398,9 @@ async function notionAdd(entry){
         properties:{
           'Nom':{ title:[{ text:{ content: fmtDateLabel(entry.date)+' · '+fmtTime(entry.debut)+'→'+fmtTime(entry.fin) } }] },
           'Date':{ date:{ start: entry.date } },
-          'Début':{ number: entry.debut },
+          'Debut':{ number: entry.debut },
           'Fin':{ number: entry.fin },
-          'Durée':{ number: dureeMin },
+          'Duree':{ number: dureeMin },
           'Prix':{ number: prix }
         }
       }})
