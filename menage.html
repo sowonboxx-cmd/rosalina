@@ -55,55 +55,60 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .tarif-input:focus{border-color:var(--rose);}
 .tarif-saved{font-size:.72rem;color:#5A9A5A;opacity:0;transition:opacity .3s;}
 @media(max-width:600px){
-  /* Grid: date + début + fin sur lignes séparées, durée/montant côte à côte */
   .add-grid{
     grid-template-columns:1fr 1fr;
-    gap:12px;
+    gap:10px;
   }
   .add-grid .span2{ grid-column:1/-1; }
 
-  /* Date : même largeur que tarif-row, plus haute */
-  .add-grid .span2 input[type="date"]{
-    width:100%;
-    padding:14px 16px;
-    font-size:.95rem;
-    height:54px;
-    border-radius:var(--r2);
+  /* Hauteur uniforme pour tous les champs + bouton */
+  .add-grid .span2 input[type="date"],
+  .time-pair select,
+  .calc-chip,
+  .btn-add{
+    height:46px;
+    font-size:.88rem;
+    box-sizing:border-box;
   }
 
-  /* Début / Fin : même hauteur que la date */
-  .time-pair{
-    gap:6px;
+  /* Date : full width, pas de débordement */
+  .add-grid .span2 input[type="date"]{
+    width:100%;
+    max-width:100%;
+    padding:0 12px;
+    display:block;
   }
+
+  /* Sélecteurs heure/min */
+  .time-pair{ gap:6px; }
   .time-pair select{
-    padding:14px 8px;
-    font-size:.9rem;
-    height:54px;
+    flex:1;
+    min-width:0;
+    padding:0 6px;
     text-align:center;
   }
 
-  /* Chips durée/montant : plus grands, lisibles */
+  /* Chips durée/montant */
   .calc-chip{
-    padding:14px 12px;
-    font-size:1rem;
-    height:54px;
+    padding:0 12px;
     display:flex;
     align-items:center;
     justify-content:center;
     width:100%;
+    font-size:.9rem;
   }
 
-  /* Bouton Ajouter : full width */
+  /* Bouton Ajouter full width */
   .add-grid > div:last-child{ grid-column:1/-1; }
   .btn-add{
     width:100%;
     justify-content:center;
-    padding:15px;
-    font-size:.92rem;
+    padding:0 16px;
+    font-size:.88rem;
     border-radius:var(--r2);
   }
 
-  /* Tableau : poubelle visible, cellules compactes */
+  /* Tableau */
   tbody td{ padding:10px 8px; font-size:.78rem; }
   thead th{ padding:8px 8px; font-size:.58rem; }
   .btn-del{
