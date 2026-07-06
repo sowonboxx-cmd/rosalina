@@ -49,7 +49,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .add-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto auto auto;gap:10px;align-items:end;}
 .time-pair{display:flex;gap:5px;}
 .time-pair select{flex:1;min-width:0;}
-.tarif-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:9px 12px;background:var(--bg2);border-radius:var(--r2);border:1px solid var(--border);}
+.tarif-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:16px;padding:9px 12px;background:var(--bg2);border-radius:var(--r2);border:1px solid var(--border);}
 .tarif-row label{font-size:.75rem;font-weight:500;color:var(--text2);}
 .tarif-input{width:64px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-size:.85rem;font-weight:600;text-align:center;outline:none;transition:border-color .15s;}
 .tarif-input:focus{border-color:var(--rose);}
@@ -70,17 +70,26 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
     box-sizing:border-box;
   }
 
-  /* Date : full width, texte centré verticalement */
+  /* Taux horaire : accordéon mobile */
+  .tarif-row{ cursor:pointer; user-select:none; }
+  .tarif-row.collapsed .tarif-body{ display:none; }
+  .tarif-chevron{ margin-left:auto; transition:transform .2s; flex-shrink:0; }
+  .tarif-row.collapsed .tarif-chevron{ transform:rotate(-90deg); }
+
+  /* Date : forcer width sans débordement */
+  .add-grid .span2{ overflow:hidden; }
   .add-grid .span2 input[type="date"]{
     width:100%;
     max-width:100%;
+    min-width:0;
     height:40px;
-    padding:0 12px;
-    display:flex;
-    align-items:center;
+    padding:0 10px;
+    display:block;
     box-sizing:border-box;
     font-size:.85rem;
-    line-height:40px;
+    line-height:normal;
+    -webkit-appearance:none;
+    appearance:none;
   }
 
   /* Sélecteurs heure/min */
@@ -177,7 +186,7 @@ tbody td{padding:11px 14px;font-size:.83rem;color:var(--text);}
 .paid-toggle input:checked + .paid-slider::before{transform:translateX(20px);}
 .paid-status{font-size:.78rem;font-weight:600;}
 .paid-status.yes{color:#5A9A5A;}
-.paid-status.no{color:var(--text3);}
+.paid-status.no{color:#C0392B;font-weight:600;}
 </style>
 </head>
 <body>
@@ -207,11 +216,15 @@ tbody td{padding:11px 14px;font-size:.83rem;color:var(--text);}
   <!-- FORMULAIRE AJOUT -->
   <div class="add-card">
     <div class="add-title">Ajouter une session de ménage</div>
-    <div class="tarif-row">
-      <label>Taux horaire :</label>
-      <input type="number" class="tarif-input" id="inp-tarif" min="1" step="0.5" value="13" onchange="saveTarif(this.value);calcDuree()">
-      <span>€ / heure</span>
-      <span class="tarif-saved" id="tarif-saved">✓ Sauvegardé</span>
+    <div class="tarif-row collapsed" id="tarif-row" onclick="toggleTarif()">
+      <label style="pointer-events:none">Taux horaire</label>
+      <span id="tarif-display" style="font-size:.82rem;font-weight:600;color:var(--text);margin-left:6px;pointer-events:none">13 € / h</span>
+      <svg class="tarif-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      <div class="tarif-body" id="tarif-body" onclick="event.stopPropagation()" style="width:100%;margin-top:10px;display:none;align-items:center;gap:8px;">
+        <input type="number" class="tarif-input" id="inp-tarif" min="1" step="0.5" value="13" onchange="saveTarif(this.value);calcDuree()">
+        <span>€ / heure</span>
+        <span class="tarif-saved" id="tarif-saved">✓ Sauvegardé</span>
+      </div>
     </div>
     <div class="add-grid">
       <div class="field span2">
@@ -284,7 +297,7 @@ tbody td{padding:11px 14px;font-size:.83rem;color:var(--text);}
       </div>
     </div>
     <div class="paid-wrap">
-      <span class="paid-label">Payé</span>
+      <span class="paid-label">Paiement</span>
       <label class="paid-toggle">
         <input type="checkbox" id="paid-check" onchange="togglePaid()">
         <span class="paid-slider"></span>
@@ -305,9 +318,18 @@ function saveTarif(val){
   if(isNaN(v) || v <= 0) return;
   TARIF = v;
   localStorage.setItem('menage_tarif', v);
+  document.getElementById('tarif-display').textContent = v + ' € / h';
   const s = document.getElementById('tarif-saved');
   s.style.opacity = '1';
   setTimeout(() => s.style.opacity = '0', 1500);
+}
+
+function toggleTarif(){
+  const body = document.getElementById('tarif-body');
+  const row = document.getElementById('tarif-row');
+  const open = body.style.display === 'flex';
+  body.style.display = open ? 'none' : 'flex';
+  row.classList.toggle('collapsed', !open);
 }
 
 // ── THEME ──
@@ -473,7 +495,7 @@ function renderMonth(){
   document.getElementById('total-prix').textContent = fmt(totalP) + ' €';
   const paid = month.paid || false;
   document.getElementById('paid-check').checked = paid;
-  document.getElementById('paid-status').textContent = paid ? 'Oui ✓' : 'Non';
+  document.getElementById('paid-status').textContent = paid ? 'Payé ✓' : 'Pas payé';
   document.getElementById('paid-status').className = 'paid-status ' + (paid ? 'yes' : 'no');
 }
 
@@ -496,6 +518,7 @@ function setDefaultDate(){
 
 // ── INIT ──
 document.getElementById('inp-tarif').value = TARIF;
+document.getElementById('tarif-display').textContent = TARIF + ' € / h';
 buildTimeOptions();
 setDefaultDate();
 buildTabs();
