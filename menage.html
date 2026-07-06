@@ -84,10 +84,13 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
     min-width:0;
     height:40px;
     padding:0 10px;
-    display:block;
+    display:flex;
+    align-items:center;
     box-sizing:border-box;
     font-size:.85rem;
-    line-height:normal;
+    font-weight:700;
+    line-height:40px;
+    vertical-align:middle;
     -webkit-appearance:none;
     appearance:none;
   }
@@ -119,12 +122,18 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
     border-radius:var(--r2);
   }
 
-  /* Tableau : layout fixe pour que la poubelle ne déborde pas */
+  /* Tableau : colonnes calibrées pour tout voir */
   table{ table-layout:fixed; }
-  thead th{ padding:8px 6px; font-size:.58rem; }
-  thead th:last-child{ width:44px; text-align:center; }
-  tbody td{ padding:10px 6px; font-size:.78rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  tbody td:last-child{ width:44px; text-align:center; overflow:visible; }
+  thead th{ padding:8px 4px; font-size:.56rem; }
+  thead th:nth-child(1){ width:22%; }
+  thead th:nth-child(2){ width:30%; }
+  thead th:nth-child(3){ width:16%; padding-left:10px; }
+  thead th:nth-child(4){ width:20%; padding-left:10px; }
+  thead th:last-child{ width:12%; text-align:center; }
+  tbody td{ padding:10px 4px; font-size:.75rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  tbody td:nth-child(3),
+  tbody td:nth-child(4){ padding-left:10px; }
+  tbody td:last-child{ width:12%; text-align:center; overflow:visible; }
 
   /* Poubelle : fond coloré, bien visible */
   .btn-del{
@@ -448,7 +457,7 @@ function deleteEntry(key, id){
 // ── FORMAT HEURE (en minutes) ──
 function fmtTime(min){
   const h = Math.floor(min/60), m = min%60;
-  return h.toString().padStart(2,'0') + 'h' + m.toString().padStart(2,'0');
+  return h + 'h' + (m ? m.toString().padStart(2,'0') : '');
 }
 function fmtDuree(min){
   const h = Math.floor(min/60), m = min%60;
@@ -473,7 +482,7 @@ function renderMonth(){
       const dureeMin = e.fin - e.debut;
       const prix = (dureeMin / 60) * TARIF;
       const [ey, em, ed] = e.date.split('-');
-      const dateLabel = parseInt(ed) + ' ' + MOIS_FR[parseInt(em)-1].slice(0,3) + '. ' + ey;
+      const dateLabel = parseInt(ed) + '.' + MOIS_FR[parseInt(em)-1].slice(0,3).toLowerCase() + '.' + ey.slice(2);
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td class="td-date">${dateLabel}</td>
