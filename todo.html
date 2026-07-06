@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Todo — Domaine Rosalina</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F0EA;--bg2:#EDEAE4;--card:#fff;--border:#E0D8CE;
+  --green:#2C3D2C;--green2:#3D5438;--rose:#C8956C;
+  --text:#1A1A1A;--text2:#666;--text3:#999;
+  --shadow:0 2px 12px rgba(0,0,0,.07);--r:14px;--r2:8px;
+}
+[data-theme="dark"]{
+  --bg:#0F1410;--bg2:#161B16;--card:#1C211C;--border:#2A312A;
+  --text:#EEE8DF;--text2:#9A9A8A;--text3:#c2cdd9;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* HEADER */
+.header{background:var(--green);height:56px;display:flex;align-items:center;padding:0 16px;position:sticky;top:0;z-index:100;}
+.header-inner{max-width:700px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+.back-btn{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.7);font-size:.78rem;font-weight:500;text-decoration:none;letter-spacing:.04em;transition:color .15s;}
+.back-btn:hover{color:#fff;}
+.header-title{font-family:'Open Sans',sans-serif;font-size:.82rem;font-weight:700;color:#fff;letter-spacing:.14em;text-transform:uppercase;}
+.theme-btn{background:rgba(255,255,255,.12);border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+.theme-btn:hover{background:rgba(255,255,255,.22);}
+.theme-btn svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:1.8;}
+
+/* TABS */
+.tab-nav{background:var(--card);border-bottom:1px solid var(--border);padding:0 16px;}
+.tab-nav-inner{max-width:700px;margin:0 auto;display:flex;}
+.tab-btn{padding:13px 18px;border:none;background:transparent;color:var(--text2);font-family:'Jost',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--green);border-bottom-color:var(--green);}
+[data-theme="dark"] .tab-btn.active{color:var(--rose);border-bottom-color:var(--rose);}
+.tab-badge{background:var(--bg2);color:var(--text3);font-size:.65rem;font-weight:600;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center;}
+.tab-btn.active .tab-badge{background:var(--green);color:#fff;}
+[data-theme="dark"] .tab-btn.active .tab-badge{background:var(--rose);}
+
+/* MAIN */
+.main{max-width:700px;margin:0 auto;padding:20px 16px 80px;}
+
+/* ADD TASK */
+.add-bar{display:flex;gap:10px;margin-bottom:20px;}
+.add-input{flex:1;padding:11px 16px;border:1.5px solid var(--border);border-radius:var(--r2);background:var(--card);color:var(--text);font-family:'Jost',sans-serif;font-size:.88rem;outline:none;transition:border-color .15s;}
+.add-input:focus{border-color:var(--rose);}
+[data-theme="dark"] .add-input{background:var(--bg2);}
+.add-input::placeholder{color:var(--text3);}
+.btn-add-task{padding:11px 18px;background:var(--green);color:#fff;border:none;border-radius:var(--r2);font-family:'Jost',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:background .15s;}
+.btn-add-task:hover{background:var(--green2);}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 20px;color:var(--text3);}
+.empty svg{width:40px;height:40px;stroke:var(--border);margin-bottom:12px;}
+.empty p{font-size:.85rem;}
+
+/* TASK CARD */
+.task-card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);margin-bottom:10px;overflow:hidden;transition:box-shadow .2s;}
+.task-card:hover{box-shadow:var(--shadow);}
+.task-card.done .task-title-text{text-decoration:line-through;color:var(--text3);}
+
+.task-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none;}
+.task-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;cursor:pointer;}
+.task-check:hover{border-color:var(--green);}
+.task-card.done .task-check{background:var(--green);border-color:var(--green);}
+.task-check svg{width:11px;height:11px;stroke:#fff;display:none;}
+.task-card.done .task-check svg{display:block;}
+.task-title-text{flex:1;font-size:.88rem;font-weight:500;color:var(--text);}
+.task-meta{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.task-subtask-count{font-size:.68rem;color:var(--text3);background:var(--bg2);padding:2px 7px;border-radius:8px;white-space:nowrap;}
+.task-expand-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px;display:flex;align-items:center;transition:transform .2s;}
+.task-card.open .task-expand-btn{transform:rotate(180deg);}
+
+/* TASK BODY */
+.task-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);}
+.task-card.open .task-body{display:block;}
+
+.task-desc{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r2);background:var(--bg2);color:var(--text);font-family:'Jost',sans-serif;font-size:.83rem;line-height:1.6;outline:none;resize:vertical;min-height:70px;margin-top:14px;transition:border-color .15s;}
+.task-desc:focus{border-color:var(--rose);}
+[data-theme="dark"] .task-desc{background:var(--bg);}
+.task-desc::placeholder{color:var(--text3);}
+.field-label{font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin:14px 0 6px;}
+
+/* LINKS */
+.links-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+.link-item{display:flex;align-items:center;gap:8px;background:var(--bg2);border-radius:var(--r2);padding:8px 10px;}
+.link-icon{flex-shrink:0;color:var(--rose);}
+.link-url{flex:1;font-size:.75rem;color:var(--green);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+[data-theme="dark"] .link-url{color:var(--rose);}
+.link-url:hover{text-decoration:underline;}
+.link-label{font-size:.72rem;color:var(--text2);margin-right:4px;}
+.btn-del-link{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px;display:flex;align-items:center;transition:color .15s;}
+.btn-del-link:hover{color:#C0392B;}
+.add-link-row{display:flex;gap:6px;}
+.link-input{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r2);background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-size:.8rem;outline:none;transition:border-color .15s;}
+.link-input:focus{border-color:var(--rose);}
+[data-theme="dark"] .link-input{background:var(--bg2);}
+.btn-add-link{padding:8px 12px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r2);font-family:'Jost',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--text2);transition:all .15s;white-space:nowrap;}
+.btn-add-link:hover{border-color:var(--rose);color:var(--rose);}
+
+/* SUBTASKS */
+.subtask-list{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
+.subtask-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg2);border-radius:var(--r2);}
+.subtask-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:all .15s;}
+.subtask-check:hover{border-color:var(--green);}
+.subtask-item.done .subtask-check{background:var(--green);border-color:var(--green);}
+.subtask-item.done .subtask-check svg{display:block;}
+.subtask-check svg{width:9px;height:9px;stroke:#fff;display:none;}
+.subtask-text{flex:1;font-size:.8rem;color:var(--text);}
+.subtask-item.done .subtask-text{text-decoration:line-through;color:var(--text3);}
+.btn-del-sub{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px;display:flex;align-items:center;transition:color .15s;}
+.btn-del-sub:hover{color:#C0392B;}
+.add-sub-row{display:flex;gap:6px;}
+.sub-input{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r2);background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-size:.8rem;outline:none;transition:border-color .15s;}
+.sub-input:focus{border-color:var(--rose);}
+[data-theme="dark"] .sub-input{background:var(--bg2);}
+.btn-add-sub{padding:8px 12px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r2);font-family:'Jost',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--text2);transition:all .15s;white-space:nowrap;}
+.btn-add-sub:hover{border-color:var(--rose);color:var(--rose);}
+
+/* DELETE TASK */
+.btn-del-task{margin-top:14px;background:none;border:1.5px solid var(--border);border-radius:var(--r2);padding:7px 12px;font-family:'Jost',sans-serif;font-size:.75rem;color:var(--text3);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;}
+.btn-del-task:hover{border-color:#C0392B;color:#C0392B;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div style="display:flex;align-items:center;gap:10px">
+      <a class="back-btn" href="dashboard.html">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Dashboard
+      </a>
+      <span style="color:rgba(255,255,255,.3)">&middot;</span>
+      <span class="header-title">Todo</span>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" id="tab-todo" onclick="switchTab('todo')">
+      À faire <span class="tab-badge" id="badge-todo">0</span>
+    </button>
+    <button class="tab-btn" id="tab-done" onclick="switchTab('done')">
+      Fait <span class="tab-badge" id="badge-done">0</span>
+    </button>
+    <button class="tab-btn" id="tab-all" onclick="switchTab('all')">
+      Toutes <span class="tab-badge" id="badge-all">0</span>
+    </button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="add-bar">
+    <input class="add-input" id="new-task-input" placeholder="Nouvelle tâche…" onkeydown="if(event.key==='Enter') addTask()">
+    <button class="btn-add-task" onclick="addTask()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Ajouter
+    </button>
+    <button onclick="notionLoadTasks()" style="padding:11px 12px;background:transparent;border:1.5px solid var(--border);border-radius:var(--r2);cursor:pointer;color:var(--text3);display:flex;align-items:center;gap:4px;font-family:'Jost',sans-serif;font-size:.72rem;white-space:nowrap;transition:all .15s;" title="Synchroniser">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+    </button>
+  </div>
+  <div id="sync-status" style="font-size:.7rem;color:var(--text3);margin-bottom:12px;min-height:14px;"></div>
+  <div id="task-list"></div>
+</div>
+
+<script>
+// ── THEME ──
+let theme = localStorage.getItem('dash_theme') || 'dark';
+function initTheme(){ document.documentElement.setAttribute('data-theme', theme); }
+function toggleTheme(){ theme = theme==='dark'?'light':'dark'; localStorage.setItem('dash_theme',theme); initTheme(); }
+initTheme();
+
+// ── NOTION ──
+const WORKER = 'https://notion-proxy.sowonboxx.workers.dev';
+const TODO_DB_ID = '395a8c29d05680259b53fb04593e7b62';
+function getToken(){ return localStorage.getItem('notion_token') || ''; }
+
+function setSyncStatus(msg, color){
+  const el = document.getElementById('sync-status');
+  if(!el) return;
+  el.textContent = msg; el.style.color = color || 'var(--text3)';
+}
+
+async function notionLoadTasks(){
+  const token = getToken();
+  if(!token){ setSyncStatus('💾 Local — token manquant', 'var(--text3)'); render(); return; }
+  setSyncStatus('⏳ Synchronisation…', 'var(--text3)');
+  try {
+    const res = await fetch(WORKER + '/query', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token, database_id: TODO_DB_ID, sorts:[{property:'Ordre',direction:'ascending'}] })
+    });
+    const json = await res.json();
+    if(!res.ok) throw new Error(json.message||'Erreur');
+    const tasks = (json.results||[]).map(page => {
+      const p = page.properties;
+      let links=[], subtasks=[];
+      try{ const d=JSON.parse(p.Donnees?.rich_text?.[0]?.plain_text||'{}'); links=d.links||[]; subtasks=d.subtasks||[]; }catch(e){}
+      return { id:page.id, notionId:page.id,
+        title: p.Nom?.title?.[0]?.plain_text||'',
+        desc: p.Description?.rich_text?.[0]?.plain_text||'',
+        done: p.Done?.checkbox||false,
+        ordre: p.Ordre?.number||0,
+        links, subtasks };
+    });
+    save(tasks);
+    setSyncStatus('✓ Synchronisé', '#5A9A5A');
+  } catch(e){ setSyncStatus('⚠️ '+e.message, 'var(--rose)'); }
+  render();
+}
+
+async function notionAddTask(task){
+  const token = getToken();
+  if(!token) return null;
+  try {
+    const res = await fetch(WORKER, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token, payload:{
+        parent:{ database_id: TODO_DB_ID },
+        properties:{
+          'Nom':{ title:[{ text:{ content: task.title } }] },
+          'Done':{ checkbox: task.done||false },
+          'Description':{ rich_text:[{ text:{ content: task.desc||'' } }] },
+          'Ordre':{ number: task.ordre||Date.now() },
+          'Donnees':{ rich_text:[{ text:{ content: JSON.stringify({links:task.links||[],subtasks:task.subtasks||[]}) } }] }
+        }
+      }})
+    });
+    const json = await res.json();
+    if(res.ok && json.id) return json.id;
+    console.error('Notion add:', json.message);
+  } catch(e){ console.error(e); }
+  return null;
+}
+
+async function notionUpdateTask(task){
+  const token = getToken();
+  if(!token || !task.notionId) return;
+  try {
+    await fetch(WORKER, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token, pageId: task.notionId, properties:{
+        'Nom':{ title:[{ text:{ content: task.title } }] },
+        'Done':{ checkbox: task.done||false },
+        'Description':{ rich_text:[{ text:{ content: task.desc||'' } }] },
+        'Donnees':{ rich_text:[{ text:{ content: JSON.stringify({links:task.links||[],subtasks:task.subtasks||[]}) } }] }
+      }})
+    });
+  } catch(e){}
+}
+
+async function notionArchiveTask(notionId){
+  const token = getToken();
+  if(!token || !notionId) return;
+  try {
+    await fetch(WORKER+'/archive', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token, page_id: notionId })
+    });
+  } catch(e){}
+}
+
+// ── DATA ──
+function load(){ try{ return JSON.parse(localStorage.getItem('todo_data')||'[]'); }catch(e){ return []; } }
+function save(tasks){ localStorage.setItem('todo_data', JSON.stringify(tasks)); }
+
+let currentTab = 'todo';
+
+// ── TABS ──
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  render();
+}
+
+// ── SHORT URL ──
+function shortUrl(url){
+  try{
+    const u = new URL(url);
+    let s = u.hostname.replace(/^www\./,'') + (u.pathname !== '/' ? u.pathname : '');
+    if(s.length > 32) s = s.slice(0,30) + '…';
+    return s;
+  } catch(e){ return url.slice(0,32) + (url.length > 32 ? '…' : ''); }
+}
+
+// ── ADD TASK ──
+async function addTask(){
+  const inp = document.getElementById('new-task-input');
+  const title = inp.value.trim();
+  if(!title) return;
+  const btn = document.querySelector('.btn-add-task');
+  btn.disabled = true;
+  const task = { id: Date.now(), title, done: false, desc: '', links: [], subtasks: [], ordre: Date.now() };
+  const notionId = await notionAddTask(task);
+  if(notionId){ task.notionId = notionId; task.id = notionId; }
+  const tasks = load();
+  tasks.unshift(task);
+  save(tasks);
+  inp.value = '';
+  setSyncStatus(notionId ? '✓ Sauvegardé dans Notion' : '💾 Local', notionId ? '#5A9A5A' : 'var(--rose)');
+  btn.disabled = false;
+  render();
+}
+
+// ── TOGGLE DONE ──
+function toggleDone(id, e){
+  e.stopPropagation();
+  const tasks = load();
+  const t = tasks.find(t => t.id === id);
+  if(t){ t.done = !t.done; save(tasks); notionUpdateTask(t); }
+  render();
+}
+
+// ── TOGGLE OPEN ──
+function toggleOpen(id){
+  const card = document.getElementById('card-'+id);
+  if(card) card.classList.toggle('open');
+}
+
+// ── UPDATE DESC ──
+function updateDesc(id, val){
+  const tasks = load();
+  const t = tasks.find(t => t.id === id);
+  if(t){ t.desc = val; save(tasks); notionUpdateTask(t); }
+}
+
+// ── LINKS ──
+function addLink(id){
+  const inp = document.getElementById('link-inp-'+id);
+  const url = inp.value.trim();
+  if(!url) return;
+  const fullUrl = url.startsWith('http') ? url : 'https://'+url;
+  const tasks = load();
+  const t = tasks.find(t => t.id === id);
+  if(t){ t.links = t.links||[]; t.links.push({ url: fullUrl, id: Date.now() }); save(tasks); notionUpdateTask(t); }
+  inp.value = '';
+  renderLinks(id, t.links);
+}
+
+function deleteLink(taskId, linkId){
+  const tasks = load();
+  const t = tasks.find(t => t.id === taskId);
+  if(t){ t.links = (t.links||[]).filter(l => l.id !== linkId); save(tasks); notionUpdateTask(t); }
+  renderLinks(taskId, t.links);
+}
+
+function renderLinks(taskId, links){
+  const el = document.getElementById('links-list-'+taskId);
+  if(!el) return;
+  el.innerHTML = (links||[]).map(l => `
+    <div class="link-item">
+      <svg class="link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      <a class="link-url" href="${l.url}" target="_blank" rel="noopener">${shortUrl(l.url)}</a>
+      <button class="btn-del-link" onclick="deleteLink(${taskId}, ${l.id})">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+// ── SUBTASKS ──
+function addSubtask(taskId){
+  const inp = document.getElementById('sub-inp-'+taskId);
+  const text = inp.value.trim();
+  if(!text) return;
+  const tasks = load();
+  const t = tasks.find(t => t.id === taskId);
+  if(t){ t.subtasks = t.subtasks||[]; t.subtasks.push({ id: Date.now(), text, done: false }); save(tasks); notionUpdateTask(t); }
+  inp.value = '';
+  renderSubtasks(taskId, t.subtasks);
+  updateSubtaskCount(taskId, t.subtasks);
+}
+
+function toggleSubtask(taskId, subId){
+  const tasks = load();
+  const t = tasks.find(t => t.id === taskId);
+  if(t){ const s = (t.subtasks||[]).find(s => s.id === subId); if(s){ s.done = !s.done; save(tasks); notionUpdateTask(t); } }
+  const t2 = load().find(t => t.id === taskId);
+  renderSubtasks(taskId, t2.subtasks);
+  updateSubtaskCount(taskId, t2.subtasks);
+}
+
+function deleteSubtask(taskId, subId){
+  const tasks = load();
+  const t = tasks.find(t => t.id === taskId);
+  if(t){ t.subtasks = (t.subtasks||[]).filter(s => s.id !== subId); save(tasks); notionUpdateTask(t); }
+  renderSubtasks(taskId, t.subtasks);
+  updateSubtaskCount(taskId, t.subtasks);
+}
+
+function renderSubtasks(taskId, subs){
+  const el = document.getElementById('sub-list-'+taskId);
+  if(!el) return;
+  el.innerHTML = (subs||[]).map(s => `
+    <div class="subtask-item${s.done?' done':''}" id="sub-${taskId}-${s.id}">
+      <div class="subtask-check" onclick="toggleSubtask(${taskId}, ${s.id})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <span class="subtask-text">${s.text}</span>
+      <button class="btn-del-sub" onclick="deleteSubtask(${taskId}, ${s.id})">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+function updateSubtaskCount(taskId, subs){
+  const el = document.getElementById('subcount-'+taskId);
+  if(!el || !subs || !subs.length){ if(el) el.style.display='none'; return; }
+  const done = subs.filter(s=>s.done).length;
+  el.textContent = done+'/'+subs.length;
+  el.style.display = '';
+}
+
+// ── DELETE TASK ──
+function deleteTask(id){
+  if(!confirm('Supprimer cette tâche ?')) return;
+  const tasks = load();
+  const t = tasks.find(t => t.id === id);
+  if(t && t.notionId) notionArchiveTask(t.notionId);
+  save(tasks.filter(t => t.id !== id));
+  render();
+}
+
+// ── RENDER ──
+function render(){
+  const tasks = load();
+  const filtered = currentTab === 'todo' ? tasks.filter(t=>!t.done)
+                 : currentTab === 'done' ? tasks.filter(t=>t.done)
+                 : tasks;
+
+  // Badges
+  document.getElementById('badge-todo').textContent = tasks.filter(t=>!t.done).length;
+  document.getElementById('badge-done').textContent = tasks.filter(t=>t.done).length;
+  document.getElementById('badge-all').textContent = tasks.length;
+
+  const list = document.getElementById('task-list');
+
+  if(!filtered.length){
+    const msgs = { todo:'Aucune tâche à faire', done:'Aucune tâche terminée', all:'Aucune tâche' };
+    list.innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/><line x1="8" y1="16" x2="16" y2="16"/></svg>
+      <p>${msgs[currentTab]}</p>
+    </div>`;
+    return;
+  }
+
+  // Garde les cards ouvertes
+  const openCards = new Set();
+  document.querySelectorAll('.task-card.open').forEach(c => openCards.add(parseInt(c.id.replace('card-',''))));
+
+  list.innerHTML = filtered.map(t => {
+    const subs = t.subtasks||[];
+    const subsDone = subs.filter(s=>s.done).length;
+    const subCount = subs.length ? `<span class="task-subtask-count" id="subcount-${t.id}">${subsDone}/${subs.length}</span>` : `<span class="task-subtask-count" id="subcount-${t.id}" style="display:none"></span>`;
+    const isOpen = openCards.has(t.id);
+
+    return `<div class="task-card${t.done?' done':''}${isOpen?' open':''}" id="card-${t.id}">
+  <div class="task-header" onclick="toggleOpen(${t.id})">
+    <div class="task-check" onclick="toggleDone(${t.id}, event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <span class="task-title-text">${t.title}</span>
+    <div class="task-meta">
+      ${subCount}
+      <button class="task-expand-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="task-body">
+    <div class="field-label">Description</div>
+    <textarea class="task-desc" id="desc-${t.id}" placeholder="Ajouter une description…" oninput="updateDesc(${t.id}, this.value)">${t.desc||''}</textarea>
+
+    <div class="field-label">Liens</div>
+    <div class="links-list" id="links-list-${t.id}"></div>
+    <div class="add-link-row">
+      <input class="link-input" id="link-inp-${t.id}" placeholder="https://…" onkeydown="if(event.key==='Enter') addLink(${t.id})">
+      <button class="btn-add-link" onclick="addLink(${t.id})">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Ajouter
+      </button>
+    </div>
+
+    <div class="field-label">Sous-tâches</div>
+    <div class="subtask-list" id="sub-list-${t.id}"></div>
+    <div class="add-sub-row">
+      <input class="sub-input" id="sub-inp-${t.id}" placeholder="Nouvelle sous-tâche…" onkeydown="if(event.key==='Enter') addSubtask(${t.id})">
+      <button class="btn-add-sub" onclick="addSubtask(${t.id})">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Ajouter
+      </button>
+    </div>
+
+    <button class="btn-del-task" onclick="deleteTask(${t.id})">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+      Supprimer la tâche
+    </button>
+  </div>
+</div>`;
+  }).join('');
+
+  // Hydrate les listes dynamiques après rendu
+  filtered.forEach(t => {
+    renderLinks(t.id, t.links);
+    renderSubtasks(t.id, t.subtasks);
+  });
+}
+
+notionLoadTasks();
+</script>
+</body>
+</html>
