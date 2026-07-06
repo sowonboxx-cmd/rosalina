@@ -396,7 +396,7 @@ async function notionAdd(entry){
       body: JSON.stringify({ token, payload:{
         parent:{ database_id: MENAGE_DB_ID },
         properties:{
-          'Titre':{ title:[{ text:{ content: fmtDateLabel(entry.date)+' · '+fmtTime(entry.debut)+'→'+fmtTime(entry.fin) } }] },
+          'Name':{ title:[{ text:{ content: fmtDateLabel(entry.date)+' · '+fmtTime(entry.debut)+'→'+fmtTime(entry.fin) } }] },
           'Date':{ date:{ start: entry.date } },
           'Début':{ number: entry.debut },
           'Fin':{ number: entry.fin },
