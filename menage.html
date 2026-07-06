@@ -407,7 +407,8 @@ async function notionAdd(entry){
     });
     const json = await res.json();
     if(res.ok && json.id) return json.id;
-  } catch(e){}
+    console.error('Notion 400 response:', JSON.stringify(json));
+  } catch(e){ console.error('notionAdd error:', e); }
   return null;
 }
 
