@@ -358,13 +358,40 @@ function renderLinks(taskId, links){
   const el = document.getElementById('links-list-'+taskId);
   if(!el) return;
   el.innerHTML = (links||[]).map(l => `
-    <div class="link-item">
+    <div class="link-item" data-lid="${l.id}">
       <svg class="link-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
       <a class="link-url" href="${l.url}" target="_blank" rel="noopener">${shortUrl(l.url)}</a>
-      <button class="btn-del-link" onclick="deleteLink(${taskId}, ${l.id})">
+      <button class="btn-del-link">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>`).join('');
+  // Attacher les handlers delete
+  el.querySelectorAll('.btn-del-link').forEach((btn, i) => {
+    const lId = (links||[])[i]?.id;
+    if(lId) btn.addEventListener('click', () => deleteLink(taskId, lId));
+  });
+}
+
+function renderSubtasks(taskId, subs){
+  const el = document.getElementById('sub-list-'+taskId);
+  if(!el) return;
+  el.innerHTML = (subs||[]).map(s => `
+    <div class="subtask-item${s.done?' done':''}" data-sid="${s.id}">
+      <div class="subtask-check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <span class="subtask-text">${s.text}</span>
+      <button class="btn-del-sub">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`).join('');
+  // Attacher les handlers
+  el.querySelectorAll('.subtask-item').forEach((row, i) => {
+    const sId = (subs||[])[i]?.id;
+    if(!sId) return;
+    row.querySelector('.subtask-check').addEventListener('click', () => toggleSubtask(taskId, sId));
+    row.querySelector('.btn-del-sub').addEventListener('click', () => deleteSubtask(taskId, sId));
+  });
 }
 
 // ── SUBTASKS ──
@@ -395,21 +422,6 @@ function deleteSubtask(taskId, subId){
   if(t){ t.subtasks = (t.subtasks||[]).filter(s => s.id !== subId); save(tasks); notionUpdateTask(t); }
   renderSubtasks(taskId, t.subtasks);
   updateSubtaskCount(taskId, t.subtasks);
-}
-
-function renderSubtasks(taskId, subs){
-  const el = document.getElementById('sub-list-'+taskId);
-  if(!el) return;
-  el.innerHTML = (subs||[]).map(s => `
-    <div class="subtask-item${s.done?' done':''}" id="sub-${taskId}-${s.id}">
-      <div class="subtask-check" onclick="toggleSubtask(${taskId}, ${s.id})">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-      </div>
-      <span class="subtask-text">${s.text}</span>
-      <button class="btn-del-sub" onclick="deleteSubtask(${taskId}, ${s.id})">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>`).join('');
 }
 
 function updateSubtaskCount(taskId, subs){
@@ -462,10 +474,9 @@ function render(){
     const subsDone = subs.filter(s=>s.done).length;
     const subCount = subs.length ? `<span class="task-subtask-count" id="subcount-${t.id}">${subsDone}/${subs.length}</span>` : `<span class="task-subtask-count" id="subcount-${t.id}" style="display:none"></span>`;
     const isOpen = openCards.has(t.id);
-
-    return `<div class="task-card${t.done?' done':''}${isOpen?' open':''}" id="card-${t.id}">
-  <div class="task-header" onclick="toggleOpen(${t.id})">
-    <div class="task-check" onclick="toggleDone(${t.id}, event)">
+    return `<div class="task-card${t.done?' done':''}" id="card-${t.id}" data-id="${t.id}">
+  <div class="task-header">
+    <div class="task-check">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <span class="task-title-text">${t.title}</span>
@@ -478,43 +489,56 @@ function render(){
   </div>
   <div class="task-body">
     <div class="field-label">Description</div>
-    <textarea class="task-desc" id="desc-${t.id}" placeholder="Ajouter une description…" oninput="updateDesc(${t.id}, this.value)">${t.desc||''}</textarea>
-
+    <textarea class="task-desc" id="desc-${t.id}" placeholder="Ajouter une description\u2026">${t.desc||''}</textarea>
     <div class="field-label">Liens</div>
     <div class="links-list" id="links-list-${t.id}"></div>
     <div class="add-link-row">
-      <input class="link-input" id="link-inp-${t.id}" placeholder="https://…" onkeydown="if(event.key==='Enter') addLink(${t.id})">
-      <button class="btn-add-link" onclick="addLink(${t.id})">
+      <input class="link-input" id="link-inp-${t.id}" placeholder="https://\u2026">
+      <button class="btn-add-link" data-action="add-link">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Ajouter
       </button>
     </div>
-
-    <div class="field-label">Sous-tâches</div>
+    <div class="field-label">Sous-t\u00e2ches</div>
     <div class="subtask-list" id="sub-list-${t.id}"></div>
     <div class="add-sub-row">
-      <input class="sub-input" id="sub-inp-${t.id}" placeholder="Nouvelle sous-tâche…" onkeydown="if(event.key==='Enter') addSubtask(${t.id})">
-      <button class="btn-add-sub" onclick="addSubtask(${t.id})">
+      <input class="sub-input" id="sub-inp-${t.id}" placeholder="Nouvelle sous-t\u00e2che\u2026">
+      <button class="btn-add-sub" data-action="add-sub">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Ajouter
       </button>
     </div>
-
-    <button class="btn-del-task" onclick="deleteTask(${t.id})">
+    <button class="btn-del-task" data-action="del-task">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-      Supprimer la tâche
+      Supprimer la t\u00e2che
     </button>
   </div>
 </div>`;
   }).join('');
 
-  // Hydrate les listes dynamiques après rendu
+  // Attacher les \u00e9v\u00e9nements proprement apr\u00e8s rendu
   filtered.forEach(t => {
+    const card = document.getElementById('card-'+t.id);
+    if(!card) return;
+    card.classList.toggle('open', openCards.has(t.id));
+    card.querySelector('.task-header').addEventListener('click', () => toggleOpen(t.id));
+    card.querySelector('.task-check').addEventListener('click', e => { e.stopPropagation(); toggleDone(t.id, e); });
+    const desc = card.querySelector('.task-desc');
+    if(desc) desc.addEventListener('input', () => updateDesc(t.id, desc.value));
+    const linkBtn = card.querySelector('[data-action="add-link"]');
+    const linkInp = card.querySelector('.link-input');
+    if(linkBtn) linkBtn.addEventListener('click', () => addLink(t.id));
+    if(linkInp) linkInp.addEventListener('keydown', e => { if(e.key==='Enter') addLink(t.id); });
+    const subBtn = card.querySelector('[data-action="add-sub"]');
+    const subInp = card.querySelector('.sub-input');
+    if(subBtn) subBtn.addEventListener('click', () => addSubtask(t.id));
+    if(subInp) subInp.addEventListener('keydown', e => { if(e.key==='Enter') addSubtask(t.id); });
+    const delBtn = card.querySelector('[data-action="del-task"]');
+    if(delBtn) delBtn.addEventListener('click', () => deleteTask(t.id));
     renderLinks(t.id, t.links);
     renderSubtasks(t.id, t.subtasks);
   });
 }
-
 notionLoadTasks();
 </script>
 </body>
