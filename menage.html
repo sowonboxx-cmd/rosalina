@@ -224,7 +224,14 @@ tbody td{padding:11px 14px;font-size:.83rem;color:var(--text);}
 
   <!-- FORMULAIRE AJOUT -->
   <div class="add-card">
-    <div class="add-title">Ajouter une session de ménage</div>
+    <div class="add-title" style="display:flex;align-items:center;justify-content:space-between">
+      Ajouter une session de ménage
+      <button onclick="notionLoad()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:.7rem;font-family:'Jost',sans-serif;display:flex;align-items:center;gap:4px;" title="Synchroniser avec Notion">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Sync
+      </button>
+    </div>
+    <div id="sync-status" style="font-size:.7rem;color:var(--text3);margin-bottom:10px;min-height:14px;"></div>
     <div class="tarif-row collapsed" id="tarif-row" onclick="toggleTarif()">
       <label style="pointer-events:none">Taux horaire</label>
       <span id="tarif-display" style="font-size:.82rem;font-weight:600;color:var(--text);margin-left:6px;pointer-events:none">13 € / h</span>
@@ -319,6 +326,87 @@ tbody td{padding:11px 14px;font-size:.83rem;color:var(--text);}
 
 <script>
 const MOIS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const WORKER = 'https://notion-proxy.sowonboxx.workers.dev';
+const MENAGE_DB_ID = '395a8c29d056800db590ff2d5091f8cb';
+
+function getToken(){ return localStorage.getItem('notion_token') || ''; }
+function setSyncStatus(msg, color){
+  const el = document.getElementById('sync-status');
+  if(el){ el.textContent = msg; el.style.color = color || 'var(--text3)'; }
+}
+
+// ── NOTION : charger toutes les sessions ──
+async function notionLoad(){
+  const token = getToken();
+  if(!token){ setSyncStatus('💾 Local — configurez votre token dans le dashboard', 'var(--text3)'); buildTabs(); renderMonth(); return; }
+  setSyncStatus('⏳ Synchronisation…', 'var(--text3)');
+  try {
+    const res = await fetch(WORKER + '/query', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token, database_id: MENAGE_DB_ID, sorts:[{property:'Date',direction:'ascending'}] })
+    });
+    const json = await res.json();
+    if(!res.ok) throw new Error(json.message || 'Erreur Notion');
+    const d = {};
+    (json.results || []).forEach(page => {
+      const props = page.properties;
+      const dateStr = props.Date?.date?.start;
+      if(!dateStr) return;
+      const [y, m] = dateStr.split('-').map(Number);
+      const key = y + '-' + (m - 1);
+      if(!d[key]) d[key] = { entries:[], paid:false };
+      d[key].entries.push({ date:dateStr, debut:props.Debut?.number||0, fin:props.Fin?.number||0, id:page.id, notionId:page.id });
+    });
+    // Préserver les états "payé" du cache local
+    const local = loadData();
+    Object.keys(local).forEach(key => { if(local[key].paid && d[key]) d[key].paid = true; });
+    saveData(d);
+    setSyncStatus('✓ Synchronisé', '#5A9A5A');
+  } catch(e) {
+    setSyncStatus('⚠️ ' + e.message, 'var(--rose)');
+  }
+  buildTabs(); renderMonth();
+}
+
+// ── NOTION : ajouter une session ──
+async function notionAdd(entry){
+  const token = getToken();
+  if(!token) return null;
+  const dureeMin = entry.fin - entry.debut;
+  const prix = Math.round((dureeMin/60) * TARIF * 100) / 100;
+  const [y,m,d] = entry.date.split('-');
+  try {
+    const res = await fetch(WORKER, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token, payload:{
+        parent:{ database_id: MENAGE_DB_ID },
+        properties:{
+          'Titre':{ title:[{ text:{ content: fmtDateLabel(entry.date)+' · '+fmtTime(entry.debut)+'→'+fmtTime(entry.fin) } }] },
+          'Date':{ date:{ start: entry.date } },
+          'Debut':{ number: entry.debut },
+          'Fin':{ number: entry.fin },
+          'Durée (min)':{ number: dureeMin },
+          'Montant (€)':{ number: prix }
+        }
+      }})
+    });
+    const json = await res.json();
+    if(res.ok && json.id) return json.id;
+  } catch(e){}
+  return null;
+}
+
+// ── NOTION : archiver une session ──
+async function notionArchive(notionId){
+  const token = getToken();
+  if(!token || !notionId) return;
+  try {
+    await fetch(WORKER + '/archive', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token, page_id: notionId })
+    });
+  } catch(e){}
+}
 
 // ── TARIF ──
 let TARIF = parseFloat(localStorage.getItem('menage_tarif') || '13');
@@ -426,31 +514,39 @@ function calcDuree(){
 }
 
 // ── AJOUTER ──
-function addEntry(){
+async function addEntry(){
   const dateVal = document.getElementById('inp-date').value;
   const d = getMinutes('inp-debut');
   const f = getMinutes('inp-fin');
   if(!dateVal){ alert('Veuillez sélectionner une date.'); return; }
   if(f <= d){ alert('L\'heure de fin doit être après l\'heure de début.'); return; }
+  const btn = document.querySelector('.btn-add');
+  btn.disabled = true; btn.textContent = '…';
+  const entry = { date: dateVal, debut: d, fin: f, id: Date.now() };
+  const notionId = await notionAdd(entry);
+  if(notionId){ entry.notionId = notionId; entry.id = notionId; }
   const [y, m] = dateVal.split('-').map(Number);
   const key = y + '-' + (m - 1);
   const data = loadData();
   if(!data[key]) data[key] = { entries: [], paid: false };
-  data[key].entries.push({ date: dateVal, debut: d, fin: f, id: Date.now() });
+  data[key].entries.push(entry);
   data[key].entries.sort((a,b) => a.date.localeCompare(b.date) || a.debut - b.debut);
   saveData(data);
+  setSyncStatus(notionId ? '✓ Sauvegardé dans Notion' : '💾 Sauvegardé localement', notionId ? '#5A9A5A' : 'var(--rose)');
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Ajouter';
   currentYear = y; currentMonth = m - 1;
-  buildTabs();
-  renderMonth();
+  buildTabs(); renderMonth();
 }
 
 // ── SUPPRIMER ──
-function deleteEntry(key, id){
+async function deleteEntry(key, id, notionId){
   if(!confirm('Supprimer ce créneau ?')) return;
   const data = loadData();
   if(!data[key]) return;
   data[key].entries = data[key].entries.filter(e => e.id !== id);
   saveData(data);
+  if(notionId) notionArchive(notionId);
   renderMonth();
 }
 
@@ -490,7 +586,7 @@ function renderMonth(){
         <td class="td-duree">${fmtDuree(dureeMin)}</td>
         <td class="td-prix">${fmt(prix)} €</td>
         <td style="text-align:center">
-          <button class="btn-del" onclick="deleteEntry('${key}', ${e.id})" title="Supprimer">
+          <button class="btn-del" onclick="deleteEntry('${key}', ${JSON.stringify(e.id)}, ${JSON.stringify(e.notionId||null)})" title="Supprimer">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
           </button>
         </td>`;
@@ -519,6 +615,11 @@ function togglePaid(){
 
 function fmt(n){ return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
 
+function fmtDateLabel(dateStr){
+  const [ey, em, ed] = dateStr.split('-');
+  return parseInt(ed) + '.' + MOIS_FR[parseInt(em)-1].slice(0,3).toLowerCase() + '.' + ey.slice(2);
+}
+
 // ── DATE PAR DÉFAUT ──
 function setDefaultDate(){
   const d = new Date();
@@ -530,8 +631,7 @@ document.getElementById('inp-tarif').value = TARIF;
 document.getElementById('tarif-display').textContent = TARIF + ' € / h';
 buildTimeOptions();
 setDefaultDate();
-buildTabs();
-renderMonth();
+notionLoad(); // charge depuis Notion si token dispo, sinon local
 </script>
 </body>
 </html>
