@@ -123,6 +123,10 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 /* DELETE TASK */
 .btn-del-task{margin-top:14px;background:none;border:1.5px solid var(--border);border-radius:var(--r2);padding:7px 12px;font-family:'Jost',sans-serif;font-size:.75rem;color:var(--text3);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;}
 .btn-del-task:hover{border-color:#C0392B;color:#C0392B;}
+.btn-edit{background:none;border:none;cursor:pointer;color:var(--text3);padding:3px;display:flex;align-items:center;border-radius:4px;transition:color .15s;flex-shrink:0;}
+.btn-edit:hover{color:var(--rose);}
+.task-title-edit{flex:1;padding:2px 6px;border:1.5px solid var(--rose);border-radius:6px;background:var(--bg2);color:var(--text);font-family:'Jost',sans-serif;font-size:.88rem;font-weight:500;outline:none;}
+.subtask-edit{flex:1;padding:2px 6px;border:1.5px solid var(--rose);border-radius:6px;background:var(--bg2);color:var(--text);font-family:'Jost',sans-serif;font-size:.8rem;outline:none;}
 </style>
 </head>
 <body>
@@ -381,6 +385,9 @@ function renderSubtasks(taskId, subs){
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
       <span class="subtask-text">${s.text}</span>
+      <button class="btn-edit btn-edit-sub" title="Modifier">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
       <button class="btn-del-sub">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -390,6 +397,7 @@ function renderSubtasks(taskId, subs){
     const sId = (subs||[])[i]?.id;
     if(!sId) return;
     row.querySelector('.subtask-check').addEventListener('click', () => toggleSubtask(taskId, sId));
+    row.querySelector('.btn-edit-sub').addEventListener('click', () => editSubtask(taskId, sId, row));
     row.querySelector('.btn-del-sub').addEventListener('click', () => deleteSubtask(taskId, sId));
   });
 }
@@ -482,6 +490,9 @@ function render(){
     <span class="task-title-text">${t.title}</span>
     <div class="task-meta">
       ${subCount}
+      <button class="task-edit-btn btn-edit" title="Modifier">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
       <button class="task-expand-btn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
@@ -523,6 +534,8 @@ function render(){
     card.classList.toggle('open', openCards.has(t.id));
     card.querySelector('.task-header').addEventListener('click', () => toggleOpen(t.id));
     card.querySelector('.task-check').addEventListener('click', e => { e.stopPropagation(); toggleDone(t.id, e); });
+    const editBtn = card.querySelector('.task-edit-btn');
+    if(editBtn) editBtn.addEventListener('click', e => { e.stopPropagation(); editTask(t.id, card); });
     const desc = card.querySelector('.task-desc');
     if(desc) desc.addEventListener('input', () => updateDesc(t.id, desc.value));
     const linkBtn = card.querySelector('[data-action="add-link"]');
@@ -539,6 +552,61 @@ function render(){
     renderSubtasks(t.id, t.subtasks);
   });
 }
+// ── EDIT TASK TITLE ──
+function editTask(taskId, card){
+  const span = card.querySelector('.task-title-text');
+  const current = span.textContent;
+  const inp = document.createElement('input');
+  inp.className = 'task-title-edit';
+  inp.value = current;
+  span.replaceWith(inp);
+  inp.focus(); inp.select();
+  function commit(){
+    const val = inp.value.trim() || current;
+    const tasks = load();
+    const t = tasks.find(t => t.id === taskId);
+    if(t){ t.title = val; save(tasks); notionUpdateTask(t); }
+    const newSpan = document.createElement('span');
+    newSpan.className = 'task-title-text';
+    newSpan.textContent = val;
+    inp.replaceWith(newSpan);
+  }
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e => {
+    if(e.key==='Enter'){ e.preventDefault(); inp.blur(); }
+    if(e.key==='Escape'){ inp.value=current; inp.blur(); }
+  });
+}
+
+// ── EDIT SUBTASK ──
+function editSubtask(taskId, subId, row){
+  const span = row.querySelector('.subtask-text');
+  const current = span.textContent;
+  const inp = document.createElement('input');
+  inp.className = 'subtask-edit';
+  inp.value = current;
+  span.replaceWith(inp);
+  inp.focus(); inp.select();
+  function commit(){
+    const val = inp.value.trim() || current;
+    const tasks = load();
+    const t = tasks.find(t => t.id === taskId);
+    if(t){
+      const s = (t.subtasks||[]).find(s => s.id === subId);
+      if(s){ s.text = val; save(tasks); notionUpdateTask(t); }
+    }
+    const newSpan = document.createElement('span');
+    newSpan.className = 'subtask-text';
+    newSpan.textContent = val;
+    inp.replaceWith(newSpan);
+  }
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e => {
+    if(e.key==='Enter'){ e.preventDefault(); inp.blur(); }
+    if(e.key==='Escape'){ inp.value=current; inp.blur(); }
+  });
+}
+
 notionLoadTasks();
 </script>
 </body>
