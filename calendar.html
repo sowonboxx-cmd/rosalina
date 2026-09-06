@@ -734,7 +734,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     </div>
   </div>
   <div class="panel-foot" style="border-top:none;">
-    <button class="btn-secondary" id="btn-push">⚠️ Forcer l'envoi (écrase le cloud)</button>
+    <button class="btn-primary" id="btn-save-settings">Enregistrer</button>
   </div>
 </div>
 
@@ -951,6 +951,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     var input = document.getElementById(prefix);
     var icon = document.getElementById(prefix + "-icon");
     var popover = document.getElementById(prefix + "-popover");
+    document.body.appendChild(popover); // escape any transformed ancestor (panel uses CSS transform, which breaks position:fixed children)
     var monthLabel = document.getElementById(prefix + "-month-label");
     var prevBtn = document.getElementById(prefix + "-prev");
     var nextBtn = document.getElementById(prefix + "-next");
@@ -1021,8 +1022,6 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       viewDate = iso ? parseISO(iso) : new Date();
       renderGrid();
       renderTimeChips();
-      var activeChip = timeRow.querySelector(".dp-time-chip.active");
-      if(activeChip) activeChip.scrollIntoView({block:"nearest"});
       var rect = icon.getBoundingClientRect();
       var top = rect.bottom + 6;
       var left = rect.right - 266;
@@ -1031,6 +1030,10 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       popover.style.top = top + "px";
       popover.style.left = left + "px";
       popover.classList.add("show");
+      try{
+        var activeChip = timeRow.querySelector(".dp-time-chip.active");
+        if(activeChip && activeChip.scrollIntoView) activeChip.scrollIntoView({block:"nearest"});
+      }catch(e){}
     }
     function closePopover(){ popover.classList.remove("show"); }
 
@@ -1925,15 +1928,6 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   document.getElementById("btn-settings").addEventListener("click", openSettings);
   document.getElementById("settings-close").addEventListener("click", closeSettings);
 
-  document.getElementById("btn-push").addEventListener("click", function(){
-    cfg.workerUrl = document.getElementById("s-worker-url").value.trim();
-    cfg.appToken = document.getElementById("s-app-token").value.trim();
-    saveCfg();
-    var warning = "Ceci va REMPLACER toutes les données du cloud (et donc de tous les autres appareils connectés) par les données de CET appareil.\n\nN'utilise ceci que si cet appareil contient les vraies données à jour et que le cloud doit être écrasé.\n\nContinuer et écraser le cloud ?";
-    if(!confirm(warning)) return;
-    pushToCloud();
-  });
-
   // Auto-sync as soon as both fields are filled in — no manual "connect" step needed.
   function autoSyncFromSettingsFields(){
     var url = document.getElementById("s-worker-url").value.trim();
@@ -1952,6 +1946,10 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   }
   document.getElementById("s-worker-url").addEventListener("blur", autoSyncFromSettingsFields);
   document.getElementById("s-app-token").addEventListener("blur", autoSyncFromSettingsFields);
+  document.getElementById("btn-save-settings").addEventListener("click", function(){
+    autoSyncFromSettingsFields();
+    closeSettings();
+  });
 
   // ---------------- View / nav ----------------
   document.querySelectorAll(".view-toggle button").forEach(function(btn){
