@@ -3,23 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#10285E">
-<title>Drevici — Calendrier éditorial</title>
+<meta name="theme-color" content="#2C3D2C">
+<title>EKOBO — Calendrier familial</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --navy:#10285E;
-  --navy-ink:#0B1B3A;
+  --navy:#2C3D2C;
+  --navy-ink:#16211A;
   --cream:#F7F5EF;
   --card:#FFFFFF;
   --line:#DCE1EA;
   --gold:#B8923D;
   --coral:#C6603F;
   --muted:#6B7385;
-  --ig:#B8923D;
-  --tiktok:#0B1B3A;
-  --event:#C6603F;
   --radius:14px;
   --shadow:0 1px 2px rgba(16,40,94,.06), 0 8px 24px rgba(16,40,94,.06);
 }
@@ -204,8 +201,8 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   .panel .panel-body{max-height:calc(85vh - 130px);}
 }
 
-/* View & day panels: popup card style at every screen size */
-#view-panel, #day-panel{
+/* View, day & todo panels: popup card style at every screen size */
+#view-panel, #day-panel, #todo-panel{
   top:50%; left:50%; right:auto; bottom:auto;
   width:92vw; max-width:420px; max-height:82vh;
   border-radius:20px; overflow:hidden;
@@ -213,13 +210,13 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   transition:transform .22s ease, opacity .18s ease;
   box-shadow:0 24px 60px rgba(11,27,58,.32);
 }
-#view-panel.show, #day-panel.show{
+#view-panel.show, #day-panel.show, #todo-panel.show{
   transform:translate(-50%,-50%) scale(1); opacity:1; pointer-events:auto;
 }
 #view-panel .panel-body{max-height:calc(82vh - 136px);}
-#day-panel .panel-body{max-height:calc(82vh - 66px);}
+#day-panel .panel-body, #todo-panel .panel-body{max-height:calc(82vh - 66px);}
 @media (min-width: 781px){
-  #view-panel, #day-panel{width:480px; max-width:480px;}
+  #view-panel, #day-panel, #todo-panel{width:480px; max-width:480px;}
 }
 .panel-head{
   background:var(--navy); color:#fff; padding:18px 20px; display:flex; align-items:center; gap:12px;
@@ -272,7 +269,15 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   display:flex; align-items:center; gap:9px; background:#fff; border:1px solid var(--line);
   border-radius:9px; padding:8px 10px;
 }
-.todo-row input[type=checkbox]{width:17px; height:17px; flex-shrink:0; accent-color:var(--navy); cursor:pointer;}
+.todo-row input[type=checkbox]{
+  appearance:none; -webkit-appearance:none; width:19px; height:19px; flex-shrink:0; cursor:pointer;
+  border:1.5px solid var(--line); border-radius:5px; background:#fff; position:relative; margin:0;
+}
+.todo-row input[type=checkbox]:checked{background:var(--navy); border-color:var(--navy);}
+.todo-row input[type=checkbox]:checked::after{
+  content:""; position:absolute; left:5px; top:1px; width:5px; height:10px;
+  border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
+}
 .todo-row .todo-text{flex:1; font-size:13.5px; color:var(--navy-ink); word-break:break-word;}
 .todo-row.done .todo-text{text-decoration:line-through; color:var(--muted);}
 .todo-row button.del{background:none; border:none; color:#c2626a; font-size:15px; line-height:1;}
@@ -382,8 +387,8 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   <div class="topbar">
     <div class="topbar-inner">
       <div class="logo">
-        <div class="logo-text">Drevici Oyster</div>
-        <div class="logo-sub">Calendrier éditorial</div>
+        <div class="logo-text">EKOBO</div>
+        <div class="logo-sub">Calendrier familial</div>
       </div>
       <div class="topbar-controls">
         <div class="view-toggle">
@@ -398,6 +403,9 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
         </div>
         <button class="sync-btn" id="btn-settings" title="Réglages de synchronisation">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+        <button class="sync-btn" id="btn-todos" title="Tâches familiales">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
         </button>
         <button class="btn-add" id="btn-add" title="Ajouter"><span class="add-icon">+</span><span class="add-label">Ajouter</span></button>
       </div>
@@ -449,6 +457,21 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   <div class="panel-body" id="day-body"></div>
 </div>
 
+<!-- Global family to-do panel -->
+<div class="panel" id="todo-panel">
+  <div class="panel-head">
+    <button class="close" id="todo-close">✕</button>
+    <div class="ph-title">Tâches familiales</div>
+  </div>
+  <div class="panel-body">
+    <div class="todo-list" id="global-todo-list"></div>
+    <div class="add-todo-row">
+      <input type="text" id="global-todo-input" placeholder="Ajouter une tâche…">
+      <button id="global-todo-add">Ajouter</button>
+    </div>
+  </div>
+</div>
+
 <!-- Detail / edit panel -->
 <div class="panel" id="panel">
   <div class="panel-head">
@@ -457,12 +480,8 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   </div>
   <div class="panel-body">
     <div class="field">
-      <label>Type</label>
-      <div class="pill-group" id="f-type">
-        <button class="pill-opt" data-val="event">Événement</button>
-        <button class="pill-opt" data-val="instagram">Instagram</button>
-        <button class="pill-opt" data-val="tiktok">TikTok</button>
-      </div>
+      <label>Personnes</label>
+      <div class="pill-group" id="f-type"></div>
     </div>
     <div class="field-row">
       <div class="field">
@@ -482,42 +501,19 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     </div>
     <div class="field">
       <label>Titre</label>
-      <input type="text" id="f-title" placeholder="Ex : Reels — panier d'huîtres du matin">
+      <input type="text" id="f-title" placeholder="Ex : Anniversaire de Léo">
     </div>
     <div class="field">
       <label>Google Maps</label>
       <input type="url" id="f-location" placeholder="Coller le lien de partage Google Maps…">
     </div>
-    <div class="field" id="f-caption-wrap">
-      <label>Caption</label>
-      <div class="copybox">
-        <textarea id="f-caption" placeholder="Texte prêt à coller en légende Instagram/TikTok…"></textarea>
-        <button class="copy-icon-btn" data-copy="f-caption" title="Copier la caption" aria-label="Copier la caption">
-          <svg class="icon-copy" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-          <svg class="icon-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        </button>
-      </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="f-desc" placeholder="Notes, détails…"></textarea>
     </div>
     <div class="field">
-      <label>Description / commentaire</label>
-      <textarea id="f-desc" placeholder="Notes de tournage, brief, ce qu'il faut rajouter…"></textarea>
-    </div>
-    <div class="field">
-      <label>To-do</label>
-      <div class="todo-list" id="f-todos"></div>
-      <div class="add-todo-row">
-        <input type="text" id="f-todo-input" placeholder="Ajouter une tâche…">
-        <button id="f-todo-add">Ajouter</button>
-      </div>
-    </div>
-    <div class="field">
-      <label>Liens d'inspiration</label>
-      <div class="links-list" id="f-links"></div>
-      <div class="add-link-row">
-        <input type="url" id="f-link-input" placeholder="https://…">
-        <input type="text" id="f-link-title-input" placeholder="Légende (ex : format à copier)">
-        <button id="f-link-add">Ajouter</button>
-      </div>
+      <label>Lien ICS</label>
+      <input type="url" id="f-ics" placeholder="Lien vers le fichier/flux .ics…">
     </div>
   </div>
   <div class="panel-foot">
@@ -534,10 +530,10 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   </div>
   <div class="panel-body">
     <div class="field">
-      <label>Types de contenu</label>
+      <label>Personnes</label>
       <div class="types-list" id="types-list"></div>
       <div class="add-type-row">
-        <input type="text" id="type-name-input" placeholder="Nom du type (ex : Coulisses)">
+        <input type="text" id="type-name-input" placeholder="Nom (ex : Papa)">
         <input type="color" id="type-color-input" value="#5B7A8C">
         <button id="type-add-btn">Ajouter</button>
       </div>
@@ -553,7 +549,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     </div>
     <div class="field">
       <label>URL du Worker</label>
-      <input type="text" id="s-worker-url" placeholder="https://drevici-edito-sync.tonuser.workers.dev/data">
+      <input type="text" id="s-worker-url" placeholder="https://ekobo-sync.tonuser.workers.dev/data">
       <small>L'adresse de ton Worker Cloudflare. Le vrai token GitHub reste caché côté serveur, jamais dans ce navigateur.</small>
     </div>
     <div class="field">
@@ -573,81 +569,21 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   "use strict";
 
   // ---------------- Storage keys ----------------
-  var LS_DATA = "drevici_edito_entries";
-  var LS_CFG = "drevici_edito_cfg";
-  var LS_AUTH = "drevici_edito_auth";
-  var LS_TYPES = "drevici_edito_types";
-  var LS_STATUSES = "drevici_edito_statuses";
+  var LS_DATA = "ekobo_entries";
+  var LS_CFG = "ekobo_cfg";
+  var LS_AUTH = "ekobo_auth";
+  var LS_TYPES = "ekobo_types";
+  var LS_STATUSES = "ekobo_statuses";
 
-  // ---------------- Seed data (first draft) ----------------
-  var SEED = [
-    {id:"e1", type:"event", date:"2026-09-02", status:"ready", title:"Réouverture Drevici", desc:"Fin de la fermeture estivale. Ouverture officielle du restaurant pour la saison.", caption:"", links:[]},
-    {id:"e2", type:"instagram", date:"2026-08-26", status:"todo", title:"Teaser réouverture — semaine du 26 août", desc:"Compte à rebours avant la réouverture. Coulisses de la préparation, arrivage des huîtres, mise en place.", caption:"On rallume tout. Réouverture le 2 septembre 🦪", links:[]},
-    {id:"e3", type:"tiktok", date:"2026-09-05", status:"idea", title:"Format viral US adapté — dégustation surprise", desc:"Adapter un format tendance encore peu vu en France, avec dégustation d'huître en caméra rapprochée. Garder le twist, réécrire la chute en breton/français.", caption:"", links:[]},
-    {id:"e4", type:"event", date:"2026-09-26", status:"idea", title:"Marché du week-end", desc:"Présence marché — week-end du 26-27 septembre.", caption:"", links:[]},
-    {id:"e5", type:"event", date:"2026-10-13", status:"idea", title:"Semaine du Goût", desc:"Mi-octobre — mettre en avant le savoir-faire du producteur, origine Morbihan.", caption:"", links:[]},
-    {id:"e6", type:"instagram", date:"2026-10-31", status:"idea", title:"Halloween — clin d'œil produit", desc:"Rester dans l'esprit bonne ambiance sans tomber dans le comique pur. Visuel produit détourné pour Halloween.", caption:"", links:[]},
-    {id:"e7", type:"event", date:"2026-11-19", status:"idea", title:"Beaujolais Nouveau", desc:"Soirée dédiée — accord huîtres/Beaujolais Nouveau.", caption:"", links:[]},
-    {id:"e8", type:"tiktok", date:"2026-11-05", status:"idea", title:"Vie quotidienne — équipe en salle", desc:"Contenu 'vrai', pas de montage viral : ambiance service, équipe, sourire. Alterne avec les formats viraux adaptés.", caption:"", links:[]},
-    {id:"e9", type:"event", date:"2026-11-28", status:"idea", title:"Marché du week-end", desc:"Présence marché — week-end du 28-29 novembre.", caption:"", links:[]},
-    {id:"e10", type:"instagram", date:"2026-12-06", status:"idea", title:"Bretagne / producteur — mise en lumière", desc:"Photos du site de production, du geste de l'ostréiculteur, du Morbihan. Différenciation face à la concurrence parisienne.", caption:"", links:[]},
-    {id:"e11", type:"event", date:"2026-01-06", status:"idea", title:"Épiphanie", desc:"Galette + plateau, à cadrer début janvier.", caption:"", links:[]}
-  ];
+  // ---------------- Default data ----------------
+  var SEED = [];
 
   var DEFAULT_TYPES = [
-    {id:"event", label:"Événement", color:"#C6603F"},
-    {id:"instagram", label:"Instagram", color:"#B8923D"},
-    {id:"tiktok", label:"TikTok", color:"#0B1B3A"}
+    {id:"maman", label:"Maman", color:"#C76B8D"},
+    {id:"papa", label:"Papa", color:"#3E6B96"},
+    {id:"enfants", label:"Enfants", color:"#D68A3D"}
   ];
 
-  // ---------------- Launch dataset (calendrier stratégique fourni par Will) ----------------
-  var IMPORT_TYPES = [
-    {id:"marche", label:"Marché", color:"#4F7A5B"},
-    {id:"avenir", label:"À prévoir", color:"#7A5B98"}
-  ];
-  var IMPORT_ENTRIES = [
-    {id:"imp-01", type:"event", date:"2026-08-26", status:"idea", title:"🔥 Teasing réouverture (26 août → 1 sept.)", desc:"Faire remonter Drevici dans les esprits", caption:"", links:[]},
-    {id:"imp-02", type:"event", date:"2026-09-02", status:"idea", title:"🦪 RÉOUVERTURE", desc:"Gros contenu + visibilité locale", caption:"", links:[]},
-    {id:"imp-03", type:"event", date:"2026-09-03", status:"idea", title:"Rentrée / Paris Design Week (3 → 20 sept.)", desc:"Awareness + nouveaux clients", caption:"", links:[]},
-    {id:"imp-04", type:"marche", date:"2026-09-26", status:"idea", title:"🛍️ MARCHÉ #1 (26-27 sept.)", desc:"Acquisition physique", caption:"", links:[]},
-    {id:"imp-05", type:"event", date:"2026-09-28", status:"idea", title:"Automne / Vendanges (28 sept. → 11 oct.)", desc:"Contenu + B2B", caption:"", links:[]},
-    {id:"imp-06", type:"event", date:"2026-10-12", status:"idea", title:"👻 Pré-Halloween (12 → 25 oct.)", desc:"Vente + événement", caption:"", links:[]},
-    {id:"imp-07", type:"event", date:"2026-10-31", status:"idea", title:"🎃 HALLOWEEN", desc:"Gros événement", caption:"", links:[]},
-    {id:"imp-08", type:"event", date:"2026-11-01", status:"idea", title:"🍂 Automne / Armistice (1 → 15 nov.)", desc:"Relance", caption:"", links:[]},
-    {id:"imp-09", type:"event", date:"2026-11-19", status:"idea", title:"🍷 Beaujolais Nouveau", desc:"Soirée huîtres/vin", caption:"", links:[]},
-    {id:"imp-10", type:"event", date:"2026-11-20", status:"idea", title:"🎄 Pré-Noël B2B (20 → 27 nov.)", desc:"Prospection intensive", caption:"", links:[]},
-    {id:"imp-11", type:"marche", date:"2026-11-28", status:"idea", title:"🛍️ MARCHÉ #2 (28-29 nov.)", desc:"Acquisition", caption:"", links:[]},
-    {id:"imp-12", type:"event", date:"2026-11-30", status:"idea", title:"🎁 Noël / entreprises (30 nov. → 20 déc.)", desc:"Grosse période CA", caption:"", links:[]},
-    {id:"imp-13", type:"event", date:"2026-12-21", status:"idea", title:"🦪 Noël particuliers (21 → 24 déc.)", desc:"Commandes à emporter/livraison", caption:"", links:[]},
-    {id:"imp-14", type:"event", date:"2026-12-31", status:"idea", title:"🥂 NOUVEL AN", desc:"Très grosse vente", caption:"", links:[]},
-    {id:"imp-15", type:"event", date:"2027-01-01", status:"idea", title:"💤 Ralentissement (1 → 10 jan.)", desc:"Contenu léger", caption:"", links:[]},
-    {id:"imp-16", type:"event", date:"2027-01-11", status:"idea", title:"🦪 Reprise / Saint-Valentin teasing (11 → 31 jan.)", desc:"Fidélisation + anticipation", caption:"", links:[]},
-    {id:"imp-17", type:"event", date:"2026-09-12", status:"idea", title:"Défilé", desc:"", caption:"", links:[]},
-    {id:"imp-18", type:"event", date:"2026-10-31", status:"idea", title:"Fin de la terrasse", desc:"Plus de terrasse à partir du 31 octobre.", caption:"", links:[]},
-    {id:"imp-19", type:"marche", date:"2026-09-19", status:"idea", title:"Marché 12e arrondissement (19-20 sept.)", desc:"", caption:"", links:[]},
-    {id:"imp-20", type:"marche", date:"2026-11-21", status:"idea", title:"Marché Fabrice Éboué — 12e (21-22 nov.)", desc:"", caption:"", links:[]},
-    {id:"imp-21", type:"marche", date:"2026-12-05", status:"idea", title:"Marché Oberkampf — 11e (5-6 déc.)", desc:"", caption:"", links:[]},
-    {id:"imp-22", type:"instagram", date:"2026-11-05", status:"idea", title:"Promo marché de Noël", desc:"Lancement de la promo pour le marché de Noël.", caption:"", links:[]},
-    {id:"imp-23", type:"avenir", date:"", status:"idea", title:"Atelier japonais en français", desc:"", caption:"", links:[]},
-    {id:"imp-24", type:"avenir", date:"", status:"idea", title:"Event avec Pré", desc:"", caption:"", links:[]},
-    {id:"imp-25", type:"avenir", date:"", status:"idea", title:"Vidéos multilingues (anglais, japonais, coréen)", desc:"", caption:"", links:[]},
-    {id:"imp-26", type:"avenir", date:"", status:"idea", title:"Michelle", desc:"", caption:"", links:[]},
-    {id:"imp-27", type:"avenir", date:"", status:"idea", title:"Présence TikTok", desc:"", caption:"", links:[]}
-  ];
-  var LS_IMPORTED = "drevici_edito_imported_v1";
-  function runLaunchImport(){
-    if(localStorage.getItem(LS_IMPORTED)) return false;
-    var added = false;
-    IMPORT_TYPES.forEach(function(nt){
-      if(!types.some(function(t){ return t.id === nt.id; })){ types.push(nt); added = true; }
-    });
-    IMPORT_ENTRIES.forEach(function(ie){
-      if(!entries.some(function(e){ return e.id === ie.id; })){ entries.push(ie); added = true; }
-    });
-    localStorage.setItem(LS_IMPORTED, "1");
-    if(added){ saveLocal(); saveTypes(); }
-    return added;
-  }
   var STATUS_LABEL = {idea:"Idée", todo:"À tourner", ready:"Prêt", done:"Publié"};
   var DEFAULT_STATUSES = [
     {id:"idea", label:"Idée", color:"#9AA3B5"},
@@ -661,11 +597,14 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   var entries = [];
   var types = [];
   var statuses = [];
+  var globalTodos = [];
+  var LS_GLOBAL_TODOS = "ekobo_global_todos";
   var cfg = {workerUrl:"", appToken:""};
   var currentView = "grid";
   var currentFilter = "all";
   var allTimeMode = false;
-  var cursorDate = new Date(2026,8,1); // Sept 2026
+  var todayForInit = new Date();
+  var cursorDate = new Date(todayForInit.getFullYear(), todayForInit.getMonth(), 1);
   var editingId = null;
 
   function getType(id){
@@ -709,6 +648,10 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       var rawStatuses = localStorage.getItem(LS_STATUSES);
       statuses = rawStatuses ? JSON.parse(rawStatuses) : DEFAULT_STATUSES.slice();
     }catch(e){ statuses = DEFAULT_STATUSES.slice(); }
+    try{
+      var rawTodos = localStorage.getItem(LS_GLOBAL_TODOS);
+      globalTodos = rawTodos ? JSON.parse(rawTodos) : [];
+    }catch(e){ globalTodos = []; }
   }
   function saveLocal(){
     localStorage.setItem(LS_DATA, JSON.stringify(entries));
@@ -722,6 +665,9 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   function saveStatuses(){
     localStorage.setItem(LS_STATUSES, JSON.stringify(statuses));
   }
+  function saveGlobalTodos(){
+    localStorage.setItem(LS_GLOBAL_TODOS, JSON.stringify(globalTodos));
+  }
 
   // ---------------- App init ----------------
   var app = document.getElementById("app");
@@ -731,9 +677,6 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     render();
     if(isCloudConfigured()){
       pullFromCloud(true);
-    } else if(runLaunchImport()){
-      renderFilters();
-      render();
     }
   }
 
@@ -755,21 +698,17 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       entries = res.data.entries || [];
       if(res.data.types && res.data.types.length) types = res.data.types;
       if(res.data.statuses && res.data.statuses.length) statuses = res.data.statuses;
+      if(res.data.globalTodos) globalTodos = res.data.globalTodos;
       saveLocal();
       saveTypes();
       saveStatuses();
+      saveGlobalTodos();
       render();
       renderTypesList();
       renderStatusesList();
       renderFilters();
+      renderGlobalTodos();
       setSyncStatus("Synchronisé — dernière lecture réussie.");
-      if(runLaunchImport()){
-        render();
-        renderTypesList();
-        renderStatusesList();
-        renderFilters();
-        pushToCloud(true);
-      }
     }).catch(function(err){
       setSyncStatus("Échec : " + err.message);
     });
@@ -784,7 +723,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     fetch(cfg.workerUrl, {
       method:"PUT",
       headers:{ "Content-Type":"application/json", "X-App-Token": cfg.appToken },
-      body: JSON.stringify({ entries: entries, types: types, statuses: statuses })
+      body: JSON.stringify({ entries: entries, types: types, statuses: statuses, globalTodos: globalTodos })
     }).then(function(r){
       return r.json().then(function(data){ return {ok:r.ok, status:r.status, data:data}; });
     }).then(function(res){
@@ -1189,8 +1128,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   var panel = document.getElementById("panel");
   var overlay = document.getElementById("overlay");
   var settingsPanel = document.getElementById("settings-panel");
-  var tempLinks = [];
-  var tempTodos = [];
+
 
   // ---------------- View panel (read-only) ----------------
   var viewPanel = document.getElementById("view-panel");
@@ -1233,79 +1171,15 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     html += e.desc ? '<p class="view-text">' + escapeHtml(e.desc) + '</p>' : '<p class="view-empty">Aucune description pour l’instant.</p>';
     html += '</div>';
 
-    html += '<div class="view-section"><span class="vs-label">Caption</span>';
-    if(e.caption){
-      html += '<div class="view-caption-box">' + escapeHtml(e.caption) +
-        '<button class="copy-icon-btn" id="view-copy-caption" title="Copier la caption" aria-label="Copier la caption">' +
-        '<svg class="icon-copy" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>' +
-        '<svg class="icon-check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
-        '</button></div>';
+    html += '<div class="view-section"><span class="vs-label">Lien ICS</span>';
+    if(e.ics){
+      html += '<div class="view-links"><a class="view-link" href="' + escapeHtml(e.ics) + '" target="_blank" rel="noopener">🔗 <span>' + escapeHtml(e.ics) + '</span></a></div>';
     } else {
-      html += '<p class="view-empty">Aucune caption pour l’instant.</p>';
-    }
-    html += '</div>';
-
-    html += '<div class="view-section"><span class="vs-label">Liens d\'inspiration</span>';
-    if(e.links && e.links.length){
-      html += '<div class="view-links">';
-      e.links.forEach(function(l){
-        l = normLink(l);
-        var shown = l.title ? l.title : l.url;
-        html += '<a class="view-link" href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener">🔗 <span>' + escapeHtml(shown) + '</span></a>';
-      });
-      html += '</div>';
-    } else {
-      html += '<p class="view-empty">Aucun lien pour l’instant.</p>';
-    }
-    html += '</div>';
-
-    html += '<div class="view-section"><span class="vs-label">To-do</span>';
-    if(e.todos && e.todos.length){
-      html += '<div class="view-todos" id="view-todos-wrap">';
-      e.todos.forEach(function(td, idx){
-        html += '<div class="todo-row' + (td.done ? ' done' : '') + '" data-idx="' + idx + '">' +
-          '<input type="checkbox" ' + (td.done ? "checked" : "") + '>' +
-          '<span class="todo-text">' + escapeHtml(td.text) + '</span>' +
-        '</div>';
-      });
-      html += '</div>';
-    } else {
-      html += '<p class="view-empty">Aucune tâche pour l’instant.</p>';
+      html += '<p class="view-empty">Aucun lien ICS pour l’instant.</p>';
     }
     html += '</div>';
 
     body.innerHTML = html;
-
-    var todosWrap = document.getElementById("view-todos-wrap");
-    if(todosWrap){
-      todosWrap.querySelectorAll(".todo-row").forEach(function(row){
-        row.addEventListener("click", function(ev){
-          var idx = +row.dataset.idx;
-          var td = e.todos[idx];
-          td.done = !td.done;
-          row.classList.toggle("done", td.done);
-          row.querySelector('input[type=checkbox]').checked = td.done;
-          saveLocal();
-          pushToCloud(true);
-        });
-      });
-    }
-
-    var copyBtn = document.getElementById("view-copy-caption");
-    if(copyBtn){
-      copyBtn.addEventListener("click", function(){
-        navigator.clipboard.writeText(e.caption).then(function(){
-          copyBtn.classList.add("copied");
-          copyBtn.querySelector(".icon-copy").style.display = "none";
-          copyBtn.querySelector(".icon-check").style.display = "block";
-          setTimeout(function(){
-            copyBtn.classList.remove("copied");
-            copyBtn.querySelector(".icon-copy").style.display = "block";
-            copyBtn.querySelector(".icon-check").style.display = "none";
-          }, 1400);
-        });
-      });
-    }
 
     overlay.classList.add("show");
     viewPanel.classList.add("show");
@@ -1372,18 +1246,14 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     document.getElementById("f-end-date").value = e && e.endDate ? e.endDate : "";
     document.getElementById("f-title").value = e ? e.title : "";
     document.getElementById("f-location").value = e ? (e.location||"") : "";
-    document.getElementById("f-caption").value = e ? (e.caption||"") : "";
     document.getElementById("f-desc").value = e ? (e.desc||"") : "";
-    tempLinks = e && e.links ? e.links.slice() : [];
-    tempTodos = e && e.todos ? e.todos.slice() : [];
+    document.getElementById("f-ics").value = e ? (e.ics||"") : "";
     renderTypePills();
-    var defaultType = types[1] ? types[1].id : (types[0] ? types[0].id : "instagram");
+    var defaultType = types[0] ? types[0].id : "";
     setTypeVal(e ? e.type : defaultType);
     renderStatusPills();
     var defaultStatus = statuses[0] ? statuses[0].id : "idea";
     setStatusVal(e ? e.status : defaultStatus);
-    renderLinks();
-    renderTodosEdit();
     document.getElementById("btn-delete").style.display = e ? "block" : "none";
     overlay.classList.add("show");
     panel.classList.add("show");
@@ -1449,75 +1319,19 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     if(ev.target.classList.contains("pill-opt")) setTypeVal(ev.target.dataset.val);
   });
 
-  function normLink(l){
-    return (typeof l === "string") ? {url:l, title:""} : {url:l.url||"", title:l.title||""};
-  }
-  function renderLinks(){
-    var wrap = document.getElementById("f-links");
-    wrap.innerHTML = "";
-    tempLinks.forEach(function(l, idx){
-      l = normLink(l);
-      var row = document.createElement("div");
-      row.className = "link-row";
-      row.innerHTML =
-        (l.title ? '<span class="lr-title">' + escapeHtml(l.title) + '</span>' : '') +
-        '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener">' + escapeHtml(l.url) + '</a>' +
-        '<button data-idx="' + idx + '">✕</button>';
-      row.querySelector("button").addEventListener("click", function(){
-        tempLinks.splice(idx,1); renderLinks();
-      });
-      wrap.appendChild(row);
-    });
-  }
-  document.getElementById("f-link-add").addEventListener("click", function(){
-    var input = document.getElementById("f-link-input");
-    var titleInput = document.getElementById("f-link-title-input");
-    var val = input.value.trim();
-    if(val){ tempLinks.push({url:val, title:titleInput.value.trim()}); input.value = ""; titleInput.value = ""; renderLinks(); }
-  });
-
-  function renderTodosEdit(){
-    var wrap = document.getElementById("f-todos");
-    wrap.innerHTML = "";
-    tempTodos.forEach(function(td, idx){
-      var row = document.createElement("div");
-      row.className = "todo-row" + (td.done ? " done" : "");
-      row.innerHTML =
-        '<input type="checkbox" ' + (td.done ? "checked" : "") + '>' +
-        '<span class="todo-text">' + escapeHtml(td.text) + '</span>' +
-        '<button class="del">✕</button>';
-      row.querySelector('input[type=checkbox]').addEventListener("change", function(ev){
-        td.done = ev.target.checked;
-        row.classList.toggle("done", td.done);
-      });
-      row.querySelector(".del").addEventListener("click", function(){
-        if(!confirm("Supprimer cette tâche ?")) return;
-        tempTodos.splice(idx,1); renderTodosEdit();
-      });
-      wrap.appendChild(row);
-    });
-  }
-  document.getElementById("f-todo-add").addEventListener("click", function(){
-    var input = document.getElementById("f-todo-input");
-    var val = input.value.trim();
-    if(val){ tempTodos.push({id:"td"+Date.now()+Math.floor(Math.random()*1000), text:val, done:false}); input.value = ""; renderTodosEdit(); }
-  });
-
   document.getElementById("panel-close").addEventListener("click", closePanel);
-  overlay.addEventListener("click", function(){ closePanel(); closeSettings(); closeViewPanel(); closeDayPanel(); });
+  overlay.addEventListener("click", function(){ closePanel(); closeSettings(); closeViewPanel(); closeDayPanel(); closeTodoPanel(); });
 
   document.getElementById("btn-save").addEventListener("click", function(){
     var data = {
-      type: document.getElementById("f-type").dataset.current || "instagram",
+      type: document.getElementById("f-type").dataset.current || "",
       date: document.getElementById("f-date").value,
       endDate: document.getElementById("f-end-date").value,
       status: document.getElementById("f-status-pills").dataset.current || "idea",
       title: document.getElementById("f-title").value.trim() || "Sans titre",
       location: document.getElementById("f-location").value.trim(),
-      caption: document.getElementById("f-caption").value,
       desc: document.getElementById("f-desc").value,
-      links: tempLinks.slice(),
-      todos: tempTodos.slice()
+      ics: document.getElementById("f-ics").value.trim()
     };
     if(data.endDate && data.date && data.endDate < data.date){ data.endDate = ""; }
     if(editingId){
@@ -1780,6 +1594,65 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function(){ if(currentView === "grid") render(); }, 150);
   }
+
+  // ---------------- Global family to-do ----------------
+  var todoPanel = document.getElementById("todo-panel");
+  function renderGlobalTodos(){
+    var wrap = document.getElementById("global-todo-list");
+    if(!wrap) return;
+    wrap.innerHTML = "";
+    if(!globalTodos.length){
+      wrap.innerHTML = '<p class="view-empty">Aucune tâche pour l’instant.</p>';
+      return;
+    }
+    globalTodos.forEach(function(td, idx){
+      var row = document.createElement("div");
+      row.className = "todo-row" + (td.done ? " done" : "");
+      row.innerHTML =
+        '<input type="checkbox" ' + (td.done ? "checked" : "") + '>' +
+        '<span class="todo-text">' + escapeHtml(td.text) + '</span>' +
+        '<button class="del">✕</button>';
+      row.querySelector('input[type=checkbox]').addEventListener("change", function(ev){
+        td.done = ev.target.checked;
+        row.classList.toggle("done", td.done);
+        saveGlobalTodos();
+        pushToCloud(true);
+      });
+      row.querySelector(".del").addEventListener("click", function(){
+        if(!confirm("Supprimer cette tâche ?")) return;
+        globalTodos.splice(idx,1);
+        saveGlobalTodos();
+        renderGlobalTodos();
+        pushToCloud(true);
+      });
+      wrap.appendChild(row);
+    });
+  }
+  function openTodoPanel(){
+    renderGlobalTodos();
+    overlay.classList.add("show");
+    todoPanel.classList.add("show");
+  }
+  function closeTodoPanel(){
+    todoPanel.classList.remove("show");
+    overlay.classList.remove("show");
+  }
+  document.getElementById("btn-todos").addEventListener("click", openTodoPanel);
+  document.getElementById("todo-close").addEventListener("click", closeTodoPanel);
+  document.getElementById("global-todo-add").addEventListener("click", function(){
+    var input = document.getElementById("global-todo-input");
+    var val = input.value.trim();
+    if(val){
+      globalTodos.push({id:"gt"+Date.now()+Math.floor(Math.random()*1000), text:val, done:false});
+      input.value = "";
+      saveGlobalTodos();
+      renderGlobalTodos();
+      pushToCloud(true);
+    }
+  });
+  document.getElementById("global-todo-input").addEventListener("keydown", function(ev){
+    if(ev.key === "Enter"){ document.getElementById("global-todo-add").click(); }
+  });
 
   // ---------------- Init ----------------
   loadLocal();
