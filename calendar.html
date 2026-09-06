@@ -780,6 +780,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   var todayForInit = new Date();
   var cursorDate = new Date(todayForInit.getFullYear(), todayForInit.getMonth(), 1);
   var editingId = null;
+  var pullInFlight = false;
 
   function getType(id){
     return types.find(function(t){ return t.id === id; }) || {id:id, label:id, color:"#9AA3B5"};
@@ -862,6 +863,8 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       if(!silent) alert("Renseigne d'abord l'URL du Worker et le token d'équipe dans les réglages.");
       return;
     }
+    pullInFlight = true;
+    setAddButtonsEnabled(false);
     setSyncStatus("Chargement depuis le cloud…");
     fetch(cfg.workerUrl, {
       headers:{ "X-App-Token": cfg.appToken }
@@ -885,12 +888,27 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       setSyncStatus("Synchronisé — dernière lecture réussie.");
     }).catch(function(err){
       setSyncStatus("Échec : " + err.message);
+    }).finally(function(){
+      pullInFlight = false;
+      setAddButtonsEnabled(true);
     });
+  }
+
+  function setAddButtonsEnabled(enabled){
+    var addBtn = document.getElementById("btn-add");
+    if(addBtn) addBtn.disabled = !enabled;
+    var todoAddBtn = document.getElementById("todo-new-add");
+    if(todoAddBtn) todoAddBtn.disabled = !enabled;
   }
 
   function pushToCloud(silent){
     if(!isCloudConfigured()){
       if(!silent) alert("Renseigne d'abord l'URL du Worker et le token d'équipe dans les réglages.");
+      return;
+    }
+    if(pullInFlight){
+      // Never push while a fetch from the cloud is still in flight — doing so would
+      // race the pull and could overwrite real cloud data with a stale/incomplete local state.
       return;
     }
     setSyncStatus("Enregistrement…");
