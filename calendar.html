@@ -1010,7 +1010,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       TIME_PRESETS.forEach(function(t){
         var chip = document.createElement("button");
         chip.type = "button";
-        chip.className = "dp-time-chip" + (t === currentTime ? " active" : "");
+        chip.className = "dp-time-chip" + (timeSet && t === currentTime ? " active" : "");
         chip.textContent = t.replace(":", "h");
         chip.addEventListener("click", function(ev){ ev.stopPropagation(); setTime(t); });
         timeRow.appendChild(chip);
@@ -1355,18 +1355,26 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     }
   }
 
+  var WEEKDAYS_FR_SHORT = ["dim","lun","mar","mer","jeu","ven","sam"];
   function formatShortDate(d){
     return d.getDate() + " " + MONTHS_FR[d.getMonth()].slice(0,3).toLowerCase();
+  }
+  function formatBadgeDate(d){
+    return WEEKDAYS_FR_SHORT[d.getDay()] + ", " + d.getDate() + " " + MONTHS_FR[d.getMonth()].slice(0,3).toLowerCase();
   }
   function makeListCard(e, showDate){
     var t = getType(e.type);
     var d = showDate ? parseISO(e.date) : null;
-    var rangeBadge = "";
-    if(d && e.endDate && e.endDate > e.date){
-      var ed = parseISO(e.endDate);
-      var s1 = formatShortDate(d) + (e.time ? ", " + e.time : "");
-      var s2 = formatShortDate(ed) + (e.endTime ? ", " + e.endTime : "");
-      rangeBadge = '<span class="date-range-badge">' + s1 + ' – ' + s2 + '</span>';
+    var dateBadge = "";
+    if(d){
+      if(e.endDate && e.endDate > e.date){
+        var ed = parseISO(e.endDate);
+        var s1 = formatBadgeDate(d) + (e.time ? ", " + e.time : "");
+        var s2 = formatBadgeDate(ed) + (e.endTime ? ", " + e.endTime : "");
+        dateBadge = '<span class="date-range-badge">' + s1 + ' – ' + s2 + '</span>';
+      } else {
+        dateBadge = '<span class="date-range-badge">' + formatBadgeDate(d) + '</span>';
+      }
     }
     var st = getStatus(e.status);
     var card = document.createElement("div");
@@ -1376,7 +1384,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       '<div class="list-body">' +
         '<p class="title">' + escapeHtml(e.title) + '</p>' +
         (e.desc ? '<div class="sub">' + escapeHtml(e.desc.slice(0,90)) + (e.desc.length>90?'…':'') + '</div>' : '') +
-        '<div class="row1"><span class="tag" style="background:' + hexToRgba(t.color,0.16) + ';color:' + shadeColor(t.color,-0.35) + '">' + escapeHtml(t.label) + '</span>' + rangeBadge + (e.status ? '<span class="status-dot" style="background:' + st.color + '"></span><span style="font-size:11px;color:var(--muted)">' + escapeHtml(st.label) + '</span>' : '') + '</div>' +
+        '<div class="row1"><span class="tag" style="background:' + hexToRgba(t.color,0.16) + ';color:' + shadeColor(t.color,-0.35) + '">' + escapeHtml(t.label) + '</span>' + dateBadge + (e.status ? '<span class="status-dot" style="background:' + st.color + '"></span><span style="font-size:11px;color:var(--muted)">' + escapeHtml(st.label) + '</span>' : '') + '</div>' +
       '</div>' +
       '<div class="chevron">›</div>';
     card.addEventListener("click", function(){ openViewPanel(e.id); });
@@ -1978,7 +1986,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     overlay.classList.add("show");
     settingsPanel.classList.add("show");
   }
-  function closeSettings(){ settingsPanel.classList.remove("show"); }
+  function closeSettings(){ settingsPanel.classList.remove("show"); overlay.classList.remove("show"); }
   document.getElementById("btn-settings").addEventListener("click", openSettings);
   document.getElementById("settings-close").addEventListener("click", closeSettings);
 
