@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Ekobo Calendar">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --navy:#2C3D2C;
@@ -56,8 +56,8 @@ a{color:inherit;}
   display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
 }
 .topbar .logo{display:flex; flex-direction:column; align-items:flex-start; gap:1px; min-width:0;}
-.topbar .logo-text{font-family:'Playfair Display',serif; font-weight:600; font-size:22px; letter-spacing:.02em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-.topbar .logo-sub{font-family:'Inter',sans-serif; font-size:11px; color:#a9b7d6; text-transform:uppercase; letter-spacing:.08em; margin-top:2px;}
+.topbar .logo-text{font-family:'Inter',sans-serif; font-weight:800; font-size:22px; letter-spacing:.02em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.topbar .logo-sub{font-family:'Inter',sans-serif; font-size:11px; color:#fff; text-transform:uppercase; letter-spacing:.08em; margin-top:2px;}
 .topbar-controls{display:flex; align-items:center; gap:12px; flex-shrink:0;}
 
 .view-toggle{
@@ -180,7 +180,69 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 }
 .empty .serif{font-size:19px; color:var(--navy-ink); margin-bottom:6px;}
 
-/* ---------- Detail panel ---------- */
+/* ---------- Dedicated to-do page ---------- */
+.todo-tabs{
+  display:flex; gap:26px; border-bottom:1px solid var(--line); margin-bottom:18px;
+}
+.todo-tab-btn{
+  background:none; border:none; padding:8px 2px 12px; font-size:15px; font-weight:700;
+  color:var(--muted); display:flex; align-items:center; gap:8px; border-bottom:2px solid transparent;
+  margin-bottom:-1px;
+}
+.todo-tab-btn.active{color:var(--navy-ink); border-bottom-color:var(--navy);}
+.todo-tab-btn .tab-count{
+  font-size:11.5px; font-weight:700; padding:1px 8px; border-radius:20px;
+  background:#E7E4DC; color:var(--muted);
+}
+.todo-tab-btn.active .tab-count{background:var(--navy); color:#fff;}
+
+.todo-add-row{display:flex; gap:10px; margin-bottom:14px;}
+.todo-add-row input[type=text]{
+  flex:1; border:1px solid var(--line); border-radius:9px; padding:12px 14px; font-size:14px;
+  font-family:inherit; background:#fff; color:var(--navy-ink);
+}
+.todo-add-row #todo-new-add{
+  background:var(--navy); color:#fff; border:none; border-radius:9px; padding:0 18px;
+  font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:5px; white-space:nowrap;
+}
+.sync-btn-outline{
+  background:#fff; border:1px solid var(--line); color:var(--navy); border-radius:9px;
+  width:44px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+}
+.todo-sync-indicator{
+  font-size:12px; font-weight:600; margin-bottom:16px; display:flex; align-items:center; gap:5px; min-height:16px;
+}
+
+.todo-card{
+  background:#fff; border:1px solid var(--line); border-radius:12px; margin-bottom:10px; overflow:hidden;
+}
+.todo-card-head{display:flex; align-items:center; gap:12px; padding:14px 16px;}
+.todo-card-title{flex:1; font-weight:600; font-size:14.5px; color:var(--navy-ink);}
+.todo-card-title.done{text-decoration:line-through; color:var(--muted);}
+.todo-card-badge{
+  font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; background:#EDF0E8; color:var(--muted);
+  flex-shrink:0;
+}
+.todo-icon-btn{
+  background:none; border:none; color:var(--muted); width:26px; height:26px; border-radius:6px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.todo-icon-btn:hover{background:#F3F1EB; color:var(--navy);}
+.todo-chevron-btn svg{transition:transform .15s ease;}
+.todo-chevron-btn.open svg{transform:rotate(180deg);}
+.todo-card-body{padding:0 16px 18px; border-top:1px solid var(--line);}
+.todo-card-body .field{margin-top:16px; margin-bottom:0;}
+.todo-card-body label{
+  display:block; font-size:10.5px; font-weight:700; color:var(--muted); text-transform:uppercase;
+  letter-spacing:.05em; margin-bottom:7px;
+}
+.todo-card-body textarea{
+  width:100%; border:1px solid var(--line); border-radius:9px; padding:10px 12px; font-size:13.5px;
+  font-family:inherit; background:#fff; color:var(--navy-ink); resize:vertical; min-height:64px;
+}
+.td-delete-task{width:100%; margin-top:18px;}
+
+
 .overlay{
   position:fixed; inset:0; background:rgba(11,27,58,.4); z-index:80; display:none;
 }
@@ -207,8 +269,8 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   .panel .panel-body{max-height:calc(85vh - 130px);}
 }
 
-/* View, day & todo panels: popup card style at every screen size */
-#view-panel, #day-panel, #todo-panel{
+/* View & day panels: popup card style at every screen size */
+#view-panel, #day-panel{
   top:50%; left:50%; right:auto; bottom:auto;
   width:92vw; max-width:420px; max-height:82vh;
   border-radius:20px; overflow:hidden;
@@ -216,13 +278,13 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   transition:transform .22s ease, opacity .18s ease;
   box-shadow:0 24px 60px rgba(11,27,58,.32);
 }
-#view-panel.show, #day-panel.show, #todo-panel.show{
+#view-panel.show, #day-panel.show{
   transform:translate(-50%,-50%) scale(1); opacity:1; pointer-events:auto;
 }
 #view-panel .panel-body{max-height:calc(82vh - 136px);}
-#day-panel .panel-body, #todo-panel .panel-body{max-height:calc(82vh - 66px);}
+#day-panel .panel-body{max-height:calc(82vh - 66px);}
 @media (min-width: 781px){
-  #view-panel, #day-panel, #todo-panel{width:480px; max-width:480px;}
+  #view-panel, #day-panel{width:480px; max-width:480px;}
 }
 .panel-head{
   background:var(--navy); color:#fff; padding:18px 20px; display:flex; align-items:center; gap:12px;
@@ -394,7 +456,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     <div class="topbar-inner">
       <div class="logo">
         <div class="logo-text">EKOBO</div>
-        <div class="logo-sub">Calendrier familial</div>
+        <div class="logo-sub">Calendrier &amp; Todo list</div>
       </div>
       <div class="topbar-controls">
         <div class="view-toggle">
@@ -421,21 +483,42 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   <div class="filters" id="filters"></div>
 
   <main>
-    <div class="month-nav">
-      <button id="prev-month">‹</button>
-      <div class="month-nav-center">
-        <h2 id="month-label" title="Revenir au mois actuel"></h2>
-        <div id="month-count-badge" class="month-count-badge" style="display:none;"></div>
+    <div id="calendar-view">
+      <div class="month-nav">
+        <button id="prev-month">‹</button>
+        <div class="month-nav-center">
+          <h2 id="month-label" title="Revenir au mois actuel"></h2>
+          <div id="month-count-badge" class="month-count-badge" style="display:none;"></div>
+        </div>
+        <button id="next-month">›</button>
       </div>
-      <button id="next-month">›</button>
+
+      <div class="grid-view" id="grid-view">
+        <div class="dow-row"><div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div></div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+
+      <div class="list-view" id="list-view" style="display:none;"></div>
     </div>
 
-    <div class="grid-view" id="grid-view">
-      <div class="dow-row"><div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div></div>
-      <div class="cal-grid" id="cal-grid"></div>
-    </div>
+    <div id="todo-page" style="display:none;">
+      <div class="todo-tabs">
+        <button class="todo-tab-btn active" data-tab="todo">À faire <span class="tab-count" id="tab-count-todo">0</span></button>
+        <button class="todo-tab-btn" data-tab="done">Fait <span class="tab-count" id="tab-count-done">0</span></button>
+        <button class="todo-tab-btn" data-tab="all">Toutes <span class="tab-count" id="tab-count-all">0</span></button>
+      </div>
 
-    <div class="list-view" id="list-view" style="display:none;"></div>
+      <div class="todo-add-row">
+        <input type="text" id="todo-new-input" placeholder="Nouvelle tâche…">
+        <button id="todo-new-add"><span class="add-icon">+</span> Ajouter</button>
+        <button class="sync-btn-outline" id="todo-sync-btn" title="Resynchroniser">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        </button>
+      </div>
+      <div class="todo-sync-indicator" id="todo-sync-indicator"></div>
+
+      <div id="todo-cards"></div>
+    </div>
   </main>
 </div>
 
@@ -461,21 +544,6 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     <div class="ph-title" id="day-title-label">Jour</div>
   </div>
   <div class="panel-body" id="day-body"></div>
-</div>
-
-<!-- Global family to-do panel -->
-<div class="panel" id="todo-panel">
-  <div class="panel-head">
-    <button class="close" id="todo-close">✕</button>
-    <div class="ph-title">Tâches familiales</div>
-  </div>
-  <div class="panel-body">
-    <div class="todo-list" id="global-todo-list"></div>
-    <div class="add-todo-row">
-      <input type="text" id="global-todo-input" placeholder="Ajouter une tâche…">
-      <button id="global-todo-add">Ajouter</button>
-    </div>
-  </div>
 </div>
 
 <!-- Detail / edit panel -->
@@ -713,7 +781,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       renderTypesList();
       renderStatusesList();
       renderFilters();
-      renderGlobalTodos();
+      if(onTodoPage) renderTodoCards();
       setSyncStatus("Synchronisé — dernière lecture réussie.");
     }).catch(function(err){
       setSyncStatus("Échec : " + err.message);
@@ -749,6 +817,13 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       document.querySelector("#settings-panel .panel-body").appendChild(el);
     }
     el.textContent = msg;
+    var todoEl = document.getElementById("todo-sync-indicator");
+    if(todoEl){
+      var isError = msg.toLowerCase().indexOf("échec") > -1;
+      var isSynced = msg.toLowerCase().indexOf("synchronis") > -1;
+      todoEl.textContent = (isSynced ? "✓ " : "") + msg;
+      todoEl.style.color = isError ? "var(--coral)" : (isSynced ? "#3f8f5e" : "var(--muted)");
+    }
   }
 
   // ---------------- Rendering ----------------
@@ -1326,7 +1401,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   });
 
   document.getElementById("panel-close").addEventListener("click", closePanel);
-  overlay.addEventListener("click", function(){ closePanel(); closeSettings(); closeViewPanel(); closeDayPanel(); closeTodoPanel(); });
+  overlay.addEventListener("click", function(){ closePanel(); closeSettings(); closeViewPanel(); closeDayPanel(); });
 
   document.getElementById("btn-save").addEventListener("click", function(){
     var data = {
@@ -1601,63 +1676,247 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     resizeTimer = setTimeout(function(){ if(currentView === "grid") render(); }, 150);
   }
 
-  // ---------------- Global family to-do ----------------
-  var todoPanel = document.getElementById("todo-panel");
-  function renderGlobalTodos(){
-    var wrap = document.getElementById("global-todo-list");
-    if(!wrap) return;
+  // ---------------- Dedicated to-do page ----------------
+  var onTodoPage = false;
+  var currentTodoTab = "todo";
+  var expandedTodoIds = {};
+
+  function ensureTodoShape(td){
+    if(td.desc === undefined) td.desc = "";
+    if(!Array.isArray(td.links)) td.links = [];
+    if(!Array.isArray(td.subtasks)) td.subtasks = [];
+    return td;
+  }
+  function subtaskCounts(td){
+    var total = td.subtasks.length;
+    var done = td.subtasks.filter(function(s){ return s.done; }).length;
+    return {done:done, total:total};
+  }
+  function currentTodoList(){
+    if(currentTodoTab === "todo") return globalTodos.filter(function(t){ return !t.done; });
+    if(currentTodoTab === "done") return globalTodos.filter(function(t){ return t.done; });
+    return globalTodos.slice();
+  }
+  function renderTodoTabs(){
+    document.getElementById("tab-count-todo").textContent = globalTodos.filter(function(t){ return !t.done; }).length;
+    document.getElementById("tab-count-done").textContent = globalTodos.filter(function(t){ return t.done; }).length;
+    document.getElementById("tab-count-all").textContent = globalTodos.length;
+  }
+
+  function renderTodoCards(){
+    renderTodoTabs();
+    var wrap = document.getElementById("todo-cards");
     wrap.innerHTML = "";
-    if(!globalTodos.length){
-      wrap.innerHTML = '<p class="view-empty">Aucune tâche pour l’instant.</p>';
+    var list = currentTodoList();
+    if(!list.length){
+      wrap.innerHTML = '<div class="empty"><div class="serif">Rien ici</div>Ajoute une tâche pour commencer.</div>';
       return;
     }
-    globalTodos.forEach(function(td, idx){
-      var row = document.createElement("div");
-      row.className = "todo-row" + (td.done ? " done" : "");
-      row.innerHTML =
-        '<input type="checkbox" ' + (td.done ? "checked" : "") + '>' +
-        '<span class="todo-text">' + escapeHtml(td.text) + '</span>' +
-        '<button class="del">✕</button>';
-      row.querySelector('input[type=checkbox]').addEventListener("change", function(ev){
+    list.forEach(function(td){
+      ensureTodoShape(td);
+      var counts = subtaskCounts(td);
+      var expanded = !!expandedTodoIds[td.id];
+
+      var card = document.createElement("div");
+      card.className = "todo-card";
+
+      var head = document.createElement("div");
+      head.className = "todo-card-head";
+      head.innerHTML =
+        '<input type="checkbox" class="todo-main-check" ' + (td.done ? "checked" : "") + '>' +
+        '<span class="todo-card-title' + (td.done ? " done" : "") + '">' + escapeHtml(td.text) + '</span>' +
+        (counts.total ? '<span class="todo-card-badge">' + counts.done + '/' + counts.total + '</span>' : '') +
+        '<button class="todo-icon-btn todo-edit-btn" title="Modifier"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>' +
+        '<button class="todo-icon-btn todo-chevron-btn' + (expanded ? " open" : "") + '" title="Détails"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>';
+      card.appendChild(head);
+
+      head.querySelector(".todo-main-check").addEventListener("change", function(ev){
         td.done = ev.target.checked;
-        row.classList.toggle("done", td.done);
         saveGlobalTodos();
+        renderTodoCards();
         pushToCloud(true);
       });
-      row.querySelector(".del").addEventListener("click", function(){
-        if(!confirm("Supprimer cette tâche ?")) return;
-        globalTodos.splice(idx,1);
-        saveGlobalTodos();
-        renderGlobalTodos();
-        pushToCloud(true);
-      });
-      wrap.appendChild(row);
+      function toggleExpand(){
+        expandedTodoIds[td.id] = !expandedTodoIds[td.id];
+        renderTodoCards();
+      }
+      head.querySelector(".todo-edit-btn").addEventListener("click", toggleExpand);
+      head.querySelector(".todo-chevron-btn").addEventListener("click", toggleExpand);
+
+      if(expanded){
+        var body = document.createElement("div");
+        body.className = "todo-card-body";
+        body.innerHTML =
+          '<div class="field"><label>Description</label><textarea class="td-desc" placeholder="Notes, détails…">' + escapeHtml(td.desc) + '</textarea></div>' +
+          '<div class="field"><label>Liens</label>' +
+            '<div class="links-list td-links-list"></div>' +
+            '<div class="add-link-row"><input type="url" class="td-link-input" placeholder="https://…"><button class="td-link-add">+ Ajouter</button></div>' +
+          '</div>' +
+          '<div class="field"><label>Sous-tâches</label>' +
+            '<div class="todo-list td-subtasks-list"></div>' +
+            '<div class="add-todo-row"><input type="text" class="td-subtask-input" placeholder="Nouvelle sous-tâche…"><button class="td-subtask-add">+ Ajouter</button></div>' +
+          '</div>' +
+          '<button class="btn-secondary td-delete-task">Supprimer la tâche</button>';
+        card.appendChild(body);
+
+        var descEl = body.querySelector(".td-desc");
+        descEl.addEventListener("blur", function(){
+          td.desc = descEl.value;
+          saveGlobalTodos();
+          pushToCloud(true);
+        });
+
+        function renderTdLinks(){
+          var lwrap = body.querySelector(".td-links-list");
+          lwrap.innerHTML = "";
+          td.links.forEach(function(l, idx){
+            var row = document.createElement("div");
+            row.className = "link-row";
+            row.innerHTML = '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener">' + escapeHtml(l.url) + '</a><button data-idx="' + idx + '">✕</button>';
+            row.querySelector("button").addEventListener("click", function(){
+              td.links.splice(idx,1);
+              saveGlobalTodos(); renderTdLinks(); pushToCloud(true);
+            });
+            lwrap.appendChild(row);
+          });
+        }
+        renderTdLinks();
+        body.querySelector(".td-link-add").addEventListener("click", function(){
+          var input = body.querySelector(".td-link-input");
+          var val = input.value.trim();
+          if(val){
+            td.links.push({url:val});
+            input.value = "";
+            saveGlobalTodos(); renderTdLinks(); pushToCloud(true);
+          }
+        });
+
+        function renderTdSubtasks(){
+          var swrap = body.querySelector(".td-subtasks-list");
+          swrap.innerHTML = "";
+          td.subtasks.forEach(function(st, idx){
+            var row = document.createElement("div");
+            row.className = "todo-row" + (st.done ? " done" : "");
+            row.innerHTML =
+              '<input type="checkbox" ' + (st.done ? "checked" : "") + '>' +
+              '<span class="todo-text">' + escapeHtml(st.text) + '</span>' +
+              '<button class="edit-sub" title="Modifier"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>' +
+              '<button class="del">✕</button>';
+            row.querySelector('input[type=checkbox]').addEventListener("change", function(ev){
+              st.done = ev.target.checked;
+              saveGlobalTodos();
+              renderTodoCards();
+              pushToCloud(true);
+            });
+            row.querySelector(".edit-sub").addEventListener("click", function(){
+              var span = row.querySelector(".todo-text");
+              var inp = document.createElement("input");
+              inp.type = "text";
+              inp.value = st.text;
+              inp.className = "tname-input";
+              span.replaceWith(inp);
+              inp.focus();
+              function commit(){
+                var val = inp.value.trim();
+                if(val) st.text = val;
+                saveGlobalTodos();
+                renderTdSubtasks();
+                pushToCloud(true);
+              }
+              inp.addEventListener("blur", commit);
+              inp.addEventListener("keydown", function(e){ if(e.key === "Enter") inp.blur(); });
+            });
+            row.querySelector(".del").addEventListener("click", function(){
+              if(!confirm("Supprimer cette sous-tâche ?")) return;
+              td.subtasks.splice(idx,1);
+              saveGlobalTodos(); renderTdSubtasks(); renderTodoCards(); pushToCloud(true);
+            });
+            swrap.appendChild(row);
+          });
+        }
+        renderTdSubtasks();
+        body.querySelector(".td-subtask-add").addEventListener("click", function(){
+          var input = body.querySelector(".td-subtask-input");
+          var val = input.value.trim();
+          if(val){
+            td.subtasks.push({id:"st" + Date.now() + Math.floor(Math.random()*1000), text:val, done:false});
+            input.value = "";
+            saveGlobalTodos(); renderTdSubtasks(); renderTodoCards(); pushToCloud(true);
+          }
+        });
+
+        body.querySelector(".td-delete-task").addEventListener("click", function(){
+          if(!confirm("Supprimer cette tâche ?")) return;
+          globalTodos = globalTodos.filter(function(x){ return x.id !== td.id; });
+          delete expandedTodoIds[td.id];
+          saveGlobalTodos(); renderTodoCards(); pushToCloud(true);
+        });
+      }
+
+      wrap.appendChild(card);
     });
   }
-  function openTodoPanel(){
-    renderGlobalTodos();
-    overlay.classList.add("show");
-    todoPanel.classList.add("show");
-  }
-  function closeTodoPanel(){
-    todoPanel.classList.remove("show");
-    overlay.classList.remove("show");
-  }
-  document.getElementById("btn-todos").addEventListener("click", openTodoPanel);
-  document.getElementById("todo-close").addEventListener("click", closeTodoPanel);
-  document.getElementById("global-todo-add").addEventListener("click", function(){
-    var input = document.getElementById("global-todo-input");
+
+  document.querySelectorAll(".todo-tab-btn").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      document.querySelectorAll(".todo-tab-btn").forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      currentTodoTab = btn.dataset.tab;
+      renderTodoCards();
+    });
+  });
+
+  document.getElementById("todo-new-add").addEventListener("click", function(){
+    var input = document.getElementById("todo-new-input");
     var val = input.value.trim();
     if(val){
-      globalTodos.push({id:"gt"+Date.now()+Math.floor(Math.random()*1000), text:val, done:false});
+      globalTodos.push({id:"gt" + Date.now() + Math.floor(Math.random()*1000), text:val, done:false, desc:"", links:[], subtasks:[]});
       input.value = "";
       saveGlobalTodos();
-      renderGlobalTodos();
+      renderTodoCards();
       pushToCloud(true);
     }
   });
-  document.getElementById("global-todo-input").addEventListener("keydown", function(ev){
-    if(ev.key === "Enter"){ document.getElementById("global-todo-add").click(); }
+  document.getElementById("todo-new-input").addEventListener("keydown", function(ev){
+    if(ev.key === "Enter"){ document.getElementById("todo-new-add").click(); }
+  });
+  document.getElementById("todo-sync-btn").addEventListener("click", function(){
+    pullFromCloud();
+  });
+
+  function updateTodoToggleIcon(){
+    var btn = document.getElementById("btn-todos");
+    if(onTodoPage){
+      btn.title = "Retour au calendrier";
+      btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>';
+    } else {
+      btn.title = "Tâches familiales";
+      btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    }
+  }
+  function showTodoPage(){
+    onTodoPage = true;
+    document.getElementById("calendar-view").style.display = "none";
+    document.getElementById("filters").style.display = "none";
+    document.getElementById("todo-page").style.display = "block";
+    document.querySelector(".view-toggle").style.display = "none";
+    document.getElementById("btn-add").style.display = "none";
+    updateTodoToggleIcon();
+    renderTodoCards();
+    if(isCloudConfigured()) pullFromCloud(true);
+  }
+  function showCalendarView(){
+    onTodoPage = false;
+    document.getElementById("todo-page").style.display = "none";
+    document.getElementById("calendar-view").style.display = "";
+    document.getElementById("filters").style.display = "";
+    document.querySelector(".view-toggle").style.display = "";
+    document.getElementById("btn-add").style.display = "";
+    updateTodoToggleIcon();
+    render();
+  }
+  document.getElementById("btn-todos").addEventListener("click", function(){
+    if(onTodoPage) showCalendarView(); else showTodoPage();
   });
 
   // ---------------- Init ----------------
