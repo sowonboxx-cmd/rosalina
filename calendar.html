@@ -176,9 +176,13 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 .list-date .d{font-family:'Inter',sans-serif; font-weight:700; font-size:20px; line-height:1;}
 .list-date .m{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
 .list-body{flex:1; min-width:0;}
-.list-body .row1{display:flex; align-items:center; gap:8px; margin-top:6px;}
+.list-body .row1{display:flex; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap;}
 .tag{
   font-size:9.5px; font-weight:700; padding:2px 8px; border-radius:20px; text-transform:uppercase; letter-spacing:.03em;
+}
+.date-range-badge{
+  font-size:10px; font-weight:700; padding:2px 9px; border-radius:20px; background:#EDF0F8; color:var(--navy);
+  white-space:nowrap;
 }
 .status-dot{width:7px; height:7px; border-radius:50%; flex-shrink:0;}
 .list-body .title{font-weight:600; font-size:14.5px; margin:0;}
@@ -298,6 +302,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 }
 .panel-head{
   background:var(--navy); color:#fff; padding:18px 20px; display:flex; align-items:center; gap:12px;
+  padding-top:calc(18px + env(safe-area-inset-top));
 }
 .panel-head button.close{
   background:rgba(255,255,255,.12); border:none; color:#fff; width:30px; height:30px; border-radius:50%; font-size:15px;
@@ -570,9 +575,6 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       <div class="todo-add-row">
         <input type="text" id="todo-new-input" placeholder="Nouvelle tâche…">
         <button id="todo-new-add"><span class="add-icon">+</span> Ajouter</button>
-        <button class="sync-btn-outline" id="todo-sync-btn" title="Resynchroniser">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-        </button>
       </div>
       <div class="todo-sync-indicator" id="todo-sync-indicator"></div>
 
@@ -978,21 +980,30 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     var todayBtn = document.getElementById(prefix + "-today");
     var viewDate = new Date();
     var currentTime = "12:00";
+    var timeSet = false;
 
     function getIso(){ return input.dataset.iso || ""; }
     function getTime(){ return currentTime; }
     function updateDisplay(){
       var iso = getIso();
-      input.value = iso ? (formatDateFR(iso) + " · " + currentTime.replace(":", "h")) : "";
+      input.value = iso ? (formatDateFR(iso) + (timeSet ? " · " + currentTime.replace(":", "h") : "")) : "";
     }
     function setIso(iso){
       input.dataset.iso = iso || "";
+      if(!iso){ currentTime = "12:00"; timeSet = false; renderTimeChips(); }
       updateDisplay();
     }
     function setTime(t){
       currentTime = t || "12:00";
+      timeSet = true;
       updateDisplay();
       renderTimeChips();
+    }
+    function resetTime(){
+      currentTime = "12:00";
+      timeSet = false;
+      renderTimeChips();
+      updateDisplay();
     }
     function renderTimeChips(){
       timeRow.innerHTML = "";
@@ -1067,10 +1078,10 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     });
     prevBtn.addEventListener("click", function(ev){ ev.stopPropagation(); viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()-1, 1); renderGrid(); });
     nextBtn.addEventListener("click", function(ev){ ev.stopPropagation(); viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()+1, 1); renderGrid(); });
-    clearBtn.addEventListener("click", function(){ setIso(""); closePopover(); });
+    clearBtn.addEventListener("click", function(ev){ ev.stopPropagation(); setIso(""); renderGrid(); });
     todayBtn.addEventListener("click", function(){ closePopover(); });
 
-    return { getIso:getIso, setIso:setIso, getTime:getTime, setTime:setTime, close:closePopover };
+    return { getIso:getIso, setIso:setIso, getTime:getTime, setTime:setTime, resetTime:resetTime, close:closePopover };
   }
   document.addEventListener("click", function(ev){
     document.querySelectorAll(".date-popover.show").forEach(function(p){
@@ -1324,8 +1335,10 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
           var t = getType(bar.entry.type);
           var barEl = document.createElement("div");
           barEl.className = "cal-bar" + (bar.contLeft ? " cont-left" : "") + (bar.contRight ? " cont-right" : "");
-          barEl.style.left = (bar.startCol * 100 / 7) + "%";
-          barEl.style.width = (bar.span * 100 / 7) + "%";
+          var leftInset = bar.contLeft ? 0 : 6;
+          var rightInset = bar.contRight ? 0 : 6;
+          barEl.style.left = "calc(" + (bar.startCol * 100 / 7) + "% + " + leftInset + "px)";
+          barEl.style.width = "calc(" + (bar.span * 100 / 7) + "% - " + (leftInset + rightInset) + "px)";
           barEl.style.top = (26 + bar.lane * 21) + "px";
           barEl.style.background = shadeColor(t.color, -0.08);
           barEl.textContent = bar.entry.title;
@@ -1342,23 +1355,28 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     }
   }
 
+  function formatShortDate(d){
+    return d.getDate() + " " + MONTHS_FR[d.getMonth()].slice(0,3).toLowerCase();
+  }
   function makeListCard(e, showDate){
     var t = getType(e.type);
     var d = showDate ? parseISO(e.date) : null;
-    var endLabel = "";
+    var rangeBadge = "";
     if(d && e.endDate && e.endDate > e.date){
       var ed = parseISO(e.endDate);
-      endLabel = '<div class="m" style="margin-top:2px;">→ ' + ed.getDate() + ' ' + MONTHS_FR[ed.getMonth()].slice(0,3) + '</div>';
+      var s1 = formatShortDate(d) + (e.time ? ", " + e.time : "");
+      var s2 = formatShortDate(ed) + (e.endTime ? ", " + e.endTime : "");
+      rangeBadge = '<span class="date-range-badge">' + s1 + ' – ' + s2 + '</span>';
     }
     var st = getStatus(e.status);
     var card = document.createElement("div");
     card.className = "list-card";
     card.innerHTML =
-      (d ? '<div class="list-date"><div class="d">' + d.getDate() + '</div><div class="m">' + MONTHS_FR[d.getMonth()].slice(0,3) + '</div>' + endLabel + '</div>' : '') +
+      (d ? '<div class="list-date"><div class="d">' + d.getDate() + '</div><div class="m">' + MONTHS_FR[d.getMonth()].slice(0,3) + '</div></div>' : '') +
       '<div class="list-body">' +
         '<p class="title">' + escapeHtml(e.title) + '</p>' +
         (e.desc ? '<div class="sub">' + escapeHtml(e.desc.slice(0,90)) + (e.desc.length>90?'…':'') + '</div>' : '') +
-        '<div class="row1"><span class="tag" style="background:' + hexToRgba(t.color,0.16) + ';color:' + shadeColor(t.color,-0.35) + '">' + escapeHtml(t.label) + '</span>' + (e.status ? '<span class="status-dot" style="background:' + st.color + '"></span><span style="font-size:11px;color:var(--muted)">' + escapeHtml(st.label) + '</span>' : '') + '</div>' +
+        '<div class="row1"><span class="tag" style="background:' + hexToRgba(t.color,0.16) + ';color:' + shadeColor(t.color,-0.35) + '">' + escapeHtml(t.label) + '</span>' + rangeBadge + (e.status ? '<span class="status-dot" style="background:' + st.color + '"></span><span style="font-size:11px;color:var(--muted)">' + escapeHtml(st.label) + '</span>' : '') + '</div>' +
       '</div>' +
       '<div class="chevron">›</div>';
     card.addEventListener("click", function(){ openViewPanel(e.id); });
@@ -1650,8 +1668,13 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     document.getElementById("panel-title").textContent = e ? "Modifier l'événement" : "Nouvel événement";
     fDatePicker.setIso(e ? e.date : (presetDate || ""));
     fEndDatePicker.setIso(e && e.endDate ? e.endDate : "");
-    fDatePicker.setTime(e && e.time ? e.time : "12:00");
-    fEndDatePicker.setTime(e && e.endTime ? e.endTime : "12:00");
+    if(e){
+      fDatePicker.setTime(e.time || "12:00");
+      fEndDatePicker.setTime(e.endTime || "12:00");
+    } else {
+      fDatePicker.resetTime();
+      fEndDatePicker.resetTime();
+    }
     document.getElementById("f-title").value = e ? e.title : "";
     document.getElementById("f-location").value = e ? (e.location||"") : "";
     document.getElementById("f-desc").value = e ? (e.desc||"") : "";
@@ -1699,7 +1722,11 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     document.getElementById("f-status-pills").dataset.current = v;
   }
   document.getElementById("f-status-pills").addEventListener("click", function(ev){
-    if(ev.target.classList.contains("pill-opt")) setStatusVal(ev.target.dataset.val);
+    if(ev.target.classList.contains("pill-opt")){
+      var current = document.getElementById("f-status-pills").dataset.current;
+      var val = ev.target.dataset.val;
+      setStatusVal(val === current ? "" : val);
+    }
   });
   function setTypeVal(v){
     document.querySelectorAll("#f-type .pill-opt").forEach(function(b){
@@ -2221,9 +2248,6 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   document.getElementById("todo-new-input").addEventListener("keydown", function(ev){
     if(ev.key === "Enter"){ document.getElementById("todo-new-add").click(); }
   });
-  document.getElementById("todo-sync-btn").addEventListener("click", function(){
-    pullFromCloud();
-  });
 
   function updateTodoToggleIcon(){
     var btn = document.getElementById("btn-todos");
@@ -2267,6 +2291,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     currentFilter = "all";
     renderFilters();
     render();
+    if(isCloudConfigured()) pullFromCloud(true);
   });
 
   // ---------------- Init ----------------
