@@ -173,6 +173,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 .list-date{
   min-width:46px; text-align:center; padding-top:1px;
 }
+.list-date .dow{font-size:9px; font-weight:600; color:#b7bcc7; text-transform:uppercase; letter-spacing:.06em; margin-bottom:1px;}
 .list-date .d{font-family:'Inter',sans-serif; font-weight:700; font-size:20px; line-height:1;}
 .list-date .m{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;}
 .list-body{flex:1; min-width:0;}
@@ -983,7 +984,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     var timeSet = false;
 
     function getIso(){ return input.dataset.iso || ""; }
-    function getTime(){ return currentTime; }
+    function getTime(){ return timeSet ? currentTime : ""; }
     function updateDisplay(){
       var iso = getIso();
       input.value = iso ? (formatDateFR(iso) + (timeSet ? " · " + currentTime.replace(":", "h") : "")) : "";
@@ -1359,28 +1360,21 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   function formatShortDate(d){
     return d.getDate() + " " + MONTHS_FR[d.getMonth()].slice(0,3).toLowerCase();
   }
-  function formatBadgeDate(d){
-    return WEEKDAYS_FR_SHORT[d.getDay()] + ", " + d.getDate() + " " + MONTHS_FR[d.getMonth()].slice(0,3).toLowerCase();
-  }
   function makeListCard(e, showDate){
     var t = getType(e.type);
     var d = showDate ? parseISO(e.date) : null;
     var dateBadge = "";
-    if(d){
-      if(e.endDate && e.endDate > e.date){
-        var ed = parseISO(e.endDate);
-        var s1 = formatBadgeDate(d) + (e.time ? ", " + e.time : "");
-        var s2 = formatBadgeDate(ed) + (e.endTime ? ", " + e.endTime : "");
-        dateBadge = '<span class="date-range-badge">' + s1 + ' – ' + s2 + '</span>';
-      } else {
-        dateBadge = '<span class="date-range-badge">' + formatBadgeDate(d) + '</span>';
-      }
+    if(d && e.endDate && e.endDate > e.date){
+      var ed = parseISO(e.endDate);
+      var s1 = formatShortDate(d) + (e.time ? ", " + e.time : "");
+      var s2 = formatShortDate(ed) + (e.endTime ? ", " + e.endTime : "");
+      dateBadge = '<span class="date-range-badge">' + s1 + ' – ' + s2 + '</span>';
     }
     var st = getStatus(e.status);
     var card = document.createElement("div");
     card.className = "list-card";
     card.innerHTML =
-      (d ? '<div class="list-date"><div class="d">' + d.getDate() + '</div><div class="m">' + MONTHS_FR[d.getMonth()].slice(0,3) + '</div></div>' : '') +
+      (d ? '<div class="list-date"><div class="dow">' + WEEKDAYS_FR_SHORT[d.getDay()] + '</div><div class="d">' + d.getDate() + '</div><div class="m">' + MONTHS_FR[d.getMonth()].slice(0,3) + '</div></div>' : '') +
       '<div class="list-body">' +
         '<p class="title">' + escapeHtml(e.title) + '</p>' +
         (e.desc ? '<div class="sub">' + escapeHtml(e.desc.slice(0,90)) + (e.desc.length>90?'…':'') + '</div>' : '') +
