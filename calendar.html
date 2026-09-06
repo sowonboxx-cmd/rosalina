@@ -27,7 +27,7 @@
   --shadow:0 1px 2px rgba(16,40,94,.06), 0 8px 24px rgba(16,40,94,.06);
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-html,body{margin:0;padding:0;}
+html,body{margin:0;padding:0; touch-action:manipulation;}
 body{
   background:var(--cream);
   color:var(--navy-ink);
@@ -613,8 +613,8 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   </div>
   <div class="panel-body">
     <div class="field">
-      <label>Qui ?</label>
-      <div class="pill-group" id="f-type"></div>
+      <label>Titre</label>
+      <input type="text" id="f-title" placeholder="Ex : Anniversaire de Léo">
     </div>
     <div class="field-row">
       <div class="field">
@@ -637,7 +637,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
             <div class="dp-time-row" id="f-date-time-row"></div>
             <div class="dp-footer">
               <button type="button" class="dp-link" id="f-date-clear">Effacer</button>
-              <button type="button" class="dp-link" id="f-date-today">Aujourd'hui</button>
+              <button type="button" class="dp-link" id="f-date-today">Valider</button>
             </div>
           </div>
         </div>
@@ -663,20 +663,19 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
             <div class="dp-time-row" id="f-end-date-time-row"></div>
             <div class="dp-footer">
               <button type="button" class="dp-link" id="f-end-date-clear">Effacer</button>
-              <button type="button" class="dp-link" id="f-end-date-today">Aujourd'hui</button>
+              <button type="button" class="dp-link" id="f-end-date-today">Valider</button>
             </div>
           </div>
         </div>
-        <small>Pour un événement sur plusieurs jours.</small>
       </div>
     </div>
     <div class="field">
-      <label>Statut</label>
+      <label>Tag</label>
       <div class="pill-group" id="f-status-pills"></div>
     </div>
     <div class="field">
-      <label>Titre</label>
-      <input type="text" id="f-title" placeholder="Ex : Anniversaire de Léo">
+      <label>Qui ?</label>
+      <div class="pill-group" id="f-type"></div>
     </div>
     <div class="field">
       <label>Google Maps</label>
@@ -1002,7 +1001,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
         chip.type = "button";
         chip.className = "dp-time-chip" + (t === currentTime ? " active" : "");
         chip.textContent = t.replace(":", "h");
-        chip.addEventListener("click", function(){ setTime(t); });
+        chip.addEventListener("click", function(ev){ ev.stopPropagation(); setTime(t); });
         timeRow.appendChild(chip);
       });
     }
@@ -1027,9 +1026,10 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
         btn.type = "button";
         btn.className = "dp-day" + (c.out ? " out" : "") + (iso === todayISO ? " today" : "") + (iso === selIso ? " selected" : "");
         btn.textContent = c.day;
-        btn.addEventListener("click", function(){
+        btn.addEventListener("click", function(ev){
+          ev.stopPropagation();
           setIso(iso);
-          closePopover();
+          renderGrid();
         });
         grid.appendChild(btn);
       });
@@ -1060,10 +1060,15 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       if(icon.disabled) return;
       if(popover.classList.contains("show")) closePopover(); else openPopover();
     });
-    prevBtn.addEventListener("click", function(){ viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()-1, 1); renderGrid(); });
-    nextBtn.addEventListener("click", function(){ viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()+1, 1); renderGrid(); });
+    input.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      if(icon.disabled) return;
+      if(!popover.classList.contains("show")) openPopover();
+    });
+    prevBtn.addEventListener("click", function(ev){ ev.stopPropagation(); viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()-1, 1); renderGrid(); });
+    nextBtn.addEventListener("click", function(ev){ ev.stopPropagation(); viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()+1, 1); renderGrid(); });
     clearBtn.addEventListener("click", function(){ setIso(""); closePopover(); });
-    todayBtn.addEventListener("click", function(){ setIso(fmtISO(new Date())); closePopover(); });
+    todayBtn.addEventListener("click", function(){ closePopover(); });
 
     return { getIso:getIso, setIso:setIso, getTime:getTime, setTime:setTime, close:closePopover };
   }
@@ -1243,8 +1248,13 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
             div.appendChild(dotsWrap);
             div.style.cursor = "pointer";
             div.addEventListener("click", function(){ openDayPanel(iso, dayAll); });
+          } else {
+            div.style.cursor = "pointer";
+            div.addEventListener("click", function(){ openPanel(null, iso); });
           }
         } else {
+          div.style.cursor = "pointer";
+          div.addEventListener("click", function(){ openPanel(null, iso); });
           var MAX_CHIPS = 3;
           var visibleEntries = dayEntries.slice(0, MAX_CHIPS);
           var hiddenCount = dayEntries.length - visibleEntries.length;
@@ -1257,7 +1267,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
             chip.style.color = shadeColor(t.color, -0.35);
             chip.innerHTML = "<span>" + escapeHtml(e.title) + "</span>";
             chip.draggable = true;
-            chip.addEventListener("click", function(){ openViewPanel(e.id); });
+            chip.addEventListener("click", function(ev){ ev.stopPropagation(); openViewPanel(e.id); });
             chip.addEventListener("dragstart", function(ev){
               ev.dataTransfer.setData("text/plain", e.id);
               ev.dataTransfer.effectAllowed = "move";
@@ -1634,11 +1644,11 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   }
   document.getElementById("day-close").addEventListener("click", closeDayPanel);
 
-  function openPanel(id){
+  function openPanel(id, presetDate){
     editingId = id || null;
     var e = id ? entries.find(function(x){ return x.id === id; }) : null;
     document.getElementById("panel-title").textContent = e ? "Modifier l'événement" : "Nouvel événement";
-    fDatePicker.setIso(e ? e.date : fmtISO(new Date()));
+    fDatePicker.setIso(e ? e.date : (presetDate || ""));
     fEndDatePicker.setIso(e && e.endDate ? e.endDate : "");
     fDatePicker.setTime(e && e.time ? e.time : "12:00");
     fEndDatePicker.setTime(e && e.endTime ? e.endTime : "12:00");
@@ -1713,7 +1723,6 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       document.getElementById("f-date-icon").disabled = false;
       document.getElementById("f-end-date-icon").disabled = false;
       if(dateHint) dateHint.style.display = "none";
-      if(!fDatePicker.getIso()) fDatePicker.setIso(fmtISO(new Date()));
     }
   }
   document.getElementById("f-type").addEventListener("click", function(ev){
