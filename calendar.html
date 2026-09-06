@@ -308,7 +308,10 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 .panel-head button.close{
   background:rgba(255,255,255,.12); border:none; color:#fff; width:30px; height:30px; border-radius:50%; font-size:15px;
 }
-.panel-head .ph-title{font-family:'Inter',sans-serif; font-size:16px; font-weight:700;}
+.panel-head .ph-title{
+  font-family:'Inter',sans-serif; font-size:16px; font-weight:700; flex:1; min-width:0;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
 .panel-body{flex:1; overflow-y:auto; padding:20px;}
 .field{margin-bottom:18px;}
 .field label{
@@ -432,8 +435,9 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 }
 
 /* View (read-only) panel */
-.view-meta{display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;}
+.view-meta{display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
 .view-date{font-size:12.5px; color:var(--muted); font-weight:600;}
+.view-date-row{font-size:13.5px; color:var(--navy-ink); font-weight:600; margin-bottom:18px;}
 .view-title{margin:0 0 20px; font-size:21px; font-weight:600; line-height:1.3;}
 .view-location{
   display:flex; align-items:center; gap:6px; font-size:13px; color:var(--navy);
@@ -1577,7 +1581,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       dateLabel = "À prévoir";
     }
 
-    document.getElementById("view-title-label").textContent = t.label;
+    document.getElementById("view-title-label").textContent = e.title;
 
     var st = getStatus(e.status);
     var body = document.getElementById("view-body");
@@ -1585,9 +1589,8 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     html += '<div class="view-meta">';
     html += '<span class="tag" style="background:' + hexToRgba(t.color,0.16) + ';color:' + shadeColor(t.color,-0.35) + '">' + escapeHtml(t.label) + '</span>';
     if(e.status) html += '<span class="status-dot" style="background:' + st.color + '"></span><span style="font-size:11px;color:var(--muted)">' + escapeHtml(st.label) + '</span>';
-    html += '<span class="view-date">' + dateLabel + '</span>';
     html += '</div>';
-    html += '<h3 class="view-title">' + escapeHtml(e.title) + '</h3>';
+    html += '<div class="view-date-row">' + dateLabel + '</div>';
 
     if(e.location){
       html += '<a class="view-location" href="' + escapeHtml(e.location) + '" target="_blank" rel="noopener">📍 <span>Voir sur Google Maps</span></a>';
