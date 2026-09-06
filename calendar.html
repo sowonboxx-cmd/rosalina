@@ -56,7 +56,7 @@ a{color:inherit;}
   max-width:1180px; margin:0 auto; padding:16px 20px;
   display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
 }
-.topbar .logo{display:flex; flex-direction:column; align-items:flex-start; gap:1px; min-width:0;}
+.topbar .logo{display:flex; flex-direction:column; align-items:flex-start; gap:1px; min-width:0; cursor:pointer;}
 .topbar .logo-text{font-family:'Inter',sans-serif; font-weight:800; font-size:22px; letter-spacing:.02em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .topbar .logo-sub{font-family:'Inter',sans-serif; font-size:11px; color:#fff; text-transform:uppercase; letter-spacing:.08em; margin-top:2px;}
 .topbar-controls{display:flex; align-items:center; gap:12px; flex-shrink:0;}
@@ -118,7 +118,8 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 }
 .dow-row{display:grid; grid-template-columns:repeat(7,1fr); background:var(--navy);}
 .dow-row div{padding:10px 4px; text-align:center; font-size:11px; font-weight:700; color:#c7d1e8; text-transform:uppercase; letter-spacing:.05em;}
-.cal-grid{display:grid; grid-template-columns:repeat(7,1fr);}
+.cal-grid{display:flex; flex-direction:column;}
+.cal-week{position:relative; display:grid; grid-template-columns:repeat(7,1fr);}
 .cal-cell{
   height:104px; border-right:1px solid var(--line); border-bottom:1px solid var(--line);
   padding:7px 6px; position:relative; background:#fff; overflow:hidden; box-sizing:border-box;
@@ -131,6 +132,14 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   background:var(--navy); color:#fff; width:20px; height:20px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
 }
+.cal-week-bars{position:absolute; top:0; left:0; right:0; height:0; pointer-events:none;}
+.cal-bar{
+  position:absolute; height:18px; line-height:18px; font-size:10.5px; font-weight:700; color:#fff;
+  padding:0 6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:pointer;
+  pointer-events:auto; border-radius:4px;
+}
+.cal-bar.cont-left{border-top-left-radius:0; border-bottom-left-radius:0; padding-left:3px;}
+.cal-bar.cont-right{border-top-right-radius:0; border-bottom-right-radius:0; padding-right:3px;}
 .entry-chip{
   font-size:11px; padding:3px 6px; border-radius:5px; margin-bottom:3px;
   display:flex; align-items:center; gap:4px; cursor:grab; line-height:1.25;
@@ -310,7 +319,6 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 .field-row .field{flex:1;}
 
 /* ---------- Custom date + time picker ---------- */
-.date-time-row{display:flex; gap:8px;}
 .date-field{position:relative; flex:1; min-width:0;}
 .date-display{
   width:100%; border:1px solid var(--line); border-radius:9px; padding:10px 38px 10px 12px; font-size:14px;
@@ -323,10 +331,6 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 }
 .date-field.disabled .date-display{background:#FBFAF7; color:#c2c6d1; cursor:not-allowed;}
 .date-field.disabled .date-icon-btn{color:#c2c6d1; pointer-events:none;}
-.time-select{
-  width:104px; flex-shrink:0; border:1px solid var(--line); border-radius:9px; padding:10px 8px; font-size:13.5px;
-  font-family:inherit; background:#fff; color:var(--navy-ink);
-}
 .date-popover{
   position:fixed; width:266px; background:#fff; border:1px solid var(--line); border-radius:14px;
   box-shadow:0 16px 40px rgba(11,27,58,.22); padding:14px; z-index:300; display:none;
@@ -350,6 +354,15 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 .dp-day.out{color:#c2c6d1;}
 .dp-day.today{font-weight:700; box-shadow:inset 0 0 0 1.5px var(--navy);}
 .dp-day.selected{background:var(--navy); color:#fff; font-weight:700;}
+.dp-time-row{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:12px; padding-top:12px;
+  border-top:1px solid var(--line); max-height:148px; overflow-y:auto;
+}
+.dp-time-chip{
+  background:#F3F1EB; border:none; border-radius:7px; padding:8px 4px; font-size:12px; font-weight:600;
+  color:var(--navy-ink);
+}
+.dp-time-chip.active{background:var(--navy); color:#fff;}
 .dp-footer{display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
 .dp-link{background:none; border:none; color:var(--navy); font-size:12.5px; font-weight:700;}
 
@@ -500,7 +513,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 <div id="app">
   <div class="topbar">
     <div class="topbar-inner">
-      <div class="logo">
+      <div class="logo" id="logo-home" title="Retour à l'accueil">
         <div class="logo-text">EKOBO</div>
         <div class="logo-sub">Calendrier &amp; Todo list</div>
       </div>
@@ -596,67 +609,63 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 <div class="panel" id="panel">
   <div class="panel-head">
     <button class="close" id="panel-close">✕</button>
-    <div class="ph-title" id="panel-title">Nouvel élément</div>
+    <div class="ph-title" id="panel-title">Nouvel événement</div>
   </div>
   <div class="panel-body">
     <div class="field">
-      <label>Personnes</label>
+      <label>Qui ?</label>
       <div class="pill-group" id="f-type"></div>
     </div>
     <div class="field-row">
       <div class="field">
         <label>Date</label>
-        <div class="date-time-row">
-          <div class="date-field" id="f-date-wrap">
-            <input type="text" id="f-date" class="date-display" readonly placeholder="jj/mm/aaaa">
-            <button type="button" class="date-icon-btn" id="f-date-icon" aria-label="Choisir une date">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            </button>
-            <div class="date-popover" id="f-date-popover">
-              <div class="dp-header">
-                <div class="dp-month-label" id="f-date-month-label"></div>
-                <div class="dp-nav">
-                  <button type="button" class="dp-nav-btn" id="f-date-prev">‹</button>
-                  <button type="button" class="dp-nav-btn" id="f-date-next">›</button>
-                </div>
-              </div>
-              <div class="dp-dow-row"><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div></div>
-              <div class="dp-grid" id="f-date-grid"></div>
-              <div class="dp-footer">
-                <button type="button" class="dp-link" id="f-date-clear">Effacer</button>
-                <button type="button" class="dp-link" id="f-date-today">Aujourd'hui</button>
+        <div class="date-field" id="f-date-wrap">
+          <input type="text" id="f-date" class="date-display" readonly placeholder="jj/mm/aaaa">
+          <button type="button" class="date-icon-btn" id="f-date-icon" aria-label="Choisir une date">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          </button>
+          <div class="date-popover" id="f-date-popover">
+            <div class="dp-header">
+              <div class="dp-month-label" id="f-date-month-label"></div>
+              <div class="dp-nav">
+                <button type="button" class="dp-nav-btn" id="f-date-prev">‹</button>
+                <button type="button" class="dp-nav-btn" id="f-date-next">›</button>
               </div>
             </div>
+            <div class="dp-dow-row"><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div></div>
+            <div class="dp-grid" id="f-date-grid"></div>
+            <div class="dp-time-row" id="f-date-time-row"></div>
+            <div class="dp-footer">
+              <button type="button" class="dp-link" id="f-date-clear">Effacer</button>
+              <button type="button" class="dp-link" id="f-date-today">Aujourd'hui</button>
+            </div>
           </div>
-          <select id="f-time" class="time-select"></select>
         </div>
         <small id="f-date-hint" style="display:none;">Pas de date pour « À prévoir ».</small>
       </div>
       <div class="field">
         <label>Date de fin (optionnel)</label>
-        <div class="date-time-row">
-          <div class="date-field" id="f-end-date-wrap">
-            <input type="text" id="f-end-date" class="date-display" readonly placeholder="jj/mm/aaaa">
-            <button type="button" class="date-icon-btn" id="f-end-date-icon" aria-label="Choisir une date de fin">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            </button>
-            <div class="date-popover" id="f-end-date-popover">
-              <div class="dp-header">
-                <div class="dp-month-label" id="f-end-date-month-label"></div>
-                <div class="dp-nav">
-                  <button type="button" class="dp-nav-btn" id="f-end-date-prev">‹</button>
-                  <button type="button" class="dp-nav-btn" id="f-end-date-next">›</button>
-                </div>
-              </div>
-              <div class="dp-dow-row"><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div></div>
-              <div class="dp-grid" id="f-end-date-grid"></div>
-              <div class="dp-footer">
-                <button type="button" class="dp-link" id="f-end-date-clear">Effacer</button>
-                <button type="button" class="dp-link" id="f-end-date-today">Aujourd'hui</button>
+        <div class="date-field" id="f-end-date-wrap">
+          <input type="text" id="f-end-date" class="date-display" readonly placeholder="jj/mm/aaaa">
+          <button type="button" class="date-icon-btn" id="f-end-date-icon" aria-label="Choisir une date de fin">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          </button>
+          <div class="date-popover" id="f-end-date-popover">
+            <div class="dp-header">
+              <div class="dp-month-label" id="f-end-date-month-label"></div>
+              <div class="dp-nav">
+                <button type="button" class="dp-nav-btn" id="f-end-date-prev">‹</button>
+                <button type="button" class="dp-nav-btn" id="f-end-date-next">›</button>
               </div>
             </div>
+            <div class="dp-dow-row"><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div></div>
+            <div class="dp-grid" id="f-end-date-grid"></div>
+            <div class="dp-time-row" id="f-end-date-time-row"></div>
+            <div class="dp-footer">
+              <button type="button" class="dp-link" id="f-end-date-clear">Effacer</button>
+              <button type="button" class="dp-link" id="f-end-date-today">Aujourd'hui</button>
+            </div>
           </div>
-          <select id="f-end-time" class="time-select"></select>
         </div>
         <small>Pour un événement sur plusieurs jours.</small>
       </div>
@@ -696,7 +705,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   </div>
   <div class="panel-body">
     <div class="field">
-      <label>Personnes</label>
+      <label>Qui ?</label>
       <div class="types-list" id="types-list"></div>
       <div class="add-type-row">
         <input type="text" id="type-name-input" placeholder="Nom (ex : Papa)">
@@ -721,12 +730,11 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     <div class="field">
       <label>Token d'équipe</label>
       <input type="text" id="s-app-token" placeholder="Le token partagé à l'équipe">
-      <small>Ce token est propre à l'app (pas ton token GitHub). Chaque personne le colle une fois ici pour être synchronisée.</small>
+      <small>Ce token est propre à l'app (pas ton token GitHub). Colle-le une fois ici : la synchronisation démarre automatiquement.</small>
     </div>
   </div>
-  <div class="panel-foot">
-    <button class="btn-secondary" id="btn-pull">Sync</button>
-    <button class="btn-primary" id="btn-push">Enregistrer</button>
+  <div class="panel-foot" style="border-top:none;">
+    <button class="btn-secondary" id="btn-push">⚠️ Forcer l'envoi (écrase le cloud)</button>
   </div>
 </div>
 
@@ -777,7 +785,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     return types.find(function(t){ return t.id === id; }) || {id:id, label:id, color:"#9AA3B5"};
   }
   function getStatus(id){
-    return statuses.find(function(s){ return s.id === id; }) || {id:id, label:id||"Idée", color:"#9AA3B5"};
+    return statuses.find(function(s){ return s.id === id; }) || {id:id, label:id||"", color:"#9AA3B5"};
   }
   function slugify(s){
     return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"") || "type";
@@ -930,20 +938,15 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     var d = parseISO(iso);
     return String(d.getDate()).padStart(2,"0") + "/" + String(d.getMonth()+1).padStart(2,"0") + "/" + d.getFullYear();
   }
-  function populateTimeSelect(select){
-    select.innerHTML = "";
+  var TIME_PRESETS = (function(){
+    var out = [];
     for(var h=0; h<24; h++){
       for(var m=0; m<60; m+=30){
-        var hh = String(h).padStart(2,"0");
-        var mm = String(m).padStart(2,"0");
-        var opt = document.createElement("option");
-        opt.value = hh + ":" + mm;
-        opt.textContent = hh + "h" + mm;
-        select.appendChild(opt);
+        out.push(String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0"));
       }
     }
-    select.value = "12:00";
-  }
+    return out;
+  })();
   function initDatePicker(prefix){
     var input = document.getElementById(prefix);
     var icon = document.getElementById(prefix + "-icon");
@@ -952,14 +955,37 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     var prevBtn = document.getElementById(prefix + "-prev");
     var nextBtn = document.getElementById(prefix + "-next");
     var grid = document.getElementById(prefix + "-grid");
+    var timeRow = document.getElementById(prefix + "-time-row");
     var clearBtn = document.getElementById(prefix + "-clear");
     var todayBtn = document.getElementById(prefix + "-today");
     var viewDate = new Date();
+    var currentTime = "12:00";
 
     function getIso(){ return input.dataset.iso || ""; }
+    function getTime(){ return currentTime; }
+    function updateDisplay(){
+      var iso = getIso();
+      input.value = iso ? (formatDateFR(iso) + " · " + currentTime.replace(":", "h")) : "";
+    }
     function setIso(iso){
       input.dataset.iso = iso || "";
-      input.value = iso ? formatDateFR(iso) : "";
+      updateDisplay();
+    }
+    function setTime(t){
+      currentTime = t || "12:00";
+      updateDisplay();
+      renderTimeChips();
+    }
+    function renderTimeChips(){
+      timeRow.innerHTML = "";
+      TIME_PRESETS.forEach(function(t){
+        var chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "dp-time-chip" + (t === currentTime ? " active" : "");
+        chip.textContent = t.replace(":", "h");
+        chip.addEventListener("click", function(){ setTime(t); });
+        timeRow.appendChild(chip);
+      });
     }
     function renderGrid(){
       monthLabel.textContent = MONTHS_FR[viewDate.getMonth()] + " " + viewDate.getFullYear();
@@ -994,11 +1020,14 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       var iso = getIso();
       viewDate = iso ? parseISO(iso) : new Date();
       renderGrid();
+      renderTimeChips();
+      var activeChip = timeRow.querySelector(".dp-time-chip.active");
+      if(activeChip) activeChip.scrollIntoView({block:"nearest"});
       var rect = icon.getBoundingClientRect();
       var top = rect.bottom + 6;
       var left = rect.right - 266;
       if(left < 8) left = 8;
-      if(top + 340 > window.innerHeight) top = rect.top - 346;
+      if(top + 400 > window.innerHeight) top = Math.max(8, rect.top - 406);
       popover.style.top = top + "px";
       popover.style.left = left + "px";
       popover.classList.add("show");
@@ -1015,7 +1044,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     clearBtn.addEventListener("click", function(){ setIso(""); closePopover(); });
     todayBtn.addEventListener("click", function(){ setIso(fmtISO(new Date())); closePopover(); });
 
-    return { getIso:getIso, setIso:setIso, close:closePopover };
+    return { getIso:getIso, setIso:setIso, getTime:getTime, setTime:setTime, close:closePopover };
   }
   document.addEventListener("click", function(ev){
     document.querySelectorAll(".date-popover.show").forEach(function(p){
@@ -1107,107 +1136,179 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       cells.push({day:j, out:true, date:new Date(year, month+1, j)});
     }
 
+    var allFiltered = filteredEntries().filter(function(e){ return !!e.date; });
+    var multiDay = allFiltered.filter(function(e){ return e.endDate && e.endDate > e.date; });
+    var singleDay = allFiltered.filter(function(e){ return !(e.endDate && e.endDate > e.date); });
+
     var byDate = {};
-    filteredEntries().forEach(function(e){
-      if(!e.date) return;
-      var rangeDates = datesInRange(e.date, e.endDate);
-      rangeDates.forEach(function(iso){
-        (byDate[iso] = byDate[iso] || []).push(e);
-      });
+    singleDay.forEach(function(e){
+      (byDate[e.date] = byDate[e.date] || []).push(e);
     });
 
-    cells.forEach(function(c){
-      var iso = fmtISO(c.date);
-      var div = document.createElement("div");
-      div.className = "cal-cell" + (c.out ? " out" : "") + (iso === todayISO ? " today" : "");
-      var num = document.createElement("div");
-      num.className = "num";
-      num.textContent = c.day;
-      div.appendChild(num);
-      var dayEntries = byDate[iso] || [];
+    var mobile = isMobile();
 
-      if(isMobile()){
-        if(dayEntries.length){
-          var dotsWrap = document.createElement("div");
-          dotsWrap.className = "cell-dots";
-          dayEntries.slice(0,4).forEach(function(e){
-            var dot = document.createElement("div");
-            dot.className = "cell-dot";
-            dot.style.background = getType(e.type).color;
-            dotsWrap.appendChild(dot);
+    for(var w = 0; w < cells.length; w += 7){
+      var weekCells = cells.slice(w, w+7);
+      var weekRow = document.createElement("div");
+      weekRow.className = "cal-week";
+      var weekStartIso = fmtISO(weekCells[0].date);
+      var weekEndIso = fmtISO(weekCells[6].date);
+
+      var bars = [];
+      if(!mobile){
+        multiDay.forEach(function(e){
+          var s = e.date < weekStartIso ? weekStartIso : e.date;
+          var en = e.endDate > weekEndIso ? weekEndIso : e.endDate;
+          if(s > en) return;
+          var startCol = -1, endCol = -1;
+          weekCells.forEach(function(c, idx){
+            var iso = fmtISO(c.date);
+            if(iso === s) startCol = idx;
+            if(iso === en) endCol = idx;
           });
-          if(dayEntries.length > 4){
-            var more = document.createElement("div");
-            more.className = "cell-more";
-            more.textContent = "+" + (dayEntries.length - 4);
-            dotsWrap.appendChild(more);
+          if(startCol === -1 || endCol === -1) return;
+          bars.push({
+            entry:e, startCol:startCol, span: endCol-startCol+1,
+            contLeft: e.date < weekStartIso, contRight: e.endDate > weekEndIso
+          });
+        });
+        bars.forEach(function(bar, bi){
+          var used = {};
+          for(var bj=0; bj<bi; bj++){
+            var a = bars[bj];
+            var overlap = a.startCol < (bar.startCol+bar.span) && bar.startCol < (a.startCol+a.span);
+            if(overlap) used[a.lane] = true;
           }
-          div.appendChild(dotsWrap);
-          div.style.cursor = "pointer";
-          div.addEventListener("click", function(){ openDayPanel(iso, dayEntries); });
-        }
-      } else {
-        var MAX_CHIPS = 3;
-        var visibleEntries = dayEntries.slice(0, MAX_CHIPS);
-        var hiddenCount = dayEntries.length - visibleEntries.length;
-        visibleEntries.forEach(function(e){
-          var t = getType(e.type);
-          var chip = document.createElement("div");
-          chip.className = "entry-chip";
-          chip.style.background = hexToRgba(t.color, 0.16);
-          chip.style.borderLeftColor = t.color;
-          chip.style.color = shadeColor(t.color, -0.35);
-          chip.innerHTML = "<span>" + escapeHtml(e.title) + "</span>";
-          chip.draggable = true;
-          chip.addEventListener("click", function(){ openViewPanel(e.id); });
-          chip.addEventListener("dragstart", function(ev){
-            ev.dataTransfer.setData("text/plain", e.id);
-            ev.dataTransfer.effectAllowed = "move";
-            setTimeout(function(){ chip.classList.add("dragging"); }, 0);
-          });
-          chip.addEventListener("dragend", function(){ chip.classList.remove("dragging"); });
-          div.appendChild(chip);
-        });
-        if(hiddenCount > 0){
-          var more = document.createElement("div");
-          more.className = "entry-more";
-          more.textContent = "···";
-          more.title = hiddenCount + " de plus";
-          more.addEventListener("click", function(ev){
-            ev.stopPropagation();
-            openDayPanel(iso, dayEntries);
-          });
-          div.appendChild(more);
-        }
-        div.addEventListener("dragover", function(ev){
-          ev.preventDefault();
-          div.classList.add("drop-target");
-        });
-        div.addEventListener("dragleave", function(){
-          div.classList.remove("drop-target");
-        });
-        div.addEventListener("drop", function(ev){
-          ev.preventDefault();
-          div.classList.remove("drop-target");
-          var draggedId = ev.dataTransfer.getData("text/plain");
-          if(!draggedId) return;
-          var dragged = entries.find(function(x){ return x.id === draggedId; });
-          if(!dragged || !dragged.date) return;
-          var oldStart = parseISO(dragged.date);
-          var deltaDays = Math.round((c.date - oldStart) / 86400000);
-          if(deltaDays === 0) return;
-          dragged.date = iso;
-          if(dragged.endDate){
-            var newEnd = new Date(parseISO(dragged.endDate).getTime() + deltaDays*86400000);
-            dragged.endDate = fmtISO(newEnd);
-          }
-          saveLocal();
-          render();
-          pushToCloud(true);
+          var lane = 0;
+          while(used[lane]) lane++;
+          bar.lane = lane;
         });
       }
-      grid.appendChild(div);
-    });
+      var lanesCount = bars.reduce(function(m,b){ return Math.max(m, b.lane+1); }, 0);
+      var barsHeight = lanesCount > 0 ? lanesCount * 21 : 0;
+
+      weekCells.forEach(function(c){
+        var iso = fmtISO(c.date);
+        var div = document.createElement("div");
+        div.className = "cal-cell" + (c.out ? " out" : "") + (iso === todayISO ? " today" : "");
+        var num = document.createElement("div");
+        num.className = "num";
+        num.textContent = c.day;
+        div.appendChild(num);
+        if(!mobile && barsHeight > 0){
+          var spacer = document.createElement("div");
+          spacer.style.height = barsHeight + "px";
+          div.appendChild(spacer);
+        }
+        var dayEntries = byDate[iso] || [];
+
+        if(mobile){
+          var dayAll = dayEntries.concat(multiDay.filter(function(e){ return e.date <= iso && e.endDate >= iso; }));
+          if(dayAll.length){
+            var dotsWrap = document.createElement("div");
+            dotsWrap.className = "cell-dots";
+            dayAll.slice(0,4).forEach(function(e){
+              var dot = document.createElement("div");
+              dot.className = "cell-dot";
+              dot.style.background = getType(e.type).color;
+              dotsWrap.appendChild(dot);
+            });
+            if(dayAll.length > 4){
+              var more = document.createElement("div");
+              more.className = "cell-more";
+              more.textContent = "+" + (dayAll.length - 4);
+              dotsWrap.appendChild(more);
+            }
+            div.appendChild(dotsWrap);
+            div.style.cursor = "pointer";
+            div.addEventListener("click", function(){ openDayPanel(iso, dayAll); });
+          }
+        } else {
+          var MAX_CHIPS = 3;
+          var visibleEntries = dayEntries.slice(0, MAX_CHIPS);
+          var hiddenCount = dayEntries.length - visibleEntries.length;
+          visibleEntries.forEach(function(e){
+            var t = getType(e.type);
+            var chip = document.createElement("div");
+            chip.className = "entry-chip";
+            chip.style.background = hexToRgba(t.color, 0.16);
+            chip.style.borderLeftColor = t.color;
+            chip.style.color = shadeColor(t.color, -0.35);
+            chip.innerHTML = "<span>" + escapeHtml(e.title) + "</span>";
+            chip.draggable = true;
+            chip.addEventListener("click", function(){ openViewPanel(e.id); });
+            chip.addEventListener("dragstart", function(ev){
+              ev.dataTransfer.setData("text/plain", e.id);
+              ev.dataTransfer.effectAllowed = "move";
+              setTimeout(function(){ chip.classList.add("dragging"); }, 0);
+            });
+            chip.addEventListener("dragend", function(){ chip.classList.remove("dragging"); });
+            div.appendChild(chip);
+          });
+          if(hiddenCount > 0){
+            var more2 = document.createElement("div");
+            more2.className = "entry-more";
+            more2.textContent = "···";
+            more2.title = hiddenCount + " de plus";
+            more2.addEventListener("click", function(ev){
+              ev.stopPropagation();
+              openDayPanel(iso, dayEntries);
+            });
+            div.appendChild(more2);
+          }
+          div.addEventListener("dragover", function(ev){
+            ev.preventDefault();
+            div.classList.add("drop-target");
+          });
+          div.addEventListener("dragleave", function(){
+            div.classList.remove("drop-target");
+          });
+          div.addEventListener("drop", function(ev){
+            ev.preventDefault();
+            div.classList.remove("drop-target");
+            var draggedId = ev.dataTransfer.getData("text/plain");
+            if(!draggedId) return;
+            var dragged = entries.find(function(x){ return x.id === draggedId; });
+            if(!dragged || !dragged.date) return;
+            var oldStart = parseISO(dragged.date);
+            var deltaDays = Math.round((c.date - oldStart) / 86400000);
+            if(deltaDays === 0) return;
+            dragged.date = iso;
+            if(dragged.endDate){
+              var newEnd = new Date(parseISO(dragged.endDate).getTime() + deltaDays*86400000);
+              dragged.endDate = fmtISO(newEnd);
+            }
+            saveLocal();
+            render();
+            pushToCloud(true);
+          });
+        }
+        weekRow.appendChild(div);
+      });
+
+      if(bars.length){
+        var barsWrap = document.createElement("div");
+        barsWrap.className = "cal-week-bars";
+        bars.forEach(function(bar){
+          var t = getType(bar.entry.type);
+          var barEl = document.createElement("div");
+          barEl.className = "cal-bar" + (bar.contLeft ? " cont-left" : "") + (bar.contRight ? " cont-right" : "");
+          barEl.style.left = (bar.startCol * 100 / 7) + "%";
+          barEl.style.width = (bar.span * 100 / 7) + "%";
+          barEl.style.top = (26 + bar.lane * 21) + "px";
+          barEl.style.background = shadeColor(t.color, -0.08);
+          barEl.textContent = bar.entry.title;
+          barEl.title = bar.entry.title;
+          barEl.addEventListener("click", function(id){
+            return function(ev){ ev.stopPropagation(); openViewPanel(id); };
+          }(bar.entry.id));
+          barsWrap.appendChild(barEl);
+        });
+        weekRow.appendChild(barsWrap);
+      }
+
+      grid.appendChild(weekRow);
+    }
   }
 
   function makeListCard(e, showDate){
@@ -1226,7 +1327,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       '<div class="list-body">' +
         '<p class="title">' + escapeHtml(e.title) + '</p>' +
         (e.desc ? '<div class="sub">' + escapeHtml(e.desc.slice(0,90)) + (e.desc.length>90?'…':'') + '</div>' : '') +
-        '<div class="row1"><span class="tag" style="background:' + hexToRgba(t.color,0.16) + ';color:' + shadeColor(t.color,-0.35) + '">' + escapeHtml(t.label) + '</span><span class="status-dot" style="background:' + st.color + '"></span><span style="font-size:11px;color:var(--muted)">' + escapeHtml(st.label) + '</span></div>' +
+        '<div class="row1"><span class="tag" style="background:' + hexToRgba(t.color,0.16) + ';color:' + shadeColor(t.color,-0.35) + '">' + escapeHtml(t.label) + '</span>' + (e.status ? '<span class="status-dot" style="background:' + st.color + '"></span><span style="font-size:11px;color:var(--muted)">' + escapeHtml(st.label) + '</span>' : '') + '</div>' +
       '</div>' +
       '<div class="chevron">›</div>';
     card.addEventListener("click", function(){ openViewPanel(e.id); });
@@ -1432,7 +1533,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     var html = '';
     html += '<div class="view-meta">';
     html += '<span class="tag" style="background:' + hexToRgba(t.color,0.16) + ';color:' + shadeColor(t.color,-0.35) + '">' + escapeHtml(t.label) + '</span>';
-    html += '<span class="status-dot" style="background:' + st.color + '"></span><span style="font-size:11px;color:var(--muted)">' + escapeHtml(st.label) + '</span>';
+    if(e.status) html += '<span class="status-dot" style="background:' + st.color + '"></span><span style="font-size:11px;color:var(--muted)">' + escapeHtml(st.label) + '</span>';
     html += '<span class="view-date">' + dateLabel + '</span>';
     html += '</div>';
     html += '<h3 class="view-title">' + escapeHtml(e.title) + '</h3>';
@@ -1494,7 +1595,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       card.innerHTML =
         '<div class="list-body">' +
           '<p class="title">' + escapeHtml(e.title) + '</p>' +
-          '<div class="row1"><span class="tag" style="background:' + hexToRgba(t.color,0.16) + ';color:' + shadeColor(t.color,-0.35) + '">' + escapeHtml(t.label) + '</span><span class="status-dot" style="background:' + st.color + '"></span><span style="font-size:11px;color:var(--muted)">' + escapeHtml(st.label) + '</span></div>' +
+          '<div class="row1"><span class="tag" style="background:' + hexToRgba(t.color,0.16) + ';color:' + shadeColor(t.color,-0.35) + '">' + escapeHtml(t.label) + '</span>' + (e.status ? '<span class="status-dot" style="background:' + st.color + '"></span><span style="font-size:11px;color:var(--muted)">' + escapeHtml(st.label) + '</span>' : '') + '</div>' +
         '</div>' +
         '<div class="chevron">›</div>';
       card.addEventListener("click", function(){
@@ -1515,11 +1616,11 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   function openPanel(id){
     editingId = id || null;
     var e = id ? entries.find(function(x){ return x.id === id; }) : null;
-    document.getElementById("panel-title").textContent = e ? "Modifier l'élément" : "Nouvel élément";
+    document.getElementById("panel-title").textContent = e ? "Modifier l'événement" : "Nouvel événement";
     fDatePicker.setIso(e ? e.date : fmtISO(new Date()));
     fEndDatePicker.setIso(e && e.endDate ? e.endDate : "");
-    document.getElementById("f-time").value = e && e.time ? e.time : "12:00";
-    document.getElementById("f-end-time").value = e && e.endTime ? e.endTime : "12:00";
+    fDatePicker.setTime(e && e.time ? e.time : "12:00");
+    fEndDatePicker.setTime(e && e.endTime ? e.endTime : "12:00");
     document.getElementById("f-title").value = e ? e.title : "";
     document.getElementById("f-location").value = e ? (e.location||"") : "";
     document.getElementById("f-desc").value = e ? (e.desc||"") : "";
@@ -1528,8 +1629,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     var defaultType = types[0] ? types[0].id : "";
     setTypeVal(e ? e.type : defaultType);
     renderStatusPills();
-    var defaultStatus = statuses[0] ? statuses[0].id : "idea";
-    setStatusVal(e ? e.status : defaultStatus);
+    setStatusVal(e ? e.status : "");
     document.getElementById("btn-delete").style.display = e ? "block" : "none";
     overlay.classList.add("show");
     panel.classList.add("show");
@@ -1578,21 +1678,19 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     var dateHint = document.getElementById("f-date-hint");
     var dateWrap = document.getElementById("f-date-wrap");
     var endDateWrap = document.getElementById("f-end-date-wrap");
-    var timeSelect = document.getElementById("f-time");
-    var endTimeSelect = document.getElementById("f-end-time");
     if(v === "avenir"){
       fDatePicker.setIso("");
       fEndDatePicker.setIso("");
       dateWrap.classList.add("disabled");
       endDateWrap.classList.add("disabled");
-      timeSelect.disabled = true;
-      endTimeSelect.disabled = true;
+      document.getElementById("f-date-icon").disabled = true;
+      document.getElementById("f-end-date-icon").disabled = true;
       if(dateHint) dateHint.style.display = "block";
     } else {
       dateWrap.classList.remove("disabled");
       endDateWrap.classList.remove("disabled");
-      timeSelect.disabled = false;
-      endTimeSelect.disabled = false;
+      document.getElementById("f-date-icon").disabled = false;
+      document.getElementById("f-end-date-icon").disabled = false;
       if(dateHint) dateHint.style.display = "none";
       if(!fDatePicker.getIso()) fDatePicker.setIso(fmtISO(new Date()));
     }
@@ -1609,9 +1707,9 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       type: document.getElementById("f-type").dataset.current || "",
       date: fDatePicker.getIso(),
       endDate: fEndDatePicker.getIso(),
-      time: document.getElementById("f-time").value,
-      endTime: document.getElementById("f-end-time").value,
-      status: document.getElementById("f-status-pills").dataset.current || "idea",
+      time: fDatePicker.getTime(),
+      endTime: fEndDatePicker.getTime(),
+      status: document.getElementById("f-status-pills").dataset.current || "",
       title: document.getElementById("f-title").value.trim() || "Sans titre",
       location: document.getElementById("f-location").value.trim(),
       desc: document.getElementById("f-desc").value,
@@ -1831,14 +1929,29 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     cfg.workerUrl = document.getElementById("s-worker-url").value.trim();
     cfg.appToken = document.getElementById("s-app-token").value.trim();
     saveCfg();
+    var warning = "Ceci va REMPLACER toutes les données du cloud (et donc de tous les autres appareils connectés) par les données de CET appareil.\n\nN'utilise ceci que si cet appareil contient les vraies données à jour et que le cloud doit être écrasé.\n\nContinuer et écraser le cloud ?";
+    if(!confirm(warning)) return;
     pushToCloud();
   });
-  document.getElementById("btn-pull").addEventListener("click", function(){
-    cfg.workerUrl = document.getElementById("s-worker-url").value.trim();
-    cfg.appToken = document.getElementById("s-app-token").value.trim();
+
+  // Auto-sync as soon as both fields are filled in — no manual "connect" step needed.
+  function autoSyncFromSettingsFields(){
+    var url = document.getElementById("s-worker-url").value.trim();
+    var token = document.getElementById("s-app-token").value.trim();
+    if(!url || !token) return;
+    var wasConfigured = isCloudConfigured();
+    cfg.workerUrl = url;
+    cfg.appToken = token;
     saveCfg();
+    if(wasConfigured) return; // already connected, avoid re-pulling on every keystroke/blur
+    if(entries.length > 0 || globalTodos.length > 0){
+      var warning = "Cet appareil contient déjà des événements et/ou tâches en local. Se connecter va les REMPLACER par les données du cloud.\n\nSi ce que tu as saisi ici n'est pas encore dans le cloud, ça sera perdu.\n\nContinuer ?";
+      if(!confirm(warning)) return;
+    }
     pullFromCloud();
-  });
+  }
+  document.getElementById("s-worker-url").addEventListener("blur", autoSyncFromSettingsFields);
+  document.getElementById("s-app-token").addEventListener("blur", autoSyncFromSettingsFields);
 
   // ---------------- View / nav ----------------
   document.querySelectorAll(".view-toggle button").forEach(function(btn){
@@ -2121,12 +2234,19 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   document.getElementById("btn-todos").addEventListener("click", function(){
     if(onTodoPage) showCalendarView(); else showTodoPage();
   });
+  document.getElementById("logo-home").addEventListener("click", function(){
+    if(onTodoPage) showCalendarView();
+    var now = new Date();
+    cursorDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    allTimeMode = false;
+    currentFilter = "all";
+    renderFilters();
+    render();
+  });
 
   // ---------------- Init ----------------
   var fDatePicker = initDatePicker("f-date");
   var fEndDatePicker = initDatePicker("f-end-date");
-  populateTimeSelect(document.getElementById("f-time"));
-  populateTimeSelect(document.getElementById("f-end-time"));
   loadLocal();
   applyResponsiveView();
   unlock();
