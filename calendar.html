@@ -50,6 +50,7 @@ a{color:inherit;}
   position:sticky; top:0; z-index:40;
   background:var(--navy); color:#fff;
   box-shadow:0 2px 12px rgba(0,0,0,.12);
+  padding-top:env(safe-area-inset-top);
 }
 .topbar-inner{
   max-width:1180px; margin:0 auto; padding:16px 20px;
@@ -307,6 +308,51 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 .copybox textarea{padding-right:42px;}
 .field-row{display:flex; gap:10px;}
 .field-row .field{flex:1;}
+
+/* ---------- Custom date + time picker ---------- */
+.date-time-row{display:flex; gap:8px;}
+.date-field{position:relative; flex:1; min-width:0;}
+.date-display{
+  width:100%; border:1px solid var(--line); border-radius:9px; padding:10px 38px 10px 12px; font-size:14px;
+  font-family:inherit; background:#fff; color:var(--navy-ink); cursor:pointer;
+}
+.date-display::placeholder{color:#c2c6d1;}
+.date-icon-btn{
+  position:absolute; top:0; right:0; bottom:0; width:36px; background:none; border:none;
+  color:var(--navy); display:flex; align-items:center; justify-content:center;
+}
+.date-field.disabled .date-display{background:#FBFAF7; color:#c2c6d1; cursor:not-allowed;}
+.date-field.disabled .date-icon-btn{color:#c2c6d1; pointer-events:none;}
+.time-select{
+  width:104px; flex-shrink:0; border:1px solid var(--line); border-radius:9px; padding:10px 8px; font-size:13.5px;
+  font-family:inherit; background:#fff; color:var(--navy-ink);
+}
+.date-popover{
+  position:fixed; width:266px; background:#fff; border:1px solid var(--line); border-radius:14px;
+  box-shadow:0 16px 40px rgba(11,27,58,.22); padding:14px; z-index:300; display:none;
+}
+.date-popover.show{display:block;}
+.dp-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+.dp-month-label{font-size:13.5px; font-weight:700; color:var(--navy-ink); text-transform:capitalize;}
+.dp-nav{display:flex; gap:4px;}
+.dp-nav-btn{
+  background:#F3F1EB; border:none; width:26px; height:26px; border-radius:7px; color:var(--navy);
+  font-size:14px; display:flex; align-items:center; justify-content:center;
+}
+.dp-dow-row{display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:2px;}
+.dp-dow-row div{text-align:center; font-size:10px; font-weight:700; color:var(--muted); text-transform:uppercase;}
+.dp-grid{display:grid; grid-template-columns:repeat(7,1fr); row-gap:2px;}
+.dp-day{
+  background:none; border:none; height:32px; border-radius:8px; font-size:13px; color:var(--navy-ink);
+  display:flex; align-items:center; justify-content:center;
+}
+.dp-day:hover{background:#F3F1EB;}
+.dp-day.out{color:#c2c6d1;}
+.dp-day.today{font-weight:700; box-shadow:inset 0 0 0 1.5px var(--navy);}
+.dp-day.selected{background:var(--navy); color:#fff; font-weight:700;}
+.dp-footer{display:flex; justify-content:space-between; margin-top:10px; padding-top:10px; border-top:1px solid var(--line);}
+.dp-link{background:none; border:none; color:var(--navy); font-size:12.5px; font-weight:700;}
+
 .copybox{position:relative;}
 .copy-icon-btn{
   position:absolute; top:8px; right:8px; background:var(--navy); color:#fff; border:none;
@@ -357,7 +403,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 .view-todos{display:flex; flex-direction:column; gap:6px;}
 .view-todos .todo-row{cursor:pointer;}
 .panel-foot{
-  padding:16px 20px; border-top:1px solid var(--line); display:flex; gap:10px; background:var(--cream);
+  padding:16px 20px calc(16px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); display:flex; gap:10px; background:var(--cream);
 }
 .btn-secondary{
   flex:1; background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px; font-weight:600; font-size:13.5px; color:var(--coral);
@@ -560,12 +606,58 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     <div class="field-row">
       <div class="field">
         <label>Date</label>
-        <input type="date" id="f-date">
+        <div class="date-time-row">
+          <div class="date-field" id="f-date-wrap">
+            <input type="text" id="f-date" class="date-display" readonly placeholder="jj/mm/aaaa">
+            <button type="button" class="date-icon-btn" id="f-date-icon" aria-label="Choisir une date">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </button>
+            <div class="date-popover" id="f-date-popover">
+              <div class="dp-header">
+                <div class="dp-month-label" id="f-date-month-label"></div>
+                <div class="dp-nav">
+                  <button type="button" class="dp-nav-btn" id="f-date-prev">‹</button>
+                  <button type="button" class="dp-nav-btn" id="f-date-next">›</button>
+                </div>
+              </div>
+              <div class="dp-dow-row"><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div></div>
+              <div class="dp-grid" id="f-date-grid"></div>
+              <div class="dp-footer">
+                <button type="button" class="dp-link" id="f-date-clear">Effacer</button>
+                <button type="button" class="dp-link" id="f-date-today">Aujourd'hui</button>
+              </div>
+            </div>
+          </div>
+          <select id="f-time" class="time-select"></select>
+        </div>
         <small id="f-date-hint" style="display:none;">Pas de date pour « À prévoir ».</small>
       </div>
       <div class="field">
         <label>Date de fin (optionnel)</label>
-        <input type="date" id="f-end-date">
+        <div class="date-time-row">
+          <div class="date-field" id="f-end-date-wrap">
+            <input type="text" id="f-end-date" class="date-display" readonly placeholder="jj/mm/aaaa">
+            <button type="button" class="date-icon-btn" id="f-end-date-icon" aria-label="Choisir une date de fin">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </button>
+            <div class="date-popover" id="f-end-date-popover">
+              <div class="dp-header">
+                <div class="dp-month-label" id="f-end-date-month-label"></div>
+                <div class="dp-nav">
+                  <button type="button" class="dp-nav-btn" id="f-end-date-prev">‹</button>
+                  <button type="button" class="dp-nav-btn" id="f-end-date-next">›</button>
+                </div>
+              </div>
+              <div class="dp-dow-row"><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div></div>
+              <div class="dp-grid" id="f-end-date-grid"></div>
+              <div class="dp-footer">
+                <button type="button" class="dp-link" id="f-end-date-clear">Effacer</button>
+                <button type="button" class="dp-link" id="f-end-date-today">Aujourd'hui</button>
+              </div>
+            </div>
+          </div>
+          <select id="f-end-time" class="time-select"></select>
+        </div>
         <small>Pour un événement sur plusieurs jours.</small>
       </div>
     </div>
@@ -833,6 +925,103 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   function parseISO(s){
     var p = s.split("-"); return new Date(+p[0], +p[1]-1, +p[2]);
   }
+  function formatDateFR(iso){
+    if(!iso) return "";
+    var d = parseISO(iso);
+    return String(d.getDate()).padStart(2,"0") + "/" + String(d.getMonth()+1).padStart(2,"0") + "/" + d.getFullYear();
+  }
+  function populateTimeSelect(select){
+    select.innerHTML = "";
+    for(var h=0; h<24; h++){
+      for(var m=0; m<60; m+=30){
+        var hh = String(h).padStart(2,"0");
+        var mm = String(m).padStart(2,"0");
+        var opt = document.createElement("option");
+        opt.value = hh + ":" + mm;
+        opt.textContent = hh + "h" + mm;
+        select.appendChild(opt);
+      }
+    }
+    select.value = "12:00";
+  }
+  function initDatePicker(prefix){
+    var input = document.getElementById(prefix);
+    var icon = document.getElementById(prefix + "-icon");
+    var popover = document.getElementById(prefix + "-popover");
+    var monthLabel = document.getElementById(prefix + "-month-label");
+    var prevBtn = document.getElementById(prefix + "-prev");
+    var nextBtn = document.getElementById(prefix + "-next");
+    var grid = document.getElementById(prefix + "-grid");
+    var clearBtn = document.getElementById(prefix + "-clear");
+    var todayBtn = document.getElementById(prefix + "-today");
+    var viewDate = new Date();
+
+    function getIso(){ return input.dataset.iso || ""; }
+    function setIso(iso){
+      input.dataset.iso = iso || "";
+      input.value = iso ? formatDateFR(iso) : "";
+    }
+    function renderGrid(){
+      monthLabel.textContent = MONTHS_FR[viewDate.getMonth()] + " " + viewDate.getFullYear();
+      grid.innerHTML = "";
+      var year = viewDate.getFullYear(), month = viewDate.getMonth();
+      var first = new Date(year, month, 1);
+      var startOffset = (first.getDay() + 6) % 7;
+      var daysInMonth = new Date(year, month+1, 0).getDate();
+      var daysInPrev = new Date(year, month, 0).getDate();
+      var todayISO = fmtISO(new Date());
+      var selIso = getIso();
+      var cells = [];
+      for(var i=startOffset-1; i>=0; i--){ cells.push({day:daysInPrev-i, out:true, date:new Date(year, month-1, daysInPrev-i)}); }
+      for(var d=1; d<=daysInMonth; d++){ cells.push({day:d, out:false, date:new Date(year, month, d)}); }
+      var remain = (7 - (cells.length % 7)) % 7;
+      for(var j=1; j<=remain; j++){ cells.push({day:j, out:true, date:new Date(year, month+1, j)}); }
+      cells.forEach(function(c){
+        var iso = fmtISO(c.date);
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "dp-day" + (c.out ? " out" : "") + (iso === todayISO ? " today" : "") + (iso === selIso ? " selected" : "");
+        btn.textContent = c.day;
+        btn.addEventListener("click", function(){
+          setIso(iso);
+          closePopover();
+        });
+        grid.appendChild(btn);
+      });
+    }
+    function openPopover(){
+      document.querySelectorAll(".date-popover.show").forEach(function(p){ p.classList.remove("show"); });
+      var iso = getIso();
+      viewDate = iso ? parseISO(iso) : new Date();
+      renderGrid();
+      var rect = icon.getBoundingClientRect();
+      var top = rect.bottom + 6;
+      var left = rect.right - 266;
+      if(left < 8) left = 8;
+      if(top + 340 > window.innerHeight) top = rect.top - 346;
+      popover.style.top = top + "px";
+      popover.style.left = left + "px";
+      popover.classList.add("show");
+    }
+    function closePopover(){ popover.classList.remove("show"); }
+
+    icon.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      if(icon.disabled) return;
+      if(popover.classList.contains("show")) closePopover(); else openPopover();
+    });
+    prevBtn.addEventListener("click", function(){ viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()-1, 1); renderGrid(); });
+    nextBtn.addEventListener("click", function(){ viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth()+1, 1); renderGrid(); });
+    clearBtn.addEventListener("click", function(){ setIso(""); closePopover(); });
+    todayBtn.addEventListener("click", function(){ setIso(fmtISO(new Date())); closePopover(); });
+
+    return { getIso:getIso, setIso:setIso, close:closePopover };
+  }
+  document.addEventListener("click", function(ev){
+    document.querySelectorAll(".date-popover.show").forEach(function(p){
+      if(!p.contains(ev.target)) p.classList.remove("show");
+    });
+  });
   function datesInRange(startIso, endIso){
     if(!endIso || endIso <= startIso) return [startIso];
     var out = [];
@@ -1224,9 +1413,13 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     if(e.date){
       var d = parseISO(e.date);
       dateLabel = d.getDate() + " " + MONTHS_FR[d.getMonth()].toLowerCase() + " " + d.getFullYear();
+      if(e.time) dateLabel += " à " + e.time.replace(":", "h");
       if(e.endDate && e.endDate > e.date){
         var ed = parseISO(e.endDate);
         dateLabel += " → " + ed.getDate() + " " + MONTHS_FR[ed.getMonth()].toLowerCase() + " " + ed.getFullYear();
+        if(e.endTime) dateLabel += " à " + e.endTime.replace(":", "h");
+      } else if(e.endTime && e.endTime !== e.time){
+        dateLabel += " → " + e.endTime.replace(":", "h");
       }
     } else {
       dateLabel = "À prévoir";
@@ -1323,8 +1516,10 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     editingId = id || null;
     var e = id ? entries.find(function(x){ return x.id === id; }) : null;
     document.getElementById("panel-title").textContent = e ? "Modifier l'élément" : "Nouvel élément";
-    document.getElementById("f-date").value = e ? e.date : fmtISO(new Date());
-    document.getElementById("f-end-date").value = e && e.endDate ? e.endDate : "";
+    fDatePicker.setIso(e ? e.date : fmtISO(new Date()));
+    fEndDatePicker.setIso(e && e.endDate ? e.endDate : "");
+    document.getElementById("f-time").value = e && e.time ? e.time : "12:00";
+    document.getElementById("f-end-time").value = e && e.endTime ? e.endTime : "12:00";
     document.getElementById("f-title").value = e ? e.title : "";
     document.getElementById("f-location").value = e ? (e.location||"") : "";
     document.getElementById("f-desc").value = e ? (e.desc||"") : "";
@@ -1380,20 +1575,26 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       b.classList.toggle("active", b.dataset.val === v);
     });
     document.getElementById("f-type").dataset.current = v;
-    var dateInput = document.getElementById("f-date");
     var dateHint = document.getElementById("f-date-hint");
-    var endDateInput = document.getElementById("f-end-date");
+    var dateWrap = document.getElementById("f-date-wrap");
+    var endDateWrap = document.getElementById("f-end-date-wrap");
+    var timeSelect = document.getElementById("f-time");
+    var endTimeSelect = document.getElementById("f-end-time");
     if(v === "avenir"){
-      dateInput.value = "";
-      dateInput.disabled = true;
-      endDateInput.value = "";
-      endDateInput.disabled = true;
+      fDatePicker.setIso("");
+      fEndDatePicker.setIso("");
+      dateWrap.classList.add("disabled");
+      endDateWrap.classList.add("disabled");
+      timeSelect.disabled = true;
+      endTimeSelect.disabled = true;
       if(dateHint) dateHint.style.display = "block";
     } else {
-      dateInput.disabled = false;
-      endDateInput.disabled = false;
+      dateWrap.classList.remove("disabled");
+      endDateWrap.classList.remove("disabled");
+      timeSelect.disabled = false;
+      endTimeSelect.disabled = false;
       if(dateHint) dateHint.style.display = "none";
-      if(!dateInput.value) dateInput.value = fmtISO(new Date());
+      if(!fDatePicker.getIso()) fDatePicker.setIso(fmtISO(new Date()));
     }
   }
   document.getElementById("f-type").addEventListener("click", function(ev){
@@ -1406,8 +1607,10 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   document.getElementById("btn-save").addEventListener("click", function(){
     var data = {
       type: document.getElementById("f-type").dataset.current || "",
-      date: document.getElementById("f-date").value,
-      endDate: document.getElementById("f-end-date").value,
+      date: fDatePicker.getIso(),
+      endDate: fEndDatePicker.getIso(),
+      time: document.getElementById("f-time").value,
+      endTime: document.getElementById("f-end-time").value,
       status: document.getElementById("f-status-pills").dataset.current || "idea",
       title: document.getElementById("f-title").value.trim() || "Sans titre",
       location: document.getElementById("f-location").value.trim(),
@@ -1920,6 +2123,10 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   });
 
   // ---------------- Init ----------------
+  var fDatePicker = initDatePicker("f-date");
+  var fEndDatePicker = initDatePicker("f-end-date");
+  populateTimeSelect(document.getElementById("f-time"));
+  populateTimeSelect(document.getElementById("f-end-time"));
   loadLocal();
   applyResponsiveView();
   unlock();
