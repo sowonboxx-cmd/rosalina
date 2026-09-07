@@ -1679,8 +1679,8 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     fDatePicker.setIso(e ? e.date : (presetDate || ""));
     fEndDatePicker.setIso(e && e.endDate ? e.endDate : "");
     if(e){
-      fDatePicker.setTime(e.time || "12:00");
-      fEndDatePicker.setTime(e.endTime || "12:00");
+      if(e.time) fDatePicker.setTime(e.time); else fDatePicker.resetTime();
+      if(e.endTime) fEndDatePicker.setTime(e.endTime); else fEndDatePicker.resetTime();
     } else {
       fDatePicker.resetTime();
       fEndDatePicker.resetTime();
