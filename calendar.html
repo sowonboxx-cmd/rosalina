@@ -303,6 +303,9 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 }
 .panel-head{
   background:var(--navy); color:#fff; padding:18px 20px; display:flex; align-items:center; gap:12px;
+}
+/* Only the full-screen sliding panels (edit event, settings) actually touch the top edge and need notch clearance */
+#panel .panel-head, #settings-panel .panel-head{
   padding-top:calc(18px + env(safe-area-inset-top));
 }
 .panel-head button.close{
@@ -1373,6 +1376,8 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       var s1 = formatShortDate(d) + (e.time ? ", " + e.time : "");
       var s2 = formatShortDate(ed) + (e.endTime ? ", " + e.endTime : "");
       dateBadge = '<span class="date-range-badge">' + s1 + ' – ' + s2 + '</span>';
+    } else if(d && e.time){
+      dateBadge = '<span class="date-range-badge">' + e.time + '</span>';
     }
     var st = getStatus(e.status);
     var card = document.createElement("div");
