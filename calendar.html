@@ -791,6 +791,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   var cursorDate = new Date(todayForInit.getFullYear(), todayForInit.getMonth(), 1);
   var editingId = null;
   var pullInFlight = false;
+  var pendingPushSnapshot = null;
 
   function getType(id){
     return types.find(function(t){ return t.id === id; }) || {id:id, label:id, color:"#9AA3B5"};
@@ -901,6 +902,18 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     }).finally(function(){
       pullInFlight = false;
       setAddButtonsEnabled(true);
+      if(pendingPushSnapshot){
+        var snap = pendingPushSnapshot;
+        pendingPushSnapshot = null;
+        entries = snap.entries;
+        types = snap.types;
+        statuses = snap.statuses;
+        globalTodos = snap.globalTodos;
+        saveLocal(); saveTypes(); saveStatuses(); saveGlobalTodos();
+        render(); renderTypesList(); renderStatusesList(); renderFilters();
+        if(onTodoPage) renderTodoCards();
+        pushToCloud(true);
+      }
     });
   }
 
@@ -917,8 +930,16 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       return;
     }
     if(pullInFlight){
-      // Never push while a fetch from the cloud is still in flight — doing so would
-      // race the pull and could overwrite real cloud data with a stale/incomplete local state.
+      // A fetch from the cloud is still in flight — pushing right now would race it and
+      // could overwrite real cloud data with a stale/incomplete local state. Instead of
+      // dropping this edit, snapshot the current local state so it can be restored and
+      // retried automatically once the pull finishes (see pullFromCloud's finally()).
+      pendingPushSnapshot = {
+        entries: JSON.parse(JSON.stringify(entries)),
+        types: JSON.parse(JSON.stringify(types)),
+        statuses: JSON.parse(JSON.stringify(statuses)),
+        globalTodos: JSON.parse(JSON.stringify(globalTodos))
+      };
       return;
     }
     setSyncStatus("Enregistrement…");
