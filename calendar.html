@@ -236,7 +236,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   flex:1; border:1px solid var(--line); border-radius:7px; padding:5px 9px; font-size:14.5px;
   font-family:inherit; font-weight:600; color:var(--navy-ink); background:#fff;
 }
-.td-desc-view{font-size:13.5px; line-height:1.5; color:var(--navy-ink); cursor:text; min-height:20px;}
+.td-desc-view{font-size:13.5px; line-height:1.5; color:var(--navy-ink); cursor:text; min-height:20px; white-space:pre-wrap;}
 .td-desc-view a{color:var(--navy); font-weight:600; text-decoration:underline; text-decoration-color:rgba(44,61,44,.35);}
 .todo-card-title{flex:1; font-weight:600; font-size:14.5px; color:var(--navy-ink);}
 .todo-card-title.done{text-decoration:line-through; color:var(--muted);}
@@ -2200,10 +2200,6 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
         body.className = "todo-card-body";
         body.innerHTML =
           '<div class="field"><label>Description</label><div class="td-desc-view">' + (td.desc ? linkifyText(td.desc) : '<span class="view-empty">Notes, détails…</span>') + '</div></div>' +
-          '<div class="field"><label>Liens</label>' +
-            '<div class="links-list td-links-list"></div>' +
-            '<div class="add-link-row"><input type="url" class="td-link-input" placeholder="https://…"><button class="td-link-add">+ Ajouter</button></div>' +
-          '</div>' +
           '<div class="field"><label>Sous-tâches</label>' +
             '<div class="todo-list td-subtasks-list"></div>' +
             '<div class="add-todo-row"><input type="text" class="td-subtask-input" placeholder="Nouvelle sous-tâche…"><button class="td-subtask-add">+ Ajouter</button></div>' +
@@ -2226,31 +2222,6 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
             pushToCloud(true);
             renderTodoCards();
           });
-        });
-
-        function renderTdLinks(){
-          var lwrap = body.querySelector(".td-links-list");
-          lwrap.innerHTML = "";
-          td.links.forEach(function(l, idx){
-            var row = document.createElement("div");
-            row.className = "link-row";
-            row.innerHTML = '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener">' + escapeHtml(extractDomain(l.url)) + '</a><button data-idx="' + idx + '">✕</button>';
-            row.querySelector("button").addEventListener("click", function(){
-              td.links.splice(idx,1);
-              saveGlobalTodos(); renderTdLinks(); pushToCloud(true);
-            });
-            lwrap.appendChild(row);
-          });
-        }
-        renderTdLinks();
-        body.querySelector(".td-link-add").addEventListener("click", function(){
-          var input = body.querySelector(".td-link-input");
-          var val = input.value.trim();
-          if(val){
-            td.links.push({url:val});
-            input.value = "";
-            saveGlobalTodos(); renderTdLinks(); pushToCloud(true);
-          }
         });
 
         function renderTdSubtasks(){
