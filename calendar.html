@@ -453,6 +453,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
   letter-spacing:.05em; margin-bottom:8px;
 }
 .view-text{font-size:14px; line-height:1.6; color:var(--navy-ink); white-space:pre-wrap; margin:0;}
+.desc-link{color:var(--navy); font-weight:600; text-decoration:underline; text-decoration-color:rgba(44,61,44,.35);}
 .view-caption-box{
   position:relative; background:#fff; border:1px solid var(--line); border-radius:9px;
   padding:12px 42px 12px 14px; font-size:14px; line-height:1.6; white-space:pre-wrap;
@@ -1554,6 +1555,29 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
       return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
     });
   }
+  function extractDomain(url){
+    try{
+      var withProto = /^https?:\/\//i.test(url) ? url : "https://" + url;
+      return new URL(withProto).hostname.replace(/^www\./i, "");
+    }catch(err){
+      return url;
+    }
+  }
+  function linkifyText(text){
+    if(!text) return "";
+    var urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/gi;
+    var parts = text.split(urlRegex);
+    var html = "";
+    parts.forEach(function(part, i){
+      if(i % 2 === 1){
+        var href = /^https?:\/\//i.test(part) ? part : "https://" + part;
+        html += '<a href="' + escapeHtml(href) + '" target="_blank" rel="noopener" class="desc-link">' + escapeHtml(extractDomain(href)) + '</a>';
+      } else {
+        html += escapeHtml(part);
+      }
+    });
+    return html;
+  }
 
   // ---------------- Panel (create/edit) ----------------
   var panel = document.getElementById("panel");
@@ -1602,7 +1626,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
     }
 
     html += '<div class="view-section"><span class="vs-label">Description / commentaire</span>';
-    html += e.desc ? '<p class="view-text">' + escapeHtml(e.desc) + '</p>' : '<p class="view-empty">Aucune description pour l’instant.</p>';
+    html += e.desc ? '<p class="view-text">' + linkifyText(e.desc) + '</p>' : '<p class="view-empty">Aucune description pour l’instant.</p>';
     html += '</div>';
 
     html += '<div class="view-section"><span class="vs-label">Lien ICS</span>';
@@ -2150,7 +2174,7 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
           td.links.forEach(function(l, idx){
             var row = document.createElement("div");
             row.className = "link-row";
-            row.innerHTML = '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener">' + escapeHtml(l.url) + '</a><button data-idx="' + idx + '">✕</button>';
+            row.innerHTML = '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener">' + escapeHtml(extractDomain(l.url)) + '</a><button data-idx="' + idx + '">✕</button>';
             row.querySelector("button").addEventListener("click", function(){
               td.links.splice(idx,1);
               saveGlobalTodos(); renderTdLinks(); pushToCloud(true);
