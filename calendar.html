@@ -231,7 +231,13 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
 .todo-card{
   background:#fff; border:1px solid var(--line); border-radius:12px; margin-bottom:10px; overflow:hidden;
 }
-.todo-card-head{display:flex; align-items:center; gap:12px; padding:14px 16px;}
+.todo-card-head{display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer;}
+.todo-card-head .tname-input{
+  flex:1; border:1px solid var(--line); border-radius:7px; padding:5px 9px; font-size:14.5px;
+  font-family:inherit; font-weight:600; color:var(--navy-ink); background:#fff;
+}
+.td-desc-view{font-size:13.5px; line-height:1.5; color:var(--navy-ink); cursor:text; min-height:20px;}
+.td-desc-view a{color:var(--navy); font-weight:600; text-decoration:underline; text-decoration-color:rgba(44,61,44,.35);}
 .todo-card-title{flex:1; font-weight:600; font-size:14.5px; color:var(--navy-ink);}
 .todo-card-title.done{text-decoration:line-through; color:var(--muted);}
 .todo-card-badge{
@@ -2163,14 +2169,37 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
         expandedTodoIds[td.id] = !expandedTodoIds[td.id];
         renderTodoCards();
       }
-      head.querySelector(".todo-edit-btn").addEventListener("click", toggleExpand);
-      head.querySelector(".todo-chevron-btn").addEventListener("click", toggleExpand);
+      head.addEventListener("click", function(ev){
+        if(ev.target.closest(".todo-main-check")) return;
+        toggleExpand();
+      });
+      head.querySelector(".todo-edit-btn").addEventListener("click", function(ev){
+        ev.stopPropagation();
+        var titleSpan = head.querySelector(".todo-card-title");
+        var input = document.createElement("input");
+        input.type = "text";
+        input.className = "tname-input";
+        input.value = td.text;
+        titleSpan.replaceWith(input);
+        input.focus();
+        input.select();
+        input.addEventListener("click", function(e){ e.stopPropagation(); });
+        function commit(){
+          var val = input.value.trim();
+          if(val) td.text = val;
+          saveGlobalTodos();
+          renderTodoCards();
+          pushToCloud(true);
+        }
+        input.addEventListener("blur", commit);
+        input.addEventListener("keydown", function(e){ if(e.key === "Enter") input.blur(); });
+      });
 
       if(expanded){
         var body = document.createElement("div");
         body.className = "todo-card-body";
         body.innerHTML =
-          '<div class="field"><label>Description</label><textarea class="td-desc" placeholder="Notes, détails…">' + escapeHtml(td.desc) + '</textarea></div>' +
+          '<div class="field"><label>Description</label><div class="td-desc-view">' + (td.desc ? linkifyText(td.desc) : '<span class="view-empty">Notes, détails…</span>') + '</div></div>' +
           '<div class="field"><label>Liens</label>' +
             '<div class="links-list td-links-list"></div>' +
             '<div class="add-link-row"><input type="url" class="td-link-input" placeholder="https://…"><button class="td-link-add">+ Ajouter</button></div>' +
@@ -2182,11 +2211,21 @@ main{max-width:1180px; margin:0 auto; padding:22px 20px 100px;}
           '<button class="btn-secondary td-delete-task">Supprimer la tâche</button>';
         card.appendChild(body);
 
-        var descEl = body.querySelector(".td-desc");
-        descEl.addEventListener("blur", function(){
-          td.desc = descEl.value;
-          saveGlobalTodos();
-          pushToCloud(true);
+        var descView = body.querySelector(".td-desc-view");
+        descView.addEventListener("click", function(ev){
+          if(ev.target.tagName === "A") return;
+          var textarea = document.createElement("textarea");
+          textarea.className = "td-desc";
+          textarea.placeholder = "Notes, détails…";
+          textarea.value = td.desc || "";
+          descView.replaceWith(textarea);
+          textarea.focus();
+          textarea.addEventListener("blur", function(){
+            td.desc = textarea.value;
+            saveGlobalTodos();
+            pushToCloud(true);
+            renderTodoCards();
+          });
         });
 
         function renderTdLinks(){
