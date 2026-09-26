@@ -660,30 +660,30 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 <script>
 const DB_ID='249a8c29d0568122a40ccf7180e98935';
 const WORKER='https://notion-proxy.sowonboxx.workers.dev';
-const MOIS_S=['jan','f\u00e9v','mar','avr','mai','jun','jul','ao\u00fb','sep','oct','nov','d\u00e9c'];
-const MOIS_L=['janvier','f\u00e9vrier','mars','avril','mai','juin','juillet','ao\u00fbt','septembre','octobre','novembre','d\u00e9cembre'];
-const MOIS_FULL=['Janvier','F\u00e9vrier','Mars','Avril','Mai','Juin','Juillet','Ao\u00fbt','Septembre','Octobre','Novembre','D\u00e9cembre'];
+const MOIS_S=['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+const MOIS_L=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const MOIS_FULL=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 const DOW=['L','M','M','J','V','S','D'];
 const STATUTS=[
-  {key:'Devis envoy\u00e9',cls:'sb-devis-envoye'},
-  {key:'Devis sign\u00e9',cls:'sb-devis-signe'},
-  {key:'Acompte Vers\u00e9',cls:'sb-acompte'},
-  {key:'Solde Pay\u00e9',cls:'sb-solde'},
-  {key:"Paiement \u00e0 l'arriv\u00e9e",cls:'sb-paiement'},
-  {key:'Annul\u00e9',cls:'sb-annule'},
+  {key:'Devis envoyé',cls:'sb-devis-envoye'},
+  {key:'Devis signé',cls:'sb-devis-signe'},
+  {key:'Acompte Versé',cls:'sb-acompte'},
+  {key:'Solde Payé',cls:'sb-solde'},
+  {key:"Paiement à l'arrivée",cls:'sb-paiement'},
+  {key:'Annulé',cls:'sb-annule'},
 ];
 const CUR_YEAR=new Date().getFullYear();
 // ══ SAISONNALITÉ ══
 const TARIFS={ROSALINA:{basse:1100,haute:1200},ROSA:{basse:900,haute:1000},LINA:{basse:400,haute:500}};
 function getSaison(date){const m=date.getMonth()+1,d=date.getDate();if(m>=4&&m<=8)return'haute';if(m===12&&d>=22)return'haute';if(m===1&&d<=4)return'haute';return'basse';}
 function getPrixNuit(maison,date){const s=getSaison(date);return(TARIFS[maison?.toUpperCase()]||TARIFS.ROSALINA)[s];}
-function fmtPrixCourt(n){return Number(n).toLocaleString('fr-FR')+'\u00a0\u20ac';}
+function fmtPrixCourt(n){return Number(n).toLocaleString('fr-FR')+' €';}
 
 let allClients=[],modalClient=null,sortAsc=true,selectedYear='upcoming';
 let calMonth=new Date().getMonth(),calYear=CUR_YEAR;
 let taxeYear='all';
 function fmtDateCourt(s){
-  if(!s)return'\u2014';
+  if(!s)return'—';
   const[y,m,d]=s.split('-');
   return d+'.'+m+'.'+y.slice(2);
 }
@@ -699,10 +699,10 @@ function initTheme(){
 function toggleTheme(){theme=theme==='dark'?'light':'dark';localStorage.setItem('dash_theme',theme);initTheme();}
 
 function getToken(){return document.getElementById('token-input').value.trim()||localStorage.getItem('notion_token')||'';}
-function onTokenInput(v){if(v.startsWith('ntn_')){const h=document.getElementById('setup-hint');h.textContent='\u2713 Token valide';h.className='setup-hint ok';}}
+function onTokenInput(v){if(v.startsWith('ntn_')){const h=document.getElementById('setup-hint');h.textContent='✓ Token valide';h.className='setup-hint ok';}}
 function connect(){
   const v=document.getElementById('token-input').value.trim();
-  if(!v.startsWith('ntn_')){const h=document.getElementById('setup-hint');h.textContent='\u26a0\ufe0f Token invalide';h.className='setup-hint err';return;}
+  if(!v.startsWith('ntn_')){const h=document.getElementById('setup-hint');h.textContent='⚠️ Token invalide';h.className='setup-hint err';return;}
   localStorage.setItem('notion_token',v);loadData();
 }
 
@@ -724,7 +724,7 @@ async function loadData(){
   try{
     let all=[],cursor=undefined,more=true;
     while(more){
-      const body={token,database_id:DB_ID,sorts:[{property:'Arriv\u00e9e',direction:'ascending'}],page_size:100};
+      const body={token,database_id:DB_ID,sorts:[{property:'Arrivée',direction:'ascending'}],page_size:100};
       if(cursor)body.start_cursor=cursor;
       const r=await fetch(WORKER+'/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       const d=await r.json();
@@ -757,19 +757,19 @@ function parseClient(page){
     return'';
   };
   return{
-    id:page.id,prenom:g('Pr\u00e9nom','title'),nom:g('Nom','rich'),org:g('Organisme','rich'),
+    id:page.id,prenom:g('Prénom','title'),nom:g('Nom','rich'),org:g('Organisme','rich'),
     maison:g('Maison','select'),
-    arrivee:g('Arriv\u00e9e','date')||g('Arriv\u00e9e-2','date'),
-    depart:g('D\u00e9part','date')||g('D\u00e9part-2','date'),
-    adultes:g('Adultes','num'),enfants:g('Enfants & b\u00e9b\u00e9s','num'),
+    arrivee:g('Arrivée','date')||g('Arrivée-2','date'),
+    depart:g('Départ','date')||g('Départ-2','date'),
+    adultes:g('Adultes','num'),enfants:g('Enfants & bébés','num'),
     adresse:g('Adresse','rich'),tel:g('Tel','phone'),email:g('Email','email'),
     cp:(()=>{const v=g('Code postal','num');return v!==''&&v!=null?String(v):g('Code postal','rich');})(),
     ville:g('Ville','rich')||g('Ville','select'),
     prix:g('Prix','num'),statut:g('Statut','multi'),contrat:g('Contrat','url'),
-    taxe:g('Taxe de s\u00e9jour','num'),
+    taxe:g('Taxe de séjour','num'),
     nuits:g('Nbr de nuits','num'),jours:g('Nbr de jours','num'),
     source:(()=>{const prop=page.properties['Source'];if(!prop)return'';if(prop.multi_select)return prop.multi_select.map(s=>s.name).join(', ');if(prop.select)return prop.select?.name||'';if(prop.rich_text)return prop.rich_text[0]?.plain_text||'';return'';})(),
-    caution:g('Caution vers\u00e9e','check'),
+    caution:g('Caution versée','check'),
   };
 }
 
@@ -819,13 +819,13 @@ function updateStats(){
   const upcoming=allClients.filter(c=>c.arrivee&&new Date(c.arrivee)>today);
   const current=allClients.filter(c=>c.arrivee&&c.depart&&new Date(c.arrivee)<=today&&new Date(c.depart+'T23:59:59')>=today);
   document.getElementById('s-upcoming').textContent=upcoming.length;
-  document.getElementById('s-current').textContent=current.length||'\u2014';
+  document.getElementById('s-current').textContent=current.length||'—';
 
   let yearClients,yearLabel,lastYrClients=[];
   if(selectedYear==='tout'){
     yearClients=allClients;yearLabel='Tout';
   } else if(selectedYear==='upcoming'){
-    yearClients=upcoming;yearLabel='\u00c0 venir';
+    yearClients=upcoming;yearLabel='À venir';
   } else {
     yearClients=allClients.filter(c=>c.arrivee?.startsWith(selectedYear));
     yearLabel=selectedYear;
@@ -834,7 +834,7 @@ function updateStats(){
   const yl=document.getElementById('s-year-lbl');const ys=document.getElementById('s-year');const sc=document.getElementById('s-compare');if(yl)yl.textContent=yearLabel;if(ys)ys.textContent=yearClients.length;
   const diff=yearClients.length-lastYrClients.length;
   const pct=lastYrClients.length?Math.round(Math.abs(diff)/lastYrClients.length*100):0;
-  if(sc){if(lastYrClients.length){sc.textContent=(diff>=0?'\u25b2 +':'\u25bc ')+Math.abs(diff)+(pct?' ('+pct+'%)':'');sc.className='stat-compare '+(diff>=0?'up':'down');}else{sc.textContent='';sc.className='stat-compare';}}
+  if(sc){if(lastYrClients.length){sc.textContent=(diff>=0?'▲ +':'▼ ')+Math.abs(diff)+(pct?' ('+pct+'%)':'');sc.className='stat-compare '+(diff>=0?'up':'down');}else{sc.textContent='';sc.className='stat-compare';}}
 
   // Revenue logic
   const past=allClients.filter(c=>c.depart&&new Date(c.depart+'T23:59:59')<today);
@@ -844,13 +844,13 @@ function updateStats(){
     // Tout: confirmed = all past, upcoming = all future
     confirmed=past.reduce((s,c)=>s+(c.prix||0),0);
     futurs=upcoming.reduce((s,c)=>s+(c.prix||0),0);
-    confLeg='S\u00e9jours termin\u00e9s';upLeg='S\u00e9jours futurs';
+    confLeg='Séjours terminés';upLeg='Séjours futurs';
   } else if(selectedYear==='upcoming'){
     // À venir: confirmed = confirmed of current year (already paid/passed), upcoming = future
     const curYearPast=past.filter(c=>c.arrivee?.startsWith(String(CUR_YEAR)));
     confirmed=curYearPast.reduce((s,c)=>s+(c.prix||0),0);
     futurs=upcoming.reduce((s,c)=>s+(c.prix||0),0);
-    confLeg='Confirm\u00e9s '+CUR_YEAR;upLeg='S\u00e9jours futurs';
+    confLeg='Confirmés '+CUR_YEAR;upLeg='Séjours futurs';
   } else {
     const yr=selectedYear;
     const yrList=allClients.filter(c=>c.arrivee?.startsWith(yr));
@@ -858,11 +858,11 @@ function updateStats(){
     confirmed=yrList.filter(c=>c.depart&&new Date(c.depart+'T23:59:59')<today).reduce((s,c)=>s+(c.prix||0),0);
     // Upcoming = depart not passed
     futurs=yrList.filter(c=>!c.depart||new Date(c.depart+'T23:59:59')>=today).reduce((s,c)=>s+(c.prix||0),0);
-    confLeg='S\u00e9jours termin\u00e9s '+yr;upLeg='S\u00e9jours \u00e0 venir '+yr;
+    confLeg='Séjours terminés '+yr;upLeg='Séjours à venir '+yr;
   }
-  document.getElementById('r-confirmed').textContent=confirmed?fmtPrix(confirmed):'\u2014';
+  document.getElementById('r-confirmed').textContent=confirmed?fmtPrix(confirmed):'—';
   document.getElementById('r-confirmed-leg').textContent=confLeg;
-  document.getElementById('r-upcoming').textContent=futurs?fmtPrix(futurs):'\u2014';
+  document.getElementById('r-upcoming').textContent=futurs?fmtPrix(futurs):'—';
   document.getElementById('r-upcoming-leg').textContent=upLeg;
 }
 
@@ -887,7 +887,7 @@ function renderCards(){
   });
   const showYear=(selectedYear==='tout'||selectedYear==='upcoming');
   const container=document.getElementById('cards-container');
-  if(!list.length){container.innerHTML='<div class="no-results"><div class="icon">\ud83d\udcc5</div><p>Aucune r\u00e9servation</p></div>';return;}
+  if(!list.length){container.innerHTML='<div class="no-results"><div class="icon">📅</div><p>Aucune réservation</p></div>';return;}
   container.innerHTML='<div class="cards-list">'+list.map(c=>renderCard(c,today,showYear)).join('')+'</div>';
 }
 
@@ -906,8 +906,8 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function renderCard(c,today,showYear){
   const mc=getMC(c.maison);
   const name=[c.prenom,c.nom].filter(Boolean).join(' ')||'Client';
-  const dA=c.arrivee?fmtShort(c.arrivee,showYear):'\u2014';
-  const dD=c.depart?fmtShort(c.depart,showYear):'\u2014';
+  const dA=c.arrivee?fmtShort(c.arrivee,showYear):'—';
+  const dD=c.depart?fmtShort(c.depart,showYear):'—';
   const nuits=c.nuits||(c.arrivee&&c.depart?Math.round((new Date(c.depart)-new Date(c.arrivee))/86400000):0);
   const jours=nuits+1;
   let cd='',cdCls='';
@@ -918,7 +918,7 @@ function renderCard(c,today,showYear){
     else if(diff===1)cd='Demain';
     else if(diff>0)cd='Dans '+diff+' j';
     else if(c.depart&&new Date(c.depart+'T23:59:59')>=today){cd='En cours';cdCls='today';}
-    else{cd='Termin\u00e9';cdCls='past';}
+    else{cd='Terminé';cdCls='past';}
   }
   const cid=esc(c.id);
   // Alertes paiement
@@ -943,13 +943,13 @@ function renderCard(c,today,showYear){
     '<div class="card-row1">'+
       '<div><div class="card-name">'+esc(name)+'</div>'+(c.org?'<div class="card-org">'+esc(c.org)+'</div>':'')+' </div>'+
       '<div class="card-right">'+
-        '<span class="maison-pill '+mc+'">'+esc(c.maison||'\u2014')+'</span>'+
+        '<span class="maison-pill '+mc+'">'+esc(c.maison||'—')+'</span>'+
         (cd?'<span class="countdown '+cdCls+'">'+cd+'</span>':'')+
       '</div>'+
     '</div>'+
     '<div class="card-row2">'+
       '<span class="date-chip">'+dA+'</span>'+
-      '<span class="date-sep">\u2192</span>'+
+      '<span class="date-sep">→</span>'+
       '<span class="date-chip">'+dD+'</span>'+
       (nuits?'<span class="duration-tag">'+jours+' jours / '+nuits+' nuits</span>':'')+
     '</div>'+
@@ -964,7 +964,7 @@ function renderCard(c,today,showYear){
       (c.statut?'<span class="statut-badge '+getSB(c.statut)+'">'+esc(c.statut)+'</span>':'')+
       '<span class="caution-tag '+(c.caution?'ok':'empty')+'" onclick="toggleCautionCard(event,\''+cid+'\','+c.caution+')">'+
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'+
-        'Caution vers\u00e9e'+
+        'Caution versée'+
       '</span>'+
       alertBadges+
     '</div>'+
@@ -1218,23 +1218,23 @@ function openModal(c, allC){
   document.getElementById('m-name').textContent=name;
   document.getElementById('m-org').textContent=c.org||'';
   // Toutes les pastilles maison (Rosa+Lina → 2 pastilles dans le calendrier Rosalina)
-  document.getElementById('m-maison').innerHTML=allC.map(cl=>'<span class="maison-pill '+getMC(cl.maison)+'">'+esc(cl.maison||'\u2014')+'</span>').join(' ');
-  document.getElementById('m-arr').textContent=c.arrivee?fmtLong(c.arrivee):'\u2014';
-  document.getElementById('m-dep').textContent=c.depart?fmtLong(c.depart):'\u2014';
-  document.getElementById('m-duree').textContent=nuits?jours+' jours / '+nuits+' nuits':'\u2014';
-  document.getElementById('m-adultes').textContent=c.adultes!==''&&c.adultes!==null?c.adultes:'\u2014';
+  document.getElementById('m-maison').innerHTML=allC.map(cl=>'<span class="maison-pill '+getMC(cl.maison)+'">'+esc(cl.maison||'—')+'</span>').join(' ');
+  document.getElementById('m-arr').textContent=c.arrivee?fmtLong(c.arrivee):'—';
+  document.getElementById('m-dep').textContent=c.depart?fmtLong(c.depart):'—';
+  document.getElementById('m-duree').textContent=nuits?jours+' jours / '+nuits+' nuits':'—';
+  document.getElementById('m-adultes').textContent=c.adultes!==''&&c.adultes!==null?c.adultes:'—';
   document.getElementById('m-enfants').textContent=c.enfants||'0';
-  (()=>{let adr=c.adresse||'';const extra=[c.cp,c.ville].filter(Boolean).map(String).filter(x=>!adr.includes(x)).join(' ');if(extra)adr=adr?adr+' - '+extra:extra;document.getElementById('m-adr').textContent=adr||'\u2014';})();
-  document.getElementById('m-source').textContent=c.source||'\u2014';
-  const tel=document.getElementById('m-tel');tel.textContent=c.tel||'\u2014';tel.href=c.tel?'tel:'+c.tel.replace(/\s/g,''):'#';
-  const email=document.getElementById('m-email');email.textContent=c.email||'\u2014';email.href=c.email?'mailto:'+c.email:'#';
-  document.getElementById('m-prix').textContent=c.prix?fmtPrix(c.prix):'\u2014';
+  (()=>{let adr=c.adresse||'';const extra=[c.cp,c.ville].filter(Boolean).map(String).filter(x=>!adr.includes(x)).join(' ');if(extra)adr=adr?adr+' - '+extra:extra;document.getElementById('m-adr').textContent=adr||'—';})();
+  document.getElementById('m-source').textContent=c.source||'—';
+  const tel=document.getElementById('m-tel');tel.textContent=c.tel||'—';tel.href=c.tel?'tel:'+c.tel.replace(/\s/g,''):'#';
+  const email=document.getElementById('m-email');email.textContent=c.email||'—';email.href=c.email?'mailto:'+c.email:'#';
+  document.getElementById('m-prix').textContent=c.prix?fmtPrix(c.prix):'—';
   const taxeRow=document.getElementById('m-taxe-row');
   if(c.taxe){taxeRow.style.display='flex';document.getElementById('m-taxe').textContent=fmtPrix(c.taxe);}
   else taxeRow.style.display='none';
   const moitie=c.prix?Number(c.prix)/2:0;
-  document.getElementById('m-acompte').textContent=c.prix?fmtPrix(moitie):'\u2014';
-  document.getElementById('m-solde').textContent=c.prix?fmtPrix(moitie):'\u2014';
+  document.getElementById('m-acompte').textContent=c.prix?fmtPrix(moitie):'—';
+  document.getElementById('m-solde').textContent=c.prix?fmtPrix(moitie):'—';
   const cr=document.getElementById('m-contrat-row');
   if(c.contrat){cr.style.display='flex';document.getElementById('m-contrat').href=c.contrat;}
   else cr.style.display='none';
@@ -1246,7 +1246,7 @@ function openModal(c, allC){
   document.body.style.overflow='hidden';
 }
 function updateCautionBtn(v){
-  document.getElementById('m-caution-label').textContent=v?'Vers\u00e9e \u2713':'Non vers\u00e9e';
+  document.getElementById('m-caution-label').textContent=v?'Versée ✓':'Non versée';
   document.getElementById('m-caution-btn').className='caution-toggle-btn '+(v?'ok':'');
 }
 // ── DIVERS ──
@@ -1278,6 +1278,7 @@ function openRemind(type,id){
   const maisonNom=c.maison?.toUpperCase()==='ROSALINA'?'au Domaine Rosalina':c.maison?.toUpperCase()==='ROSA'?'à la Maison Rosa':'à la Maison Lina';
   const cautionMontant=c.maison?.toUpperCase()==='ROSALINA'?'1 500 €':c.maison?.toUpperCase()==='ROSA'?'1 000 €':'600 €';
   const cautionLink=c.maison?.toUpperCase()==='ROSALINA'?'https://wannapay.fr/d/67ac70c56c401':c.maison?.toUpperCase()==='ROSA'?'https://wannapay.fr/d/6835a0eff0a9f':'https://wannapay.fr/d/6835a0a1ca8ed';
+  const isBooking=(c.source||'').toLowerCase().includes('booking');
 
   let title, body;
   if(type==='solde'){
@@ -1296,6 +1297,27 @@ Téléphone : 07 83 87 60 90
 
 Bien cordialement,
 Aline et Eugène`;
+  } else if(isBooking){
+    // Caution — réservation via Booking
+    title='Rappel — Caution à verser';
+    body=`Bonjour ${prenom||name},
+
+Nous vous rappelons que le dépôt de la caution est obligatoire pour accéder à la maison. Cette condition est impérative et aucune exception ne sera accordée.
+
+Le code d’accès à la maison est transmis automatiquement après validation du paiement de votre caution via Stripe. Tant que le paiement n’a pas été effectué et confirmé sur notre compte, aucun code ne sera généré ni communiqué. Nous n’avons aucune possibilité de vous transmettre le code manuellement ou de contourner cette procédure.
+
+Nous vous demandons donc de déposer votre caution au plus tard 24 heures avant votre arrivée, afin de garantir un accès sans difficulté le jour de votre réservation.
+
+Voici le lien pour effectuer le dépôt de votre caution :
+https://wannapay.fr/d/6ab7950c259d8
+
+La caution vous sera intégralement restituée après votre séjour, sous réserve qu’aucun dégât n’ait été constaté dans la maison.
+
+ATTENTION : sans paiement de la caution, vous ne recevrez pas votre code d’accès et vous ne pourrez pas entrer dans la maison. Cette règle est automatique, obligatoire et non négociable.
+Merci de prendre vos dispositions à l’avance afin d’éviter tout désagrément à votre arrivée.
+
+Bien cordialement,
+Aline & Eugène`;
   } else {
     title='Rappel — Caution à verser';
     body=`Bonjour ${prenom||name},
@@ -1356,13 +1378,13 @@ async function toggleCautionCard(e,pid,cur){
   e.stopPropagation();const nv=!cur;
   const c=allClients.find(x=>x.id===pid);if(c)c.caution=nv;
   renderCards();
-  await patch(pid,{'Caution vers\u00e9e':{checkbox:nv}});
+  await patch(pid,{'Caution versée':{checkbox:nv}});
 }
 async function toggleCautionModal(){
   if(!modalClient)return;const nv=!modalClient.caution;
   modalClient.caution=nv;updateCautionBtn(nv);
   const c=allClients.find(x=>x.id===modalClient.id);if(c)c.caution=nv;renderCards();
-  await patch(modalClient.id,{'Caution vers\u00e9e':{checkbox:nv}});
+  await patch(modalClient.id,{'Caution versée':{checkbox:nv}});
 }
 async function setStatut(statut,el){
   if(!modalClient)return;
@@ -1378,17 +1400,17 @@ async function patch(pid,props){
   catch(e){console.error(e);}
 }
 
-function fmtShort(iso,withYear=false){if(!iso)return'\u2014';const d=new Date(iso+'T12:00:00');return d.getDate()+' '+MOIS_S[d.getMonth()]+(withYear?' '+d.getFullYear():'');}
-function fmtLong(iso){if(!iso)return'\u2014';const d=new Date(iso+'T12:00:00');return d.getDate()+' '+MOIS_L[d.getMonth()]+' '+d.getFullYear();}
-function fmtPrix(n){return Number(n).toLocaleString('fr-FR')+' \u20ac';}
+function fmtShort(iso,withYear=false){if(!iso)return'—';const d=new Date(iso+'T12:00:00');return d.getDate()+' '+MOIS_S[d.getMonth()]+(withYear?' '+d.getFullYear():'');}
+function fmtLong(iso){if(!iso)return'—';const d=new Date(iso+'T12:00:00');return d.getDate()+' '+MOIS_L[d.getMonth()]+' '+d.getFullYear();}
+function fmtPrix(n){return Number(n).toLocaleString('fr-FR')+' €';}
 function showSkeletons(){document.getElementById('cards-container').innerHTML='<div class="cards-list"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>';}
-function showErr(msg){document.getElementById('cards-container').innerHTML='<div class="no-results"><div class="icon">\u26a0\ufe0f</div><p>'+msg+'</p></div>';}
+function showErr(msg){document.getElementById('cards-container').innerHTML='<div class="no-results"><div class="icon">⚠️</div><p>'+msg+'</p></div>';}
 
 initTheme();
 const saved=localStorage.getItem('notion_token');
 if(saved){
   document.getElementById('token-input').value=saved;
-  document.getElementById('setup-hint').textContent='\u2713 Charg\u00e9';
+  document.getElementById('setup-hint').textContent='✓ Chargé';
   document.getElementById('setup-hint').className='setup-hint ok';
   loadData();
 }
@@ -1429,19 +1451,19 @@ function onSearchInput(q){
     const name=([c.prenom,c.nom].filter(Boolean).join(' ')).toLowerCase();
     return name.includes(q)||(c.org||'').toLowerCase().includes(q)||(c.email||'').toLowerCase().includes(q);
   }).slice(0,8);
-  if(!found.length){res.innerHTML='<div class="search-empty">Aucun r\u00e9sultat</div>';return;}
+  if(!found.length){res.innerHTML='<div class="search-empty">Aucun résultat</div>';return;}
   const today=new Date();today.setHours(0,0,0,0);
   res.innerHTML=found.map(c=>{
     const name=[c.prenom,c.nom].filter(Boolean).join(' ')||'Client';
     const mc=getMC(c.maison);
-    const dA=c.arrivee?fmtShort(c.arrivee,true):'\u2014';
-    const dD=c.depart?fmtShort(c.depart,true):'\u2014';
+    const dA=c.arrivee?fmtShort(c.arrivee,true):'—';
+    const dD=c.depart?fmtShort(c.depart,true):'—';
     return '<div class="search-item" onclick="openModalById(\''+esc(c.id)+'\');closeSearch()">'+
       '<div class="search-item-left">'+
         '<div class="search-item-name">'+esc(name)+'</div>'+
-        '<div class="search-item-sub">'+(c.org?esc(c.org)+' \u2022 ':'')+dA+' \u2192 '+dD+'</div>'+
+        '<div class="search-item-sub">'+(c.org?esc(c.org)+' • ':'')+dA+' → '+dD+'</div>'+
       '</div>'+
-      '<span class="maison-pill '+mc+'">'+esc(c.maison||'\u2014')+'</span>'+
+      '<span class="maison-pill '+mc+'">'+esc(c.maison||'—')+'</span>'+
     '</div>';
   }).join('');
 }
@@ -1464,10 +1486,10 @@ async function autoUpdateFinished(){
   // Update silently - don't await all, fire and forget
   for(const c of finished){
     const updates={};
-    updates['Statut']={multi_select:[{name:'Solde Pay\u00e9'}]};
-    if(!c.caution) updates['Caution vers\u00e9e']={checkbox:true};
+    updates['Statut']={multi_select:[{name:'Solde Payé'}]};
+    if(!c.caution) updates['Caution versée']={checkbox:true};
     await patch(c.id, updates);
-    c.statut='Solde Pay\u00e9';
+    c.statut='Solde Payé';
     if(!c.caution) c.caution=true;
   }
   if(finished.length>0) renderCards();
@@ -1518,11 +1540,11 @@ function renderStats(){
   const avgJours=avgNuits+1;
 
   document.getElementById('kpi-row').innerHTML=[
-    {l:'R\u00e9servations',v:total,s:''},
+    {l:'Réservations',v:total,s:''},
     {l:'Personnes total',v:totalPersonnes,s:'adultes: '+totalAdultes+' / enfants: '+totalEnfants},
-    {l:'Moy. personnes/s\u00e9jour',v:avgPersonnes,s:'adultes: '+avgAdultes+' / enfants: '+avgEnfants},
+    {l:'Moy. personnes/séjour',v:avgPersonnes,s:'adultes: '+avgAdultes+' / enfants: '+avgEnfants},
     {l:'Prix moyen',v:fmtPrix(avgRevenu),s:'total: '+fmtPrix(totalRevenu)},
-    {l:'Dur\u00e9e moyenne',v:avgJours+'j / '+avgNuits+'n',s:''},
+    {l:'Durée moyenne',v:avgJours+'j / '+avgNuits+'n',s:''},
   ].map(k=>'<div class="kpi-card"><div class="kpi-lbl">'+k.l+'</div><div class="kpi-val">'+k.v+'</div><div class="kpi-sub">'+k.s+'</div></div>').join('');
 
   // Taxe de séjour table
@@ -1542,7 +1564,7 @@ function renderStats(){
       '<div class="source-track"><div class="source-fill" style="width:'+Math.round(cnt/srcTotal*100)+'%"></div></div>'+
       '<div class="source-count">'+cnt+'</div>'+
     '</div>'
-  ).join('')||'<div style="color:var(--text3);font-size:.8rem">Aucune donn\u00e9e</div>';
+  ).join('')||'<div style="color:var(--text3);font-size:.8rem">Aucune donnée</div>';
 
   // Duration stats
   const durMap={'1-3 nuits':0,'4-7 nuits':0,'8-14 nuits':0,'15+ nuits':0};
@@ -1553,7 +1575,7 @@ function renderStats(){
     else durMap['15+ nuits']++;
   });
   document.getElementById('duration-stats').innerHTML=
-    Object.entries(durMap).map(([k,v])=>'<div class="duration-row"><span class="duration-lbl">'+k+'</span><span class="duration-val">'+v+' s\u00e9jour'+(v>1?'s':'')+'</span></div>').join('');
+    Object.entries(durMap).map(([k,v])=>'<div class="duration-row"><span class="duration-lbl">'+k+'</span><span class="duration-val">'+v+' séjour'+(v>1?'s':'')+'</span></div>').join('');
 
   // Revenue by year — séjours PASSÉS uniquement (réaliste)
   const todayRev=new Date(); todayRev.setHours(0,0,0,0);
@@ -1568,7 +1590,7 @@ function renderStats(){
       '<span style="font-weight:700;min-width:40px">'+y+'</span>'+
       '<div class="revenue-year-bar"><div class="revenue-year-fill" style="width:'+pct+'%"></div></div>'+
       '<span style="font-weight:700;min-width:90px;text-align:right">'+fmtPrix(rev)+'</span>'+
-      '<span style="color:var(--text3);font-size:.72rem;min-width:60px;text-align:right">'+cnt+' s\u00e9j.</span>'+
+      '<span style="color:var(--text3);font-size:.72rem;min-width:60px;text-align:right">'+cnt+' séj.</span>'+
     '</div>';
   }).join('') || '<p style="font-size:.8rem;color:var(--text3);padding:8px 0">Aucun séjour passé</p>';
 }
@@ -1592,7 +1614,7 @@ function renderTaxeTable(allC){
     '<div class="source-bar" style="cursor:pointer;border-radius:6px;padding:5px 4px" onclick="openModalById(\''+esc(c.id)+'\')">'+
       '<div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">'+
         '<span style="font-size:.7rem;color:var(--text3);white-space:nowrap;flex-shrink:0">'+fmtDateCourt(c.arrivee)+'</span>'+
-        '<span style="font-size:.78rem;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc([c.prenom,c.nom].filter(Boolean).join(' ')||'\u2014')+'</span>'+
+        '<span style="font-size:.78rem;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc([c.prenom,c.nom].filter(Boolean).join(' ')||'—')+'</span>'+
         '<span class="maison-pill '+getMC(c.maison)+'" style="flex-shrink:0;font-size:.55rem">'+esc(c.maison||'')+'</span>'+
       '</div>'+
       '<span style="font-size:.78rem;font-weight:600;color:var(--text);flex-shrink:0;margin-left:8px">'+fmtPrix(c.taxe)+'</span>'+
