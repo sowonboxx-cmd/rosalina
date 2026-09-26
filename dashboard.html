@@ -350,6 +350,15 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
 .divers-copy{background:var(--bg2);border:1px solid var(--border);border-radius:7px;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:all .15s;flex-shrink:0;}
 .divers-copy:hover{border-color:var(--text2);color:var(--text);}
 .divers-copy.copied{background:var(--green);border-color:var(--green);color:#fff;}
+/* DIVERS MODAL */
+.divers-list{display:flex;flex-direction:column;gap:8px;}
+.divers-item{display:flex;align-items:stretch;gap:8px;}
+.divers-link{flex:1;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg2);text-decoration:none;color:var(--text);transition:all .15s;min-width:0;}
+.divers-link:hover{border-color:var(--rose);background:var(--card);}
+.divers-link-icon{font-size:1.2rem;flex-shrink:0;width:24px;text-align:center;}
+.divers-link-label{font-size:.85rem;font-weight:600;flex:1;min-width:0;}
+.divers-link-arrow{color:var(--text3);font-size:.9rem;flex-shrink:0;}
+.divers-item .divers-copy{width:44px;height:auto;border-radius:10px;border-width:1.5px;}
 /* CHART TOOLTIP */
 .chart-tooltip{position:fixed;z-index:500;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-size:.75rem;font-weight:600;color:var(--text);box-shadow:0 4px 16px rgba(0,0,0,.15);pointer-events:none;display:none;white-space:nowrap;}
 .chart-tooltip.visible{display:block;}
@@ -383,7 +392,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
     <button class="subnav-tab active" onclick="showView('dashboard',this)">Accueil</button>
     <button class="subnav-tab" onclick="showView('cal',this)">Calendrier</button>
     <button class="subnav-tab" onclick="showView('stats',this)">Stats</button>
-    <button class="subnav-tab" onclick="showView('divers',this)">Divers</button>
+    <button class="subnav-tab" onclick="openDiversModal()">Divers</button>
     <button class="subnav-refresh" onclick="loadData()" id="refresh-btn">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
       Actualiser
@@ -529,19 +538,6 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
     </div>
   </div>
 
-<!-- DIVERS VIEW -->
-<div id="divers-view" style="display:none;padding:8px 0">
-  <div style="background:var(--card);border-radius:var(--r2);border:1px solid var(--border);overflow:hidden">
-    <div style="padding:14px 18px 10px;font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)">Liens utiles</div>
-    <div class="divers-row"><span class="divers-label">Suivi des heures de ménage</span><div class="divers-btns"><a class="divers-open" href="menage.html" target="_blank">Ouvrir</a></div></div>
-    <div class="divers-row"><span class="divers-label">Liste de tâches (Todo)</span><div class="divers-btns"><a class="divers-open" href="todo.html" target="_blank">Ouvrir</a></div></div>
-    <div class="divers-row"><span class="divers-label">Planning des maisons (site)</span><div class="divers-btns"><a class="divers-open" href="https://domainerosalina.com/planning" target="_blank">Ouvrir</a><button class="divers-copy" onclick="diversCopy('https://domainerosalina.com/planning',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-    <div class="divers-row"><span class="divers-label">Plan des chambres</span><div class="divers-btns"><a class="divers-open" href="https://sowonboxx-cmd.github.io/rosalina/plan_chambres.html" target="_blank">Ouvrir</a><button class="divers-copy" onclick="diversCopy('https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-    <div class="divers-row"><span class="divers-label">Plan des chambres (asso)</span><div class="divers-btns"><a class="divers-open" href="https://domainerosalina.com/wp-content/uploads/2025/11/Page-Maison-%E2%80%93-Desktop-Chambres-Pop-up-Rosalina-Associations-scaled.png" target="_blank">Ouvrir</a><button class="divers-copy" onclick="diversCopy('https://domainerosalina.com/wp-content/uploads/2025/11/Page-Maison-%E2%80%93-Desktop-Chambres-Pop-up-Rosalina-Associations-scaled.png',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-    <div class="divers-row" style="border-bottom:none"><span class="divers-label">Factures Wannapay</span><div class="divers-btns"><a class="divers-open" href="https://www.dropbox.com/scl/fo/qeevfa27clk2b6oa65fqd/AFu1wneuRlfq5YXpRSdrivs?rlkey=es4asda7n1mq0l340o0tsttap&st=mdvsi2hv&dl=0" target="_blank">Ouvrir</a><button class="divers-copy" onclick="diversCopy('https://www.dropbox.com/scl/fo/qeevfa27clk2b6oa65fqd/AFu1wneuRlfq5YXpRSdrivs?rlkey=es4asda7n1mq0l340o0tsttap&st=mdvsi2hv&dl=0',this)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></div>
-  </div>
-</div>
-
 </main>
 
 <!-- REMIND MODAL (solde / caution) -->
@@ -593,6 +589,39 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
       </a>
     </div>
     <div class="devis-modal-close" onclick="closeDevisModal()">Annuler</div>
+  </div>
+</div>
+
+<!-- DIVERS MODAL -->
+<div class="devis-modal-overlay" id="divers-modal-overlay" onclick="if(event.target===this)closeDiversModal()">
+  <div class="devis-modal">
+    <div class="devis-modal-title">Liens utiles</div>
+    <div class="devis-modal-sub">Accès rapide aux outils et documents</div>
+    <div class="divers-list">
+      <div class="divers-item">
+        <a class="divers-link" href="menage.html" target="_blank" onclick="closeDiversModal()"><span class="divers-link-icon">🧹</span><span class="divers-link-label">Suivi des heures de ménage</span><span class="divers-link-arrow">&#8599;</span></a>
+      </div>
+      <div class="divers-item">
+        <a class="divers-link" href="todo.html" target="_blank" onclick="closeDiversModal()"><span class="divers-link-icon">✅</span><span class="divers-link-label">Liste de tâches (Todo)</span><span class="divers-link-arrow">&#8599;</span></a>
+      </div>
+      <div class="divers-item">
+        <a class="divers-link" href="https://domainerosalina.com/planning" target="_blank" onclick="closeDiversModal()"><span class="divers-link-icon">📅</span><span class="divers-link-label">Planning des maisons (site)</span><span class="divers-link-arrow">&#8599;</span></a>
+        <button class="divers-copy" title="Copier le lien" onclick="diversCopy('https://domainerosalina.com/planning',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+      </div>
+      <div class="divers-item">
+        <a class="divers-link" href="https://sowonboxx-cmd.github.io/rosalina/plan_chambres.html" target="_blank" onclick="closeDiversModal()"><span class="divers-link-icon">🛏️</span><span class="divers-link-label">Plan des chambres</span><span class="divers-link-arrow">&#8599;</span></a>
+        <button class="divers-copy" title="Copier le lien" onclick="diversCopy('https://domainerosalina.com/wp-content/uploads/2026/01/Disposition-chambres-WC-Salle-deau-Desktop-x4-scaled.png',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+      </div>
+      <div class="divers-item">
+        <a class="divers-link" href="https://domainerosalina.com/wp-content/uploads/2025/11/Page-Maison-%E2%80%93-Desktop-Chambres-Pop-up-Rosalina-Associations-scaled.png" target="_blank" onclick="closeDiversModal()"><span class="divers-link-icon">🏡</span><span class="divers-link-label">Plan des chambres (asso)</span><span class="divers-link-arrow">&#8599;</span></a>
+        <button class="divers-copy" title="Copier le lien" onclick="diversCopy('https://domainerosalina.com/wp-content/uploads/2025/11/Page-Maison-%E2%80%93-Desktop-Chambres-Pop-up-Rosalina-Associations-scaled.png',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+      </div>
+      <div class="divers-item">
+        <a class="divers-link" href="https://www.dropbox.com/scl/fo/qeevfa27clk2b6oa65fqd/AFu1wneuRlfq5YXpRSdrivs?rlkey=es4asda7n1mq0l340o0tsttap&st=mdvsi2hv&dl=0" target="_blank" onclick="closeDiversModal()"><span class="divers-link-icon">🧾</span><span class="divers-link-label">Factures Wannapay</span><span class="divers-link-arrow">&#8599;</span></a>
+        <button class="divers-copy" title="Copier le lien" onclick="diversCopy('https://www.dropbox.com/scl/fo/qeevfa27clk2b6oa65fqd/AFu1wneuRlfq5YXpRSdrivs?rlkey=es4asda7n1mq0l340o0tsttap&st=mdvsi2hv&dl=0',this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+      </div>
+    </div>
+    <div class="devis-modal-close" onclick="closeDiversModal()">Fermer</div>
   </div>
 </div>
 
@@ -1262,6 +1291,8 @@ function diversCopy(url,btn){
 
 function openDevisModal(){document.getElementById('devis-modal-overlay').classList.add('open');}
 function closeDevisModal(){document.getElementById('devis-modal-overlay').classList.remove('open');}
+function openDiversModal(){document.getElementById('divers-modal-overlay').classList.add('open');}
+function closeDiversModal(){document.getElementById('divers-modal-overlay').classList.remove('open');}
 
 // ── ALERTES RAPPEL PAIEMENT ──
 let remindClient=null, remindType=null;
@@ -1468,7 +1499,7 @@ function onSearchInput(q){
   }).join('');
 }
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeSearch();closeModal();}
+  if(e.key==='Escape'){closeSearch();closeModal();closeDiversModal();closeDevisModal();}
   if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();toggleSearch();}
 });
 
