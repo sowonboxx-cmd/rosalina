@@ -712,6 +712,8 @@ function getSaison(date){const m=date.getMonth()+1,d=date.getDate();if(m>=4&&m<=
 // Prix spéciaux par date précise (prioritaires sur la saison) — format 'AAAA-MM-JJ' : prix
 const PRIX_SPECIAUX={
   ROSALINA:{'2026-12-30':1400,'2026-12-31':1400},
+  ROSA:{'2026-12-30':1200,'2026-12-31':1200},
+  LINA:{'2026-12-30':600,'2026-12-31':600},
 };
 function getPrixNuit(maison,date){
   const M=(maison||'ROSALINA').toUpperCase();
