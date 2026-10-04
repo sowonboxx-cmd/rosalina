@@ -288,9 +288,9 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
     <table class="grille-table" id="grille-table">
       <thead><tr><th>Maison</th><th>Prix / nuit</th><th>Ménage</th><th>Taxe / adulte / nuit</th></tr></thead>
       <tbody>
-        <tr><td>ROSALINA</td><td class="v" data-grille="ROSALINA">1 100 – 1 200 €</td><td class="v">300 €</td><td class="v">1,65 €</td></tr>
-        <tr><td>ROSA</td><td class="v" data-grille="ROSA">900 – 1 000 €</td><td class="v">250 €</td><td class="v">1,65 €</td></tr>
-        <tr><td>LINA</td><td class="v" data-grille="LINA">400 – 500 €</td><td class="v">150 €</td><td class="v">1,65 €</td></tr>
+        <tr><td>ROSALINA</td><td class="v" data-grille="ROSALINA">1 100 – 1 200 €</td><td class="v" data-menage="ROSALINA">300 €</td><td class="v" data-taxe>1,65 €</td></tr>
+        <tr><td>ROSA</td><td class="v" data-grille="ROSA">900 – 1 000 €</td><td class="v" data-menage="ROSA">250 €</td><td class="v" data-taxe>1,65 €</td></tr>
+        <tr><td>LINA</td><td class="v" data-grille="LINA">400 – 500 €</td><td class="v" data-menage="LINA">150 €</td><td class="v" data-taxe>1,65 €</td></tr>
       </tbody>
     </table>
     <p style="font-size:.62rem;color:#bbb;text-align:center;margin-top:8px">Basse – haute saison · Prix spéciaux appliqués automatiquement · Taxe de séjour adultes uniquement</p>
@@ -370,7 +370,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
 
 </div>
 
-<script src="tarifs.js?v=20261004"></script>
+<script src="tarifs.js?v=20261004b"></script>
 <script>
 // ── THEME (identique dashboard) ──
 let theme=localStorage.getItem('dash_theme')||'dark';
@@ -386,10 +386,12 @@ function toggleTheme(){theme=theme==='dark'?'light':'dark';localStorage.setItem(
 // ── SAISONNALITÉ ──
 const TARIFS_S=TARIFS; // depuis tarifs.js
 document.querySelectorAll('[data-grille]').forEach(td=>{const t=TARIFS[td.dataset.grille];td.textContent=t.basse.toLocaleString('fr-FR')+' – '+t.haute.toLocaleString('fr-FR')+' €';});
+document.querySelectorAll('[data-menage]').forEach(td=>td.textContent=fmtTarif(MENAGE[td.dataset.menage]));
+document.querySelectorAll('[data-taxe]').forEach(td=>td.textContent=fmtTarif(TAXE_SEJOUR));
 
 // ══ CONFIG ══
 const MAISONS = {
-  ROSALINA:{ menage:300, taxe:1.65, max:38,
+  ROSALINA:{ menage:MENAGE.ROSALINA, taxe:TAXE_SEJOUR, max:38,
     lien:'https://domainerosalina.com/maison-rosalina',
     body:`Informations pratiques :
 • Draps et serviettes fournis et inclus dans le prix
@@ -403,7 +405,7 @@ Pour plus d'informations, n'hésitez pas à nous contacter par email : domainero
 
 Bien cordialement,
 Aline et Eugène` },
-  ROSA:    { menage:250, taxe:1.65, max:24,
+  ROSA:    { menage:MENAGE.ROSA, taxe:TAXE_SEJOUR, max:24,
     lien:'https://domainerosalina.com/maison-rosa',
     body:`Informations pratiques :
 • Draps et serviettes fournis et inclus dans le prix
@@ -417,7 +419,7 @@ Pour plus d'informations, n'hésitez pas à nous contacter par email : domainero
 
 Bien cordialement,
 Aline et Eugène` },
-  LINA:    { menage:150, taxe:1.65, max:14,
+  LINA:    { menage:MENAGE.LINA, taxe:TAXE_SEJOUR, max:14,
     lien:'https://domainerosalina.com/maison-lina',
     body:`Informations pratiques :
 • Draps et serviettes fournis et inclus dans le prix

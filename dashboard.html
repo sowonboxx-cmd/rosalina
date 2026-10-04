@@ -483,11 +483,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
             <th style="background:var(--green);color:#fff;padding:8px 10px;text-align:left;font-size:.62rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase">Taxe</th>
           </tr>
         </thead>
-        <tbody>
-          <tr><td style="padding:10px;border-bottom:1px solid var(--border);color:var(--rosalina-c);font-weight:700;font-size:.78rem">ROSALINA</td><td style="padding:10px;border-bottom:1px solid var(--border);font-weight:600;color:var(--text);font-size:.78rem">1 100 €</td><td style="padding:10px;border-bottom:1px solid var(--border);font-weight:600;color:var(--text);font-size:.78rem">1 200 €</td><td style="padding:10px;border-bottom:1px solid var(--border);font-weight:600;color:var(--text);font-size:.78rem">300 €</td><td style="padding:10px;border-bottom:1px solid var(--border);font-weight:600;color:var(--text);font-size:.78rem">1,65 €</td></tr>
-          <tr><td style="padding:10px;border-bottom:1px solid var(--border);color:var(--rosa-c);font-weight:700;font-size:.78rem">ROSA</td><td style="padding:10px;border-bottom:1px solid var(--border);font-weight:600;color:var(--text);font-size:.78rem">900 €</td><td style="padding:10px;border-bottom:1px solid var(--border);font-weight:600;color:var(--text);font-size:.78rem">1 000 €</td><td style="padding:10px;border-bottom:1px solid var(--border);font-weight:600;color:var(--text);font-size:.78rem">250 €</td><td style="padding:10px;border-bottom:1px solid var(--border);font-weight:600;color:var(--text);font-size:.78rem">1,65 €</td></tr>
-          <tr><td style="padding:10px;color:var(--lina-c);font-weight:700;font-size:.78rem">LINA</td><td style="padding:10px;font-weight:600;color:var(--text);font-size:.78rem">400 €</td><td style="padding:10px;font-weight:600;color:var(--text);font-size:.78rem">500 €</td><td style="padding:10px;font-weight:600;color:var(--text);font-size:.78rem">150 €</td><td style="padding:10px;font-weight:600;color:var(--text);font-size:.78rem">1,65 €</td></tr>
-        </tbody>
+        <tbody id="grille-tarifs"></tbody>
       </table>
       <div style="display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:10px;font-size:.62rem;color:var(--text3)">
         <span><strong style="color:var(--text2)">Basse</strong> : 05 jan → 31 mar · 01 sep → 21 déc</span>
@@ -690,7 +686,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
   </div>
 </div>
 
-<script src="tarifs.js?v=20261004"></script>
+<script src="tarifs.js?v=20261004b"></script>
 <script>
 const DB_ID='249a8c29d0568122a40ccf7180e98935';
 const WORKER='https://notion-proxy.sowonboxx.workers.dev';
@@ -708,7 +704,18 @@ const STATUTS=[
 ];
 const CUR_YEAR=new Date().getFullYear();
 // ══ SAISONNALITÉ ══
-// Tarifs, saisons et prix spéciaux : voir tarifs.js (partagé avec les devis)
+// Tarifs, saisons, prix spéciaux, ménage, taxe, caution : voir tarifs.js (partagé avec les devis)
+(function renderGrilleTarifs(){
+  const tb=document.getElementById('grille-tarifs');if(!tb)return;
+  const cols={ROSALINA:'var(--rosalina-c)',ROSA:'var(--rosa-c)',LINA:'var(--lina-c)'};
+  const keys=['ROSALINA','ROSA','LINA'];
+  tb.innerHTML=keys.map((k,i)=>{
+    const bd=i<keys.length-1?'border-bottom:1px solid var(--border);':'';
+    const td=v=>'<td style="padding:10px;'+bd+'font-weight:600;color:var(--text);font-size:.78rem">'+v+'</td>';
+    return '<tr><td style="padding:10px;'+bd+'color:'+cols[k]+';font-weight:700;font-size:.78rem">'+k+'</td>'+
+      td(fmtTarif(TARIFS[k].basse))+td(fmtTarif(TARIFS[k].haute))+td(fmtTarif(MENAGE[k]))+td(fmtTarif(TAXE_SEJOUR))+'</tr>';
+  }).join('');
+})();
 function fmtPrixCourt(n){return Number(n).toLocaleString('fr-FR')+' €';}
 
 let allClients=[],modalClient=null,sortAsc=true,selectedYear='upcoming';
@@ -1310,7 +1317,7 @@ function openRemind(type,id){
   const arr=c.arrivee?fmtLong(c.arrivee):'votre date d\'arrivée';
   const solde=c.prix?fmtPrix(Number(c.prix)/2):'le solde';
   const maisonNom=c.maison?.toUpperCase()==='ROSALINA'?'au Domaine Rosalina':c.maison?.toUpperCase()==='ROSA'?'à la Maison Rosa':'à la Maison Lina';
-  const cautionMontant=c.maison?.toUpperCase()==='ROSALINA'?'1 500 €':c.maison?.toUpperCase()==='ROSA'?'1 000 €':'600 €';
+  const cautionMontant=fmtTarif(CAUTION[c.maison?.toUpperCase()==='ROSALINA'?'ROSALINA':c.maison?.toUpperCase()==='ROSA'?'ROSA':'LINA']);
   const cautionLink=c.maison?.toUpperCase()==='ROSALINA'?'https://wannapay.fr/d/67ac70c56c401':c.maison?.toUpperCase()==='ROSA'?'https://wannapay.fr/d/6835a0eff0a9f':'https://wannapay.fr/d/6835a0a1ca8ed';
   const isBooking=(c.source||'').toLowerCase().includes('booking');
 

@@ -453,7 +453,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
 
 </div><!-- /form-body -->
 
-<script src="tarifs.js?v=20261004"></script>
+<script src="tarifs.js?v=20261004b"></script>
 <script>
 // ══ SAISONNALITÉ ══
 // Tarifs, saisons et prix spéciaux : voir tarifs.js (partagé avec le dashboard)
@@ -494,11 +494,11 @@ function resetPrixAuto(){
 
 // ══ CONFIG ══
 const MAISONS = {
-  'rosa-lina':{ label:'ROSALINA', detail:'38 voyageurs, 15 chambres, 12 salles d\'eau', maxA:45, caution:1500, menage:300, notion:'ROSALINA' },
-  'rosa':     { label:'ROSA', detail:'24 voyageurs, 10 chambres, 7 salles d\'eau',  maxA:30, caution:1000, menage:250, notion:'ROSA' },
-  'lina':     { label:'LINA', detail:'14 voyageurs, 5 chambres, 4 salles d\'eau',   maxA:15, caution:600,  menage:150, notion:'LINA' },
+  'rosa-lina':{ label:'ROSALINA', detail:'38 voyageurs, 15 chambres, 12 salles d\'eau', maxA:45, caution:CAUTION.ROSALINA, menage:MENAGE.ROSALINA, notion:'ROSALINA' },
+  'rosa':     { label:'ROSA', detail:'24 voyageurs, 10 chambres, 7 salles d\'eau',  maxA:30, caution:CAUTION.ROSA, menage:MENAGE.ROSA, notion:'ROSA' },
+  'lina':     { label:'LINA', detail:'14 voyageurs, 5 chambres, 4 salles d\'eau',   maxA:15, caution:CAUTION.LINA,  menage:MENAGE.LINA, notion:'LINA' },
 };
-const TAXE_RATE = 1.65;
+const TAXE_RATE = TAXE_SEJOUR; // depuis tarifs.js
 const MOIS_FR   = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 const MOIS_LONG = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 const JOURS_FR  = ['L','M','M','J','V','S','D'];
@@ -783,7 +783,7 @@ function calcAll(){
   document.getElementById('taxe').value=taxeOffert?'0.00':taxeAuto.toFixed(2);
   document.getElementById('taxe-hint').textContent=
     taxeOffert?'✓ Taxe de séjour offerte':
-    (adultes>0&&nuits>0?`${adultes} adulte${adultes>1?'s':''} × ${nuits} nuit${nuits>1?'s':''} × 1,65 € = ${fmt(taxeAuto)}`:
+    (adultes>0&&nuits>0?`${adultes} adulte${adultes>1?'s':''} × ${nuits} nuit${nuits>1?'s':''} × ${fmtTarif(TAXE_SEJOUR)} = ${fmt(taxeAuto)}`:
     '');
 
   const menageOffert=document.getElementById('menage-offert').checked;
@@ -913,7 +913,7 @@ function generatePDF(){
   }
 
   // Taxe detail
-  const taxeDetailStr=(!taxeOffert&&nA>0&&nNuits>0)?`<span style="font-size:7.5pt;color:#888">(${nA} adulte${nA>1?'s':''} × ${nNuits} nuit${nNuits>1?'s':''} × 1,65 €)</span>`:'';
+  const taxeDetailStr=(!taxeOffert&&nA>0&&nNuits>0)?`<span style="font-size:7.5pt;color:#888">(${nA} adulte${nA>1?'s':''} × ${nNuits} nuit${nNuits>1?'s':''} × ${fmtTarif(TAXE_SEJOUR)})</span>`:'';
   const taxeValStr=taxeOffert?'Offert — 0 €':fmt(taxe);
   const menageValStr=menageOffert?'Offert — 0 €':fmt(menage);
 
@@ -1054,7 +1054,7 @@ table.fin tr:last-child td{border-bottom:none}
   <thead><tr><th>Description</th><th>Montant</th></tr></thead>
   <tbody>
     <tr class="row-prix"><td>Prix du séjour</td><td class="fv">${fmt(prix)}</td></tr>
-    <tr><td>Taxe de séjour${!taxeOffert&&nA>0&&nNuits>0?' <span style="font-size:7pt;color:#aaa">('+nA+' adulte'+(nA>1?'s':'')+' × '+nNuits+' nuit'+(nNuits>1?'s':'')+' × 1,65 €)</span>':''}</td><td class="fv">${taxeValStr}</td></tr>
+    <tr><td>Taxe de séjour${!taxeOffert&&nA>0&&nNuits>0?' <span style="font-size:7pt;color:#aaa">('+nA+' adulte'+(nA>1?'s':'')+' × '+nNuits+' nuit'+(nNuits>1?'s':'')+' × '+fmtTarif(TAXE_SEJOUR)+')</span>':''}</td><td class="fv">${taxeValStr}</td></tr>
     <tr class="row-alt"><td>Ménage</td><td class="fv">${menageValStr}</td></tr>
     ${rowReducHtml}
     <tr class="row-sub"><td>Arrhes (50%)</td><td class="fv">${fmt(arrhes)}</td></tr>
