@@ -453,11 +453,11 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
 
 </div><!-- /form-body -->
 
+<script src="tarifs.js?v=20261004"></script>
 <script>
 // ══ SAISONNALITÉ ══
-const TARIFS_SAISON={'rosa-lina':{basse:1100,haute:1200},'rosa':{basse:900,haute:1000},'lina':{basse:400,haute:500}};
-function getSaison(date){const m=date.getMonth()+1,d=date.getDate();if(m>=4&&m<=8)return'haute';if(m===12&&d>=22)return'haute';if(m===1&&d<=4)return'haute';return'basse';}
-function getPrixNuitS(maison,date){const s=getSaison(date);return(TARIFS_SAISON[maison]||TARIFS_SAISON['rosa-lina'])[s];}
+// Tarifs, saisons et prix spéciaux : voir tarifs.js (partagé avec le dashboard)
+function getPrixNuitS(maison,date){return getPrixNuit(maison,date);}
 function autoFillPrix(){
   const dE=CAL.entree.date,dS=CAL.sortie.date;
   const input=document.getElementById('prix-sejour');

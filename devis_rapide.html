@@ -288,12 +288,12 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
     <table class="grille-table" id="grille-table">
       <thead><tr><th>Maison</th><th>Prix / nuit</th><th>Ménage</th><th>Taxe / adulte / nuit</th></tr></thead>
       <tbody>
-        <tr><td>ROSALINA</td><td class="v">1 100 – 1 200 €</td><td class="v">300 €</td><td class="v">1,65 €</td></tr>
-        <tr><td>ROSA</td><td class="v">900 – 1 000 €</td><td class="v">250 €</td><td class="v">1,65 €</td></tr>
-        <tr><td>LINA</td><td class="v">400 – 500 €</td><td class="v">150 €</td><td class="v">1,65 €</td></tr>
+        <tr><td>ROSALINA</td><td class="v" data-grille="ROSALINA">1 100 – 1 200 €</td><td class="v">300 €</td><td class="v">1,65 €</td></tr>
+        <tr><td>ROSA</td><td class="v" data-grille="ROSA">900 – 1 000 €</td><td class="v">250 €</td><td class="v">1,65 €</td></tr>
+        <tr><td>LINA</td><td class="v" data-grille="LINA">400 – 500 €</td><td class="v">150 €</td><td class="v">1,65 €</td></tr>
       </tbody>
     </table>
-    <p style="font-size:.62rem;color:#bbb;text-align:center;margin-top:8px">Tarifs 2026–2027 · Même prix toute l'année · Taxe de séjour adultes uniquement</p>
+    <p style="font-size:.62rem;color:#bbb;text-align:center;margin-top:8px">Basse – haute saison · Prix spéciaux appliqués automatiquement · Taxe de séjour adultes uniquement</p>
   </div>
 
   <!-- 2. TARIFICATION -->
@@ -370,6 +370,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);min-height:100vh;padding
 
 </div>
 
+<script src="tarifs.js?v=20261004"></script>
 <script>
 // ── THEME (identique dashboard) ──
 let theme=localStorage.getItem('dash_theme')||'dark';
@@ -383,9 +384,8 @@ function initTheme(){
 function toggleTheme(){theme=theme==='dark'?'light':'dark';localStorage.setItem('dash_theme',theme);initTheme();}
 
 // ── SAISONNALITÉ ──
-const TARIFS_S={ROSALINA:{basse:1100,haute:1200},ROSA:{basse:900,haute:1000},LINA:{basse:400,haute:500}};
-function getSaison(date){const m=date.getMonth()+1,d=date.getDate();if(m>=4&&m<=8)return'haute';if(m===12&&d>=22)return'haute';if(m===1&&d<=4)return'haute';return'basse';}
-function getPrixNuit(maison,date){const s=getSaison(date);return(TARIFS_S[maison?.toUpperCase()]||TARIFS_S.ROSALINA)[s];}
+const TARIFS_S=TARIFS; // depuis tarifs.js
+document.querySelectorAll('[data-grille]').forEach(td=>{const t=TARIFS[td.dataset.grille];td.textContent=t.basse.toLocaleString('fr-FR')+' – '+t.haute.toLocaleString('fr-FR')+' €';});
 
 // ══ CONFIG ══
 const MAISONS = {

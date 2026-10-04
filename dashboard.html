@@ -690,6 +690,7 @@ body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--text);min-he
   </div>
 </div>
 
+<script src="tarifs.js?v=20261004"></script>
 <script>
 const DB_ID='249a8c29d0568122a40ccf7180e98935';
 const WORKER='https://notion-proxy.sowonboxx.workers.dev';
@@ -707,20 +708,7 @@ const STATUTS=[
 ];
 const CUR_YEAR=new Date().getFullYear();
 // ══ SAISONNALITÉ ══
-const TARIFS={ROSALINA:{basse:1100,haute:1200},ROSA:{basse:900,haute:1000},LINA:{basse:400,haute:500}};
-function getSaison(date){const m=date.getMonth()+1,d=date.getDate();if(m>=4&&m<=8)return'haute';if(m===12&&d>=22)return'haute';if(m===1&&d<=4)return'haute';return'basse';}
-// Prix spéciaux par date précise (prioritaires sur la saison) — format 'AAAA-MM-JJ' : prix
-const PRIX_SPECIAUX={
-  ROSALINA:{'2026-12-30':1400,'2026-12-31':1400},
-  ROSA:{'2026-12-30':1200,'2026-12-31':1200},
-  LINA:{'2026-12-30':600,'2026-12-31':600},
-};
-function getPrixNuit(maison,date){
-  const M=(maison||'ROSALINA').toUpperCase();
-  const key=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
-  if(PRIX_SPECIAUX[M]&&PRIX_SPECIAUX[M][key]!=null)return PRIX_SPECIAUX[M][key];
-  const s=getSaison(date);return(TARIFS[M]||TARIFS.ROSALINA)[s];
-}
+// Tarifs, saisons et prix spéciaux : voir tarifs.js (partagé avec les devis)
 function fmtPrixCourt(n){return Number(n).toLocaleString('fr-FR')+' €';}
 
 let allClients=[],modalClient=null,sortAsc=true,selectedYear='upcoming';
